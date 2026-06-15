@@ -1,0 +1,43 @@
+---
+// ===== src/components/TagCloud.astro =====
+// --- CORRECTED: Uses centralized slugify for links ---
+import { getBlogPosts } from '../services/api';
+import type { Locale } from '../i18n';
+import { createPath, slugify } from '../lib/paths'; // <-- IMPORT slugify
+
+interface Props {
+  lang?: Locale;
+}
+const { lang = 'en' } = Astro.props;
+
+const allPosts = await getBlogPosts(lang);
+const allTags = allPosts.flatMap(post => post.tags);
+
+const tagCounts = allTags.reduce((acc, tag) => {
+  acc[tag] = (acc[tag] || 0) + 1;
+  return acc;
+}, {} as Record<string, number>);
+
+const popularTags = Object.entries(tagCounts)
+  .sort(([, a], [, b]) => b - a)
+  .slice(0, 15)
+  .map(([tag]) => tag);
+---
+
+{popularTags.length > 0 && (
+  <div class="sidebar-widget">
+    <h3 class="widget-title">Browse by Tag</h3>
+    <div class="tag-cloud">
+      {popularTags.map(tag => (
+        // CORRECTED LINK
+        <a href={createPath(`/blog/tag/${slugify(tag)}/`, lang)} class="tag-item">
+          {tag}
+        </a>
+      ))}
+    </div>
+  </div>
+)}
+<style>
+/* Styles remain unchanged */
+.sidebar-widget{background:var(--surface);border:1px solid var(--ring);border-radius:16px;padding:20px}.widget-title{margin:0 0 16px;font-size:18px;border-bottom:1px solid var(--ring);padding-bottom:12px}.tag-cloud{display:flex;flex-wrap:wrap;gap:8px}.tag-item{display:inline-block;padding:6px 14px;border-radius:999px;background:var(--surface-2);border:1px solid var(--ring);color:var(--text-secondary);font-size:13px;text-decoration:none;font-weight:600;transition:background-color .2s,color .2s}.tag-item:hover{background:var(--brand-orange);border-color:var(--brand-orange);color:#fff}
+</style>

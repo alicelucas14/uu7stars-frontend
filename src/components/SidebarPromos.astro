@@ -1,0 +1,90 @@
+---
+// ===== src/components/SidebarPromos.astro =====
+
+import { getPromotions } from '../services/api';
+import type { Promotion } from '../services/api';
+import type { Locale } from '../i18n';
+import { createPath } from '../lib/paths';
+
+interface Props {
+  limit?: number;
+  lang?: Locale;
+}
+const { limit = 3, lang = 'en' } = Astro.props;
+
+const promos = await getPromotions(lang);
+const recent = promos.filter(p => p.imageUrl).slice(0, limit);
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+const toAbsolute = (p?: string) => !p ? '' : (p.startsWith('http') ? p : new URL(p, API_BASE_URL).toString());
+---
+{recent.length > 0 && (
+  <div class="sidebar-widget">
+    <h3 class="widget-title">Latest Promotions</h3>
+    <div class="promo-list">
+      {recent.map((promo: Promotion) => (
+        <a href={createPath(`/promotions/${promo.slug}/`, lang)} class="promo-item">
+          <img src={toAbsolute(promo.imageUrl)} alt={`Promotion: ${promo.title}`} width="400" height="250" loading="lazy" />
+          <div class="promo-info">
+            <span class="promo-title">{promo.title}</span>
+            <p class="promo-desc">{promo.description}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+)}
+<style>
+.sidebar-widget {
+  background: var(--surface);
+  border: 1px solid var(--ring);
+  border-radius: 16px;
+  padding: 20px;
+}
+.widget-title {
+  margin: 0 0 16px;
+  font-size: 18px;
+  border-bottom: 1px solid var(--ring);
+  padding-bottom: 12px;
+}
+.promo-list {
+  display: grid;
+  gap: 16px;
+}
+.promo-item {
+  text-decoration: none;
+  display: block;
+  background: var(--surface-2);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--ring);
+  transition: transform .2s, box-shadow .2s;
+}
+.promo-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.promo-item img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.promo-info {
+  padding: 12px;
+}
+.promo-title {
+  font-weight: 700;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 4px;
+}
+.promo-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>

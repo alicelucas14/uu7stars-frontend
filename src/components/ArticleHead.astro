@@ -1,0 +1,61 @@
+---
+// ===== src/components/ArticleHead.astro =====
+// --- CORRECTED: Restored author link using the new robust slugify function ---
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
+import { createPath, slugify } from '../lib/paths';
+
+export interface Props {
+  title: string;
+  publishedAt: string;
+  author: string;
+  tags?: string[];
+  lang?: Locale;
+}
+
+const { title, publishedAt, author, tags = [], lang = 'en' } = Astro.props;
+const t = useTranslations(lang);
+
+const formattedDate = new Date(publishedAt).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', {
+  year: 'numeric', month: 'long', day: 'numeric'
+});
+
+// The author link is now restored and will work correctly for all languages
+const authorUrl = createPath(`/blog/author/${slugify(author)}/`, lang);
+
+const category = tags.length > 0 ? tags[0] : null;
+const otherTags = tags.slice(1);
+---
+<header class="article-head">
+  <div class="meta">
+    {category && (
+      <>
+        <a href={createPath(`/blog/category/${slugify(category)}/`, lang)} class="category-pill">{category}</a>
+        <span aria-hidden="true">•</span>
+      </>
+    )}
+    <time datetime={publishedAt}>{formattedDate}</time>
+    <span aria-hidden="true">•</span>
+    {/* The author is a link again, with correct i18n formatting and URL */}
+    <span>
+      {t('blogPost.byAuthor').replace('{authorName}', '')}
+      <a href={authorUrl} rel="author">{author}</a>
+    </span>
+  </div>
+
+  <h1 class="title">{title}</h1>
+
+  {otherTags.length > 0 && (
+    <div class="tags" aria-label="Tags">
+      {otherTags.map(tag => (
+        <a href={createPath(`/blog/tag/${slugify(tag)}/`, lang)} class="tag">{tag}</a>
+      ))}
+    </div>
+  )}
+</header>
+<style>
+/* Styles are restored to support the link */
+.article-head{padding-block:24px;text-align:center}.meta{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px;font-size:14px;color:var(--text-secondary);margin-bottom:12px}
+.meta a{color:var(--text-secondary);text-decoration:none;font-weight:600}.meta a:hover{color:var(--text-primary);text-decoration:underline}
+.category-pill{display:inline-block;padding:4px 12px;border-radius:999px;background:var(--brand-orange);color:#fff!important;font-size:13px;font-weight:700;text-decoration:none!important;border:1px solid color-mix(in oklab,#000 10%,var(--brand-orange))}.category-pill:hover{background:color-mix(in oklab,var(--brand-orange) 90%,#000)}.title{font-size:clamp(32px,5vw,48px);line-height:1.2;margin-bottom:24px}.tags{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}.tag{display:inline-block;padding:4px 12px;border-radius:999px;background:var(--surface-2);border:1px solid var(--ring);color:var(--text-secondary);font-size:13px;text-decoration:none;font-weight:600}.tag:hover{background:var(--surface);color:var(--text-primary)}
+</style>

@@ -1,0 +1,193 @@
+---
+// ===== src/components/AboutTabs.astro =====
+// --- REFACTORED: Now uses the centralized 'useTranslations' utility ---
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
+
+interface Props {
+  lang?: Locale;
+}
+const { lang = 'en' } = Astro.props as Props;
+const t = useTranslations(lang);
+---
+<section id="about" class="about-section">
+  <div class="container">
+    <div class="about-box">
+      <header class="section-head">
+        {/* UPDATED: Dynamic title */}
+        <h2>{t('aboutTabs.title')}</h2>
+        <div class="intro-text">
+          {/* UPDATED: Dynamic intro paragraphs */}
+          <p set:html={t('aboutTabs.intro1')}></p>
+          <p set:html={t('aboutTabs.intro2')}></p>
+        </div>
+      </header>
+
+      <div class="tabs-accordion-container">
+        {/* Tab 1 */}
+        <details class="accordion-item" open>
+          <summary class="accordion-title">
+            <span class="accordion-title-text">{t('aboutTabs.tab1.title')}</span>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <div class="accordion-content">
+            <h4>{t('aboutTabs.tab1.h1')}</h4>
+            <p set:html={t('aboutTabs.tab1.p1')}></p>
+
+            <h4>{t('aboutTabs.tab1.h2')}</h4>
+            <p set:html={t('aboutTabs.tab1.p2')}></p>
+
+            <h4>{t('aboutTabs.tab1.h3')}</h4>
+            <p set:html={t('aboutTabs.tab1.p3')}></p>
+
+            <h4>{t('aboutTabs.tab1.h4')}</h4>
+            <p set:html={t('aboutTabs.tab1.p4')}></p>
+          </div>
+        </details>
+
+        {/* Tab 2 */}
+        <details class="accordion-item">
+          <summary class="accordion-title">
+            <span class="accordion-title-text">{t('aboutTabs.tab2.title')}</span>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <div class="accordion-content">
+            <p set:html={t('aboutTabs.tab2.p1')}></p>
+
+            <h4>{t('aboutTabs.tab2.h1')}</h4>
+            <p set:html={t('aboutTabs.tab2.p2')}></p>
+
+            <h4>{t('aboutTabs.tab2.h2')}</h4>
+            <p set:html={t('aboutTabs.tab2.p3')}></p>
+          </div>
+        </details>
+
+        {/* Tab 3 */}
+        <details class="accordion-item">
+          <summary class="accordion-title">
+            <span class="accordion-title-text">{t('aboutTabs.tab3.title')}</span>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <div class="accordion-content">
+            <h4>{t('aboutTabs.tab3.h1')}</h4>
+            <p set:html={t('aboutTabs.tab3.p1')}></p>
+
+            <h4>{t('aboutTabs.tab3.h2')}</h4>
+            <p set:html={t('aboutTabs.tab3.p2')}></p>
+
+            <h4>{t('aboutTabs.tab3.h3')}</h4>
+            <p set:html={t('aboutTabs.tab3.p3')}></p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Styles remain unchanged */
+  .about-section {
+    padding-block: 48px;
+    background-color: var(--surface-2); 
+    border-top: 1px solid var(--ring);
+  }
+  
+  .about-section .container { padding-inline: 0; }
+  @media (min-width: 768px) { .about-section .container { padding-inline: 24px; } }
+
+  .about-box {
+    background-color: var(--surface);
+    border: 1px solid var(--ring);
+    border-radius: 24px;
+    padding: 32px;
+  }
+  @media (max-width: 767px) {
+    .about-box {
+      border-radius: 0;
+      border-inline: none;
+      padding-inline: 16px;
+      padding-block: 24px;
+    }
+  }
+
+  .section-head { text-align: center; margin-bottom: 32px; }
+  .section-head h2 { font-size: clamp(24px, 4vw, 36px); margin-bottom: 24px; }
+  .intro-text { margin-inline: auto; text-align: left; color: var(--text-secondary); }
+  .intro-text p { margin-bottom: 1em; }
+  .intro-text p:last-child { margin-bottom: 0; }
+
+  .tabs-accordion-container { display: grid; gap: 12px; }
+  .accordion-item {
+    background: var(--surface-2);
+    border: 1px solid var(--ring);
+    border-radius: 12px;
+    transition: background-color .2s;
+  }
+  .accordion-item[open] { background-color: color-mix(in oklab, var(--surface) 50%, var(--surface-2)); }
+  .accordion-title {
+    list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    gap: 16px; padding: 18px 20px; font-weight: 600; color: var(--text-primary);
+  }
+  .accordion-title-text { flex: 1; max-width: 90%; }
+  .accordion-title::-webkit-details-marker { display: none; }
+  .icon {
+    transition: transform 0.2s; color: var(--brand-orange); stroke: currentColor; stroke-width: 2.5;
+    fill: none; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; width: 20px; height: 20px;
+  }
+  .accordion-item[open] .icon { transform: rotate(180deg); }
+  .accordion-content { padding: 0 20px 20px; color: var(--text-secondary); font-size: 15px; }
+  .accordion-content h4 { color: var(--text-primary); margin-bottom: 8px; margin-top: 24px; }
+  .accordion-content h4:first-child { margin-top: 0; }
+  .accordion-content p { margin-bottom: 16px; }
+
+  @media (min-width: 768px) {
+    .tabs-accordion-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .accordion-item {
+      flex: 1 1 200px;
+      border: none;
+      background: none;
+      border-radius: 0;
+    }
+    .accordion-title {
+      padding: 14px 20px; font-size: 15px; font-weight: 600; border-radius: 8px;
+      border: 1px solid var(--ring); background-color: var(--surface-2);
+      color: var(--text-secondary); transition: background-color 0.2s, color 0.2s;
+    }
+    .icon { display: none; }
+    .accordion-item[open] > .accordion-title {
+      background-color: var(--brand-orange);
+      color: #ffffff;
+      border-color: var(--brand-orange);
+      font-weight: 700;
+    }
+    .accordion-content { display: none; }
+    .accordion-item[open] {
+      flex-basis: 100%;
+      order: 99;
+    }
+    .accordion-item[open] > .accordion-content {
+      display: block;
+      background-color: var(--surface-2);
+      border: 1px solid var(--ring);
+      border-radius: 8px;
+      padding: 32px;
+      margin-top: 8px;
+    }
+  }
+</style>
+
+<script>
+  // Script remains unchanged
+  const details = document.querySelectorAll('.accordion-item');
+  details.forEach(targetDetail => {
+    targetDetail.addEventListener('click', () => {
+      details.forEach(detail => {
+        if (detail !== targetDetail) detail.removeAttribute('open');
+      });
+    });
+  });
+</script>

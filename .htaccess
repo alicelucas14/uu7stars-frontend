@@ -1,0 +1,38 @@
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/channe16/starsuu7s"
+PassengerBaseURI "/"
+PassengerNodejs "/home/channe16/nodevenv/starsuu7s/22/bin/node"
+PassengerAppType node
+PassengerStartupFile dist/server/entry.mjs
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+# ===================================================================
+#   CORRECT .HTACCESS FOR ASTRO SSR ON CPANEL (NODE.JS + PASSENGER)
+# ===================================================================
+# -------------------------------------------------------------------
+#   URL REWRITING RULES
+# -------------------------------------------------------------------
+# Enable the rewrite engine
+RewriteEngine On
+# 1. Force HTTPS and non-www
+# This redirects http://, http://www., and https://www. to https://
+RewriteCond %{HTTP_HOST} ^www\. [NC,OR]
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} ^(?:www\.)?(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [L,NE,R=301]
+# 2. Front-Controller Rule for SSR
+# This is the most important part.
+# If the requested path is NOT an existing file on the server...
+RewriteCond %{REQUEST_FILENAME} !-f
+# And if it's NOT an existing directory...
+RewriteCond %{REQUEST_FILENAME} !-d
+# Then let Passenger/Node.js handle the request.
+# The '-' means "don't rewrite the URL", just pass it through.
+# The [L] flag means "stop processing any more rules".
+RewriteRule ^(.*)$ - [L]
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION BEGIN
+<IfModule Litespeed>
+SetEnv BACKEND_API_KEY 6LrCMp28fobMTO1vSktb1wOK29WyGi25
+SetEnv PUBLIC_API_BASE_URL https://admin.starsuu7game.com
+SetEnv PUBLIC_POSTS_PER_PAGE 13
+</IfModule>
+# DO NOT REMOVE OR MODIFY. CLOUDLINUX ENV VARS CONFIGURATION END

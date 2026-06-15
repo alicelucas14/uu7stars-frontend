@@ -1,0 +1,103 @@
+---
+// ===== src/pages/hi/blog/tag/[tag].astro =====
+// --- CORRECTED: Now parses Markdown in excerpts ---
+import { marked } from 'marked';
+import Base from '../../../../layouts/Base.astro';
+import Header from '../../../../components/Header.astro';
+import Footer from '../../../../components/Footer.astro';
+import MobileAppShell from '../../../../components/MobileAppShell.astro';
+import { getBlogPosts } from '../../../../services/api';
+import type { BlogPostListItem } from '../../../../services/api';
+import { slugify } from '../../../../lib/paths';
+
+// This is an SSR page, getStaticPaths is removed.
+
+const locale: 'hi' = 'hi';
+const { tag: tagSlug } = Astro.params;
+
+const allPosts = await getBlogPosts(locale);
+
+const filteredPosts = allPosts.filter(post => 
+  post.tags.map(t => slugify(t)).includes(tagSlug!)
+);
+
+const tagName = filteredPosts.length > 0 
+  ? filteredPosts[0].tags.find(t => slugify(t) === tagSlug) || tagSlug
+  : tagSlug;
+
+const pageTitle = `"${tagName}" टैग की गईं पोस्ट | Starsuu7 ब्लॉग`;
+const pageDescription = `Starsuu7 ब्लॉग पर "${tagName}" टैग किए गए सभी ब्लॉग पोस्ट और लेख खोजें।`;
+const h1 = `टैग: ${tagName}`;
+const canonical = new URL(`/hi/blog/tag/${tagSlug}/`, Astro.site).toString();
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+const toAbsolute = (p?: string) => !p ? '' : (p.startsWith('http') ? p : new URL(p, API_BASE_URL).toString());
+const formatDate = (date: string) => new Date(date).toLocaleDateString('hi-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+<Base title={pageTitle} description={pageDescription} canonical={canonical} lang={locale}>
+
+  <div class="desktop-layout"><Header lang={locale} /></div>
+  <div class="mobile-layout"><MobileAppShell title={h1} active="blog" lang={locale} showBack={true} /></div>
+
+  <main class="blog-archive-page">
+    <div class="container">
+      <header class="page-header">
+        <p class="archive-type">ब्लॉग आर्काइव</p>
+        <h1>{h1}</h1>
+      </header>
+
+      {filteredPosts.length > 0 ? (
+        <div class="post-grid">
+          {filteredPosts.map(async (post: BlogPostListItem) => {
+            const postUrl = `/hi/blog/${post.slug}/`;
+            return (
+              <article class="post-card">
+                <a href={postUrl} class="card-image-link" aria-label={`पढ़ें: ${post.title}`}>
+                  <img src={toAbsolute(post.image)} alt={`के लिए विशेष रुप से प्रदर्शित छवि ${post.title}`} loading="lazy" width="400" height="250" class="card-image" />
+                </a>
+                <div class="card-content">
+                  <p class="card-meta"><time datetime={post.publishedAt}>{formatDate(post.publishedAt)}</time></p>
+                  <h2 class="card-title"><a href={postUrl}>{post.title}</a></h2>
+                  <div class="card-excerpt prose-excerpt" set:html={await marked.parse(post.excerpt || '')} />
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <p>इस टैग के लिए कोई पोस्ट नहीं मिली।</p>
+      )}
+    </div>
+  </main>
+  
+  <Footer lang={locale} />
+</Base>
+
+<style>
+  /* Styles are identical to English version */
+  .desktop-layout { display: none; } .mobile-layout { display: block; } @media (min-width: 768px) { .desktop-layout { display: block; } .mobile-layout { display: none; } }
+  .blog-archive-page { padding-block: 48px; }
+  @media (max-width: 767px) { .blog-archive-page { padding-block: 24px; } .mobile-layout + .blog-archive-page { padding-top: 0; } }
+  .page-header { text-align: center; margin-bottom: 36px; }
+  .archive-type { color: var(--brand-orange); font-weight: 700; margin-bottom: 8px; }
+  .page-header h1 { font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px; text-transform: capitalize; }
+  .post-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; }
+  @media (max-width: 767px) { .post-grid { grid-template-columns: 1fr; gap: 24px; } }
+  .post-card { background-color: var(--surface); border: 1px solid var(--ring); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-md); transition: transform .2s ease-out, box-shadow .2s ease-out; display: flex; flex-direction: column; }
+  .post-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+  .card-image-link { display: block; }
+  .card-image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  .card-content { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
+  .card-meta { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+  .card-title { font-size: 18px; margin-bottom: 8px; }
+  .card-title a { color: var(--text-primary); text-decoration: none; }
+  .card-title a:hover { color: var(--brand-orange); }
+  .card-excerpt { font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin: 0; flex-grow: 1; }
+
+  /* STYLES FOR PARSED EXCERPT */
+  .prose-excerpt { font-size: 14px; line-height: 1.6; }
+  .prose-excerpt :global(p) { margin: 0 0 1em; color: var(--text-secondary); }
+  .prose-excerpt :global(p:last-child) { margin-bottom: 0; }
+  .prose-excerpt :global(h1), .prose-excerpt :global(h2), .prose-excerpt :global(h3), .prose-excerpt :global(h4) { font-size: 1em; font-weight: 600; color: var(--text-primary); margin: 0; }
+  .prose-excerpt :global(strong) { font-weight: 700; color: var(--text-primary); }
+</style>

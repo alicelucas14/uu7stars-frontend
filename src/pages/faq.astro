@@ -1,0 +1,123 @@
+---
+// ===== src/pages/faq.astro =====
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileAppShell from '../components/MobileAppShell.astro';
+import { useTranslations } from '../lib/i18n';
+import type { Locale } from '../i18n';
+
+// Explicitly set locale and get translation function
+const locale: Locale = 'en';
+const t = useTranslations(locale);
+
+// Use translation function for page metadata and mobile accordion data
+const pageTitle = t('faqPage.title');
+const pageDescription = t('faqPage.description');
+const h1 = t('faqPage.h1');
+const mobileIntro = t('faqPage.mobileIntro');
+const faqs: {q: string, a: string}[] = t('faqPage.list');
+const canonical = new URL('/faq/', Astro.site).toString();
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(({ q, a }) => ({
+    "@type": "Question",
+    "name": q,
+    "acceptedAnswer": { "@type": "Answer", "text": a }
+  }))
+};
+---
+
+<Base title={pageTitle} description={pageDescription} canonical={canonical} jsonLd={faqJsonLd}>
+  <div class="desktop-only"><Header lang={locale} /></div>
+  <div class="mobile-only"><MobileAppShell title="FAQ" active="faq" lang={locale} /></div>
+
+  <main id="main" class="faq-page">
+    <div class="container">
+      <h1 class="page-title">{h1}</h1>
+
+      {/* --- DESKTOP LAYOUT (long-form content) --- */}
+      <div class="desktop-layout">
+        <div class="content-box">
+          <section>
+            <h2>1. General Questions</h2>
+            <h3>How do I create an account on Starsuu7 to Play Teen Patti?</h3>
+            <p>To create an account:</p>
+            <ol>
+              <li>Visit the Starsuu7 website and download the game.</li>
+              <li>Fill in the required fields with your personal information.</li>
+              <li>Follow the prompts to complete the registration process.</li>
+            </ol>
+            <h3>What types of games are available on Starsuu7?</h3>
+            <p>Starsuu7 offers a wide variety of games, including:</p>
+            <ul><li>Rummy</li><li>Teen Patti</li><li>Casino Games</li><li>Lotteries</li><li>And more!</li></ul>
+            <p>New games are regularly added to keep the gaming experience exciting.</p>
+            <h3>How to Play Teen Patti</h3>
+            <p>Teen Patti is an exciting Indian card game where each player is dealt three cards face down. The objective is to have the best hand or bluff your opponents to win the pot. If you’re new to the game, check out our Teen Patti tips and tricks for card game lovers to improve your strategy and master the basics.</p>
+            <h3>How to Play Rummy</h3>
+            <p>Rummy is a popular card game focused on forming valid sets and sequences. Players pick and discard cards to organize their hand efficiently. For winning strategies and gameplay insights, explore our blog posts on card game tips and improve your skills.</p>
+            <h3>Is Starsuu7 safe and secure?</h3>
+            <p>Yes! We use advanced encryption and security measures to protect user data and transactions. Starsuu7 is committed to providing a secure, fair, and enjoyable gaming environment for all players.</p>
+          </section>
+          <section>
+            <h2>2. Account Management</h2>
+            <h3>I forgot my password. How can I reset it?</h3>
+            <p>No worries! Simply:</p>
+            <ol><li>Click on the “Forgot Password” link on the login page.</li><li>Enter your registered email address.</li><li>Follow the instructions sent to your email to reset your password.</li></ol>
+            <h3>How can I update my personal information?</h3>
+            <ol><li>Log in to your Starsuu7 account.</li><li>Navigate to the “Profile” section.</li><li>Edit your details and save the changes.</li></ol>
+          </section>
+          <section>
+            <h2>3. Deposits and Withdrawals</h2>
+            <h3>How do I make a deposit?</h3>
+            <ol><li>Log in to your Starsuu7 account.</li><li>Go to the “Banking” or “Wallet” section.</li><li>Select “Deposit.”</li><li>Choose your preferred payment method, fill in the details, and confirm your transaction.</li></ol>
+            <h3>How long do withdrawals take on Starsuu7?</h3>
+            <p>Withdrawals are typically processed within 24 hours. Processing times may vary depending on the payment method used.</p>
+          </section>
+          <section>
+            <h2>4. Gaming Questions</h2>
+            <h3>Can I play games on my mobile device?</h3>
+            <p>Absolutely! Starsuu7 is fully optimized for mobile play. You can enjoy our games on your smartphone or tablet via your browser or by downloading the mobile app.</p>
+            <h3>What should I do if a game freezes?</h3>
+            <p>If a game freezes:</p>
+            <ol><li>Try refreshing the page or restarting the app.</li><li>If the issue persists, contact our support team via the “Help” section.</li></ol>
+          </section>
+          <section>
+            <h2>5. Promotions and Bonuses</h2>
+            <h3>How can I find out about current promotions?</h3>
+            <p>Visit the “Promotions” page on our website or app to explore the latest offers. You can also subscribe to our newsletter for regular updates on new bonuses and rewards.</p>
+            <h3>How do I claim a bonus?</h3>
+            <p>Follow the instructions on the “Promotions” page or in-app notifications. Most bonuses are automatically applied once you meet the necessary criteria.</p>
+          </section>
+        </div>
+      </div>
+
+      {/* --- MOBILE LAYOUT (accordion content) --- */}
+      <div class="mobile-layout">
+        <div class="content-box">
+          <p class="mobile-intro">{mobileIntro}</p>
+          {faqs.map((faq) => (
+            <details class="faq-item">
+              <summary>
+                <span class="question">{faq.q}</span>
+                <svg class="icon" viewBox="0 0 24 24" width="20" height="20"><path d="m6 9 6 6 6-6"/></svg>
+              </summary>
+              <div class="answer">
+                <p set:html={faq.a.replace(/\n/g, '<br/>')} />
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Footer lang={locale} />
+</Base>
+
+<style>
+  /* Styles remain unchanged */
+  .desktop-layout { display: block; } .mobile-layout { display: none; } .desktop-only { display: block; } .mobile-only { display: none; } @media (max-width: 767px) { .desktop-layout { display: none; } .mobile-layout { display: block; } .desktop-only { display: none; } .mobile-only { display: block; } } .faq-page { padding-block: 48px; } @media (max-width: 767px) { .faq-page { padding-block: 24px; } .mobile-layout .content-box { border-radius: 0; border-inline: none; padding-top: 12px; } .mobile-layout .container { padding-inline: 0; } } .page-title { font-size: clamp(28px, 4vw, 40px); margin-bottom: 32px; text-align: center; color: var(--text-primary); } .content-box { background-color: var(--surface); border: 1px solid var(--ring); border-radius: 24px; padding: clamp(24px, 5vw, 48px); } h2 { font-size: clamp(22px, 3vw, 28px); margin-top: 48px; margin-bottom: 24px; border-bottom: 1px solid var(--ring); padding-bottom: 12px; color: var(--text-primary); } h2:first-of-type { margin-top: 0; } h3 { font-size: 18px; margin-top: 32px; margin-bottom: 16px; color: var(--brand-gold); } p, ul, ol { color: var(--text-secondary); font-size: 16px; line-height: 1.7; margin-bottom: 1em; } ul, ol { padding-left: 24px; } li { margin-bottom: 8px; } .mobile-intro { text-align: center; margin-bottom: 24px; color: var(--text-secondary); } .faq-item { background: var(--surface-2); border: 1px solid var(--ring); border-radius: 12px; transition: background-color .2s; margin-bottom: 12px; } .faq-item[open] { background-color: color-mix(in oklab, var(--surface) 50%, var(--surface-2)); } summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 20px; } summary::-webkit-details-marker { display: none; } .question { font-weight: 600; color: var(--text-primary); } .icon { transition: transform 0.2s; color: var(--brand-orange); stroke: currentColor; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; } .faq-item[open] .icon { transform: rotate(180deg); } .answer { padding: 0 20px 20px; color: var(--text-secondary); font-size: 15px; }
+</style>

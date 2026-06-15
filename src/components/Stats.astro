@@ -1,0 +1,100 @@
+---
+// ===== src/components/Stats.astro =====
+// --- REFACTORED: Now uses the centralized 'useTranslations' utility ---
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
+
+interface Props {
+  lang?: Locale;
+}
+const { lang = 'en' } = Astro.props as Props;
+const t = useTranslations(lang);
+---
+<section class="stats-section">
+  <div class="container">
+    <div class="stats-card">
+      <div class="stat">
+        <span class="stat__num">150K+</span>
+        {/* UPDATED: Use 't' function */}
+        <span class="stat__label">{t('stats.winners')}</span>
+      </div>
+      <div class="stat">
+        <span class="stat__num">75M+</span>
+        {/* UPDATED: Use 't' function */}
+        <span class="stat__label">{t('stats.players')}</span>
+      </div>
+      <div class="stat">
+        <span class="stat__num">₹5 Cr+</span>
+        {/* UPDATED: Use 't' function */}
+        <span class="stat__label">{t('stats.winnings')}</span>
+      </div>
+      <div class="stat">
+        <span class="stat__num">24/7</span>
+        {/* UPDATED: Use 't' function */}
+        <span class="stat__label">{t('stats.support')}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .stats-section {
+    position: relative;
+    z-index: 10;
+    margin-top: -100px;
+    margin-bottom: 48px;
+  }
+  
+  .stats-card {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: linear-gradient(45deg, var(--brand-orange), var(--brand-gold));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px -10px rgba(249, 115, 22, 0.4);
+  }
+  
+  .stat {
+    text-align: center;
+    padding: 24px 12px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  .stat:last-child {
+    border-right: none;
+  }
+  
+  .stat__num {
+    display: block;
+    font-size: clamp(24px, 3vw, 36px);
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+  .stat__label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  @media (max-width: 980px) {
+    .stats-section { margin-top: -90px; }
+  }
+
+  @media (max-width: 767px) {
+    .stats-section {
+      margin-top: -70px;
+    }
+    .stats-card {
+      grid-template-columns: repeat(4, minmax(140px, 1fr));
+      overflow-x: auto;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .stats-card::-webkit-scrollbar {
+      display: none;
+    }
+
+    .stat {
+      padding: 16px 12px;
+    }
+  }
+</style>

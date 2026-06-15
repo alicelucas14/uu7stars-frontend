@@ -1,0 +1,239 @@
+/* src/styles/global.css */
+
+/* ===== CSS Reset & Safety Rails ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:root {
+  /* Brand Accents (with new green from logo) */
+  --brand-orange: #f97316;
+  --brand-gold:   #facc15;
+  --brand-green:  #16a34a; /* New brand color from logo */
+
+  /* Light Theme Palette */
+  --ink:            #111827;
+  --surface:        #ffffff;
+  --surface-2:      #f3f4f6;
+  --ring:           #e5e7eb;
+
+  /* Text & Typography */
+  --text-primary:   #111827;
+  --text-secondary: #4b5563;
+  
+  /* Shadows (softened for the light theme) */
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,.07), 0 2px 4px -2px rgba(0,0,0,.07);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.07), 0 4px 6px -4px rgba(0,0,0,.07);
+ --chat-bubble-offset: 160px;
+}
+
+/* Prevent horizontal creep from any child (more robust than overflow-x:hidden) */
+html {
+  scroll-behavior: smooth;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;             /* NEW: clip instead of hidden */
+  overflow-y: auto;
+}
+
+body {
+  margin: 0;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;             /* NEW: ensure body never creates sideways scroll */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Media & SVGs should never push layout wider than viewport */
+img, video, svg, canvas, iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Ensure long words/urls don’t force overflow on narrow screens */
+:where(p, h1, h2, h3, h4, h5, h6, li, figcaption, small, code, pre) {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+/* Grid/Flex children default to min-width:0 so content can shrink instead of overflow */
+:where(.container, .grid, .bar, .row, .col, .footer-grid, .stats-card) > * {
+  min-width: 0;
+}
+
+/* ===== Global Typography ===== */
+h1,h2,h3,h4,h5,h6 { 
+  font-weight: 800; 
+  margin: 0; 
+  color: var(--text-primary);
+}
+
+p { 
+  line-height: 1.7; 
+  color: var(--text-secondary); 
+  margin: 0; 
+}
+
+a { 
+  color: var(--brand-orange); 
+  text-underline-offset: 3px; 
+  text-decoration-thickness: 1px;
+}
+a:hover { 
+  color: color-mix(in oklab, var(--brand-orange) 85%, black); 
+}
+
+/* Muted helper */
+.muted { 
+  color: var(--text-secondary); 
+}
+
+/* ===== Layout Container ===== */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 16px;          /* Tighter default padding on mobile */
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-inline: 24px;        /* Restore larger gutters on tablet+ */
+  }
+}
+
+/* Prevent “100vw” background/grads from causing overflow.
+   Use .bleed only where intentional full-bleed is needed. */
+.bleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  overflow-x: clip;
+}
+
+/* ===== Global Button Styles ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: transform .2s, box-shadow .2s, background-color .2s;
+  cursor: pointer;
+  background-color: var(--brand-orange);
+  color: var(--ink);
+  box-shadow: var(--shadow-md);
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  background-color: color-mix(in oklab, var(--brand-orange) 95%, white);
+}
+
+.btn.btn--outline {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--ring);
+  box-shadow: none;
+}
+.btn.btn--outline:hover {
+  background: var(--surface-2);
+  border-color: var(--ring);
+}
+
+/* ===== Sticky CTA Bar: mobile safe area & no overflow ===== */
+.sticky-cta-bar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 1000;
+  padding-block: 12px;
+  background: var(--surface, #0f1115);
+  border-top: 1px solid var(--ring, rgba(255,255,255,.08));
+  box-shadow: 0 -4px 15px -3px rgba(0,0,0,0.07);
+  transform: translateY(100%);
+  animation: slide-up 0.5s 0.5s ease-out forwards;
+  display: none;                 /* shown via media query */
+  contain: layout paint;         /* isolation prevents expanding page width */
+  padding-bottom: max(12px, env(safe-area-inset-bottom)); /* iOS safe-area */
+}
+
+@keyframes slide-up { 
+  from { transform: translateY(100%);} 
+  to { transform: translateY(0%);} 
+}
+
+@media (max-width: 767px) { 
+  .sticky-cta-bar { display: block; } 
+}
+
+.cta-bar-inner { 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+}
+
+.sticky-cta-btn {
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 10px;
+  inline-size: min(100%, 400px);
+  max-inline-size: 100%;
+  padding: 14px 28px; 
+  border-radius: 14px;
+  font-weight: 800; 
+  font-size: 16px; 
+  text-decoration: none; 
+  text-transform: uppercase;
+  background: linear-gradient(180deg, var(--brand-gold, #facc15), var(--brand-orange, #f97316));
+  color: var(--ink, #0b0b0f);
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  transition: transform .2s ease-out, box-shadow .2s ease-out;
+  will-change: transform;
+}
+.sticky-cta-btn:hover { 
+  transform: translateY(-2px); 
+  box-shadow: 0 14px 25px rgba(0,0,0,0.18); 
+}
+.sticky-cta-btn .icon { 
+  width: 20px; height: 20px; 
+  stroke: currentColor; stroke-width: 2.8; 
+}
+
+/* ===== Common Structural Helpers ===== */
+
+/* Keep headers/sections from leaking gradients/absolutes horizontally */
+:where(header, section, footer) {
+  overflow-x: clip;
+}
+
+/* Make details/summary hit areas not expand width with long content */
+details { width: 100%; }
+summary { max-width: 100%; }
+
+/* Tables (if ever used) should wrap instead of overflow */
+table { width: 100%; border-collapse: collapse; }
+td, th { min-width: 0; }
+
+/* Buttons/links should never expand past container */
+button, .btn, .ghost-btn, .promo-link, .btn-header-download {
+  max-width: 100%;
+}
+
+/* Defensive: make all grid items respect the grid box (no unintended overflow) */
+[class*="grid"] > * { min-width: 0; }
+
+/* Defensive: any absolutely positioned art layers stay clipped to their parent */
+.art-wrap, .hero__art { overflow: clip; }
+
+/* END */

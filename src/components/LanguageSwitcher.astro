@@ -1,0 +1,153 @@
+---
+import { useI18n, locales } from "../i18n";
+
+const { getLocalePath, locale: currentLocale } = useI18n(Astro);
+
+const languageNames: Record<string, string> = {
+  en: 'English',
+  hi: 'हिंदी',
+};
+
+const currentLanguageName = languageNames[currentLocale] || currentLocale.toUpperCase();
+---
+<div class="language-switcher" role="region" aria-label="Language selection">
+  <button class="switcher-toggle" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="language-drawer">
+    <span>{currentLanguageName}</span>
+  </button>
+
+  <div class="switcher-drawer" id="language-drawer" role="menu" aria-hidden="true">
+    <div class="drawer-inner">
+      {locales.map((locale) => {
+        if (locale === currentLocale) {
+          return (
+            <span class="switcher-item is-active" aria-current="page" role="menuitem">
+              {languageNames[locale] || locale.toUpperCase()}
+            </span>
+          );
+        }
+        return (
+          <a href={getLocalePath(locale)} class="switcher-item" hreflang={locale} data-astro-reload role="menuitem">
+            {languageNames[locale] || locale.toUpperCase()}
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</div>
+
+<style>
+  .language-switcher {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: stretch;
+  }
+
+  /* The clickable tab */
+  .switcher-toggle {
+    appearance: none;
+    /* --- UPDATED: Use brand color for fill --- */
+    background-color: var(--brand-orange);
+    /* --- UPDATED: Use white for border --- */
+    border: 1px solid #ffffff;
+    border-right: none;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+    padding: 16px 8px;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    z-index: 2;
+  }
+  .switcher-toggle span {
+    writing-mode: vertical-rl;
+    font-weight: 700;
+    /* --- UPDATED: Use white for text for better contrast --- */
+    color: #ffffff;
+    font-size: 14px;
+    text-orientation: mixed;
+  }
+
+  /* The drawer containing language links */
+  .switcher-drawer {
+    background-color: var(--surface);
+    border: 1px solid var(--ring);
+    border-right: 1px solid var(--ring);
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    z-index: 1;
+    transition: max-width 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease-out;
+    max-width: 0;
+    opacity: 0;
+  }
+  .drawer-inner {
+    white-space: nowrap;
+  }
+
+  /* Expanded State */
+  .language-switcher.is-open .switcher-drawer {
+    max-width: 200px;
+    opacity: 1;
+  }
+
+  .switcher-item {
+    display: block;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .switcher-item:not(:last-child) { 
+    border-bottom: 1px solid var(--ring); 
+  }
+  .switcher-item:hover { 
+    background-color: var(--surface-2); 
+    color: var(--text-primary); 
+  }
+  .switcher-item.is-active {
+    background-color: var(--brand-orange);
+    color: white;
+    font-weight: 700;
+    cursor: default;
+  }
+</style>
+
+<script>
+  const switcher = document.querySelector('.language-switcher');
+  const toggleBtn = document.querySelector('.switcher-toggle');
+  const drawer = document.getElementById('language-drawer');
+  
+  if (switcher && toggleBtn && drawer) {
+    const closeDrawer = () => {
+      switcher.classList.remove('is-open');
+      toggleBtn.setAttribute('aria-expanded', 'false');
+      drawer.setAttribute('aria-hidden', 'true');
+    };
+    
+    toggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = switcher.classList.toggle('is-open');
+      toggleBtn.setAttribute('aria-expanded', String(isOpen));
+      drawer.setAttribute('aria-hidden', String(!isOpen));
+    });
+
+    document.addEventListener('click', (e) => {
+      if (switcher.classList.contains('is-open') && !switcher.contains(e.target as Node)) {
+        closeDrawer();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && switcher.classList.contains('is-open')) {
+        closeDrawer();
+      }
+    });
+  }
+</script>

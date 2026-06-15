@@ -1,0 +1,170 @@
+---
+// ===== src/components/FAQ.astro =====
+// --- REFACTORED: Now uses the centralized 'useTranslations' utility ---
+// --- FIXED: Added type-safe handling for the FAQ list ---
+
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
+
+interface Props {
+  lang?: Locale;
+}
+const { lang = 'en' } = Astro.props as Props;
+
+const t = useTranslations(lang);
+
+const title = t('faq.title');
+const description = t('faq.description');
+const viewAllText = t('faq.viewAll');
+
+// --- THE FIX: Check if the returned value is an array before assigning it ---
+const faqListResult = t('faq.list');
+const faqs: { q: string; a: string }[] = Array.isArray(faqListResult) ? faqListResult : [];
+---
+<section id="faq" class="faq-section">
+  <div class="container">
+    <header class="section-head">
+      <h2>{title}</h2>
+      <p class="muted">{description}</p>
+    </header>
+
+    <div class="accordion">
+      {faqs.map((faq) => (
+        <details class="faq-item">
+          <summary>
+            <span class="question">{faq.q}</span>
+            <svg class="icon" viewBox="0 0 24 24" width="20" height="20"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <div class="answer">
+            <p>{faq.a}</p>
+          </div>
+        </details>
+      ))}
+    </div>
+
+    <div class="more-link-container">
+      <a href="/faq/" class="btn-view-all">
+        {viewAllText}
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  /* Styles remain unchanged */
+  .faq-section { 
+    padding-block: 48px; 
+    background-color: var(--surface-2);
+    border-top: 1px solid var(--ring);
+    border-bottom: 1px solid var(--ring);
+  }
+  
+  .faq-section .container {
+    padding-inline: 0;
+  }
+  @media (min-width: 768px) {
+    .faq-section .container {
+      padding-inline: 24px;
+    }
+  }
+
+  .section-head { 
+    text-align: center; 
+    max-width: 720px; 
+    margin-inline: auto; 
+    margin-bottom: 32px; 
+    padding-inline: 16px;
+  }
+  @media (min-width: 768px) {
+    .section-head {
+      padding-inline: 0;
+    }
+  }
+
+  .section-head h2 { font-size: clamp(24px, 4vw, 36px); margin-bottom: 8px; }
+  
+  .accordion {
+    max-width: 780px;
+    margin-inline: auto;
+    display: grid;
+    gap: 12px;
+    padding-inline: 16px;
+  }
+  @media (min-width: 768px) {
+    .accordion {
+      padding-inline: 0;
+    }
+  }
+
+  .faq-item {
+    background: var(--surface);
+    border: 1px solid var(--ring);
+    border-radius: 12px;
+    transition: background-color .2s;
+  }
+  .faq-item[open] {
+    background-color: var(--surface-2);
+  }
+  summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+  }
+  summary::-webkit-details-marker { display: none; }
+  .question {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .icon {
+    transition: transform 0.2s;
+    color: var(--brand-orange);
+    stroke: currentColor;
+    stroke-width: 2.5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+  }
+  .faq-item[open] .icon {
+    transform: rotate(180deg);
+  }
+  .answer {
+    padding: 0 20px 20px;
+    color: var(--text-secondary);
+    font-size: 15px;
+  }
+  
+  .more-link-container {
+    margin-top: 32px;
+    text-align: center;
+    padding-inline: 16px;
+  }
+  @media (min-width: 768px) {
+    .more-link-container {
+      padding-inline: 0;
+    }
+  }
+
+  .btn-view-all {
+    display: inline-flex;
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px dashed var(--ring);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  .btn-view-all:hover {
+    border-style: solid;
+    color: var(--brand-orange);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+</style>

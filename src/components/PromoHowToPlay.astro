@@ -1,0 +1,157 @@
+---
+// ===== src/components/PromoHowToPlay.astro =====
+// --- REFACTORED: Now uses the centralized 'useTranslations' utility ---
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
+
+interface Props {
+  lang?: Locale;
+}
+const { lang = 'en' } = Astro.props as Props;
+const t = useTranslations(lang);
+
+// This banner image is not language-dependent, so it remains static.
+const promoBanners = [
+  "/wordpress/promotion-768x1095.webp",
+];
+
+// --- UPDATED: Fetch all content dynamically from the locale file ---
+const promoTitle = t('promoHowToPlay.promoTitle');
+const howToTitle = t('promoHowToPlay.howToTitle');
+const seeAllText = t('promoHowToPlay.seeAll');
+
+// Type-safe check for the steps array
+const stepsResult = t('promoHowToPlay.steps');
+const howToPlayContent: { title: string; text?: string; list?: string[] }[] = Array.isArray(stepsResult) ? stepsResult : [];
+---
+<section id="promos" class="promo-how-section">
+  <div class="container">
+    <div class="promo-box">
+      <div class="grid">
+        <!-- Left Column: Promotions -->
+        <div class="column">
+          {/* UPDATED: Dynamic title */}
+          <h2 class="section-title">{promoTitle}</h2>
+          <div class="promo-banners">
+            {promoBanners.map(src => (
+              <img src={src} alt="Promotion banner" loading="lazy" width="768" height="1095" />
+            ))}
+          </div>
+          
+          <div class="more-promos-link">
+            {/* UPDATED: Dynamic button text */}
+            <a href="/promotions/" class="btn-view-all-promos" set:html={seeAllText}></a>
+          </div>
+        </div>
+        
+        <!-- Right Column: How To Play -->
+        <div class="column">
+          {/* UPDATED: Dynamic title */}
+          <h2 class="section-title">{howToTitle}</h2>
+          <div class="how-to-cards">
+            {/* UPDATED: Map over dynamic steps */}
+            {howToPlayContent.map(item => (
+              <div class="how-to-card">
+                <h3>{item.title}</h3>
+                {item.text && <p>{item.text}</p>}
+                {item.list && (
+                  <ol>
+                    {item.list.map(li => <li>{li}</li>)}
+                  </ol>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Styles remain unchanged */
+  .promo-how-section {
+    padding-block: 20px;
+    background-color: var(--surface);
+  }
+  .promo-box {
+    background: var(--brand-orange);
+    border-radius: 24px;
+    padding: 32px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  .section-title {
+    color: #ffffff;
+    margin-bottom: 24px;
+    font-size: clamp(22px, 3vw, 28px);
+  }
+  
+  .promo-banners img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    display: block;
+    box-shadow: var(--shadow-md);
+  }
+
+  .more-promos-link {
+    margin-top: 24px;
+    text-align: center;
+  }
+  .btn-view-all-promos {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px dashed rgba(255, 255, 255, 0.4);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.2s ease;
+  }
+  .btn-view-all-promos:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-style: solid;
+    transform: translateY(-2px);
+  }
+
+  .how-to-cards {
+    display: grid;
+    gap: 16px;
+  }
+  .how-to-card {
+    background: var(--surface);
+    border: 1px solid var(--ring);
+    color: var(--ink);
+    padding: 20px;
+    border-radius: 12px;
+  }
+  .how-to-card h3 {
+    font-size: 16px;
+    margin: 0 0 8px;
+    font-weight: 700;
+  }
+  .how-to-card p, .how-to-card ol {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  .how-to-card ol {
+    padding-left: 20px;
+  }
+  .how-to-card li {
+    margin-bottom: 4px;
+  }
+
+  @media (max-width: 980px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

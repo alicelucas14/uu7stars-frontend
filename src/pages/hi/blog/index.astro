@@ -1,0 +1,166 @@
+---
+// ===== src/pages/hi/blog/index.astro =====
+// --- REFACTORED: Now matches the modern hero+grid layout ---
+import { marked } from 'marked';
+import Base from '../../../layouts/Base.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import MobileAppShell from '../../../components/MobileAppShell.astro';
+import { getBlogPosts } from '../../../services/api';
+import type { BlogPostListItem } from '../../../services/api';
+import { useTranslations } from '../../../lib/i18n';
+import type { Locale } from '../../../i18n';
+
+const locale: Locale = 'hi';
+const t = useTranslations(locale);
+
+const POSTS_PER_PAGE = Number(import.meta.env.PUBLIC_POSTS_PER_PAGE || 9);
+const allPosts = await getBlogPosts(locale);
+
+const heroPost = allPosts.length > 0 ? allPosts[0] : null;
+const otherPosts = allPosts.slice(1, POSTS_PER_PAGE);
+
+const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
+
+const pageTitle = t('blogIndex.title');
+const pageDescription = t('blogIndex.description');
+const h1 = t('blogIndex.h1');
+const subheading = t('blogIndex.subheading');
+
+const canonical = new URL('/hi/blog/', Astro.site).toString();
+const nextUrl = totalPages > 1 ? new URL('/hi/blog/page/2/', Astro.site).toString() : undefined;
+const rssUrl = new URL('/rss.xml', Astro.site).toString();
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+const toAbsolute = (p?: string) => !p ? '' : (p.startsWith('http') ? p : new URL(p, API_BASE_URL).toString());
+
+const formatDate = (date: string) => new Date(date).toLocaleDateString('hi-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<Base title={pageTitle} description={pageDescription} canonical={canonical} nextUrl={nextUrl} rssUrl={rssUrl} lang={locale}>
+  
+  <div class="desktop-layout">
+    <Header lang={locale} />
+  </div>
+  <div class="mobile-layout">
+    <MobileAppShell title={h1} active="blog" lang={locale} />
+  </div>
+
+  <main class="blog-index-page">
+    <div class="container">
+      <header class="page-header">
+        <h1>{h1}</h1>
+        <p class="muted">{subheading}</p>
+      </header>
+
+      {heroPost && (
+        <section class="hero-post-section" aria-labelledby="hero-post-title">
+          <article class="hero-card">
+            <div class="hero-image-wrapper">
+              <a href={`/hi/blog/${heroPost.slug}/`} aria-label={`Read more about ${heroPost.title}`}>
+                <img src={toAbsolute(heroPost.image)} alt={`Featured image for ${heroPost.title}`} width="1200" height="600" loading="eager" />
+              </a>
+            </div>
+            <div class="hero-content">
+              <p class="hero-meta"><time datetime={heroPost.publishedAt}>{formatDate(heroPost.publishedAt)}</time></p>
+              <h2 id="hero-post-title" class="hero-title"><a href={`/hi/blog/${heroPost.slug}/`}>{heroPost.title}</a></h2>
+              <div class="hero-excerpt prose-excerpt" set:html={await marked.parse(heroPost.excerpt || '')} />
+              <a href={`/hi/blog/${heroPost.slug}/`} class="hero-cta">{t('recentBlogs.readMore')} &rarr;</a>
+            </div>
+          </article>
+        </section>
+      )}
+
+      {otherPosts.length > 0 && (
+        <section class="post-grid-section" aria-label="Older posts">
+          <div class="post-grid">
+            {otherPosts.map(async (post: BlogPostListItem) => {
+              const postUrl = `/hi/blog/${post.slug}/`;
+              return (
+                <article class="post-card">
+                  <a href={postUrl} class="card-image-link" aria-label={`Read: ${post.title}`}>
+                    <img src={toAbsolute(post.image)} alt={`Featured image for blog post: ${post.title}`} loading="lazy" width="400" height="250" class="card-image" />
+                  </a>
+                  <div class="card-content">
+                    <p class="card-meta"><time datetime={post.publishedAt}>{formatDate(post.publishedAt)}</time></p>
+                    <h3 class="card-title"><a href={postUrl}>{post.title}</a></h3>
+                    <div class="card-excerpt prose-excerpt" set:html={await marked.parse(post.excerpt || '')} />
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {totalPages > 1 && (
+        <nav class="pager" aria-label="Blog pages">
+          <ul>
+            <li><span class="pg-btn" aria-disabled="true">{t('blogIndex.pager.prev')}</span></li>
+            <li class="pg-status">{t('blogIndex.pager.pageStatus').replace('{currentPage}', '1').replace('{totalPages}', String(totalPages))}</li>
+            <li><a class="pg-btn" href="/hi/blog/page/2/" aria-label="Next page">{t('blogIndex.pager.next')}</a></li>
+            <li class="desktop-layout"><a class="pg-btn" href={`/hi/blog/page/${totalPages}/`} aria-label="Go to last page">{t('blogIndex.pager.last')}</a></li>
+          </ul>
+        </nav>
+      )}
+    </div>
+  </main>
+  
+  <Footer lang={locale} />
+</Base>
+
+<style>
+  /* Styles are identical to English version */
+  .desktop-layout { display: none; }
+  .mobile-layout { display: block; }
+  @media (min-width: 768px) {
+    .desktop-layout { display: block; }
+    .mobile-layout { display: none; }
+  }
+  .pager .desktop-layout { display: none; }
+  @media (min-width: 768px) {
+    .pager .desktop-layout { display: inline-flex; }
+  }
+  .blog-index-page { padding-block: 48px; }
+  @media (max-width: 767px) {
+    .blog-index-page { padding-block: 24px; }
+    .mobile-layout + .blog-index-page { padding-top: 0; }
+  }
+  .page-header { text-align: center; margin-bottom: 36px; }
+  .page-header h1 { font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px; }
+  .hero-post-section { margin-bottom: 48px; }
+  .hero-card { display: grid; grid-template-columns: 1fr; gap: 0; background: var(--surface); border-radius: 20px; overflow: hidden; border: 1px solid var(--ring); box-shadow: var(--shadow-lg); }
+  @media (min-width: 900px) { .hero-card { grid-template-columns: 1.5fr 1fr; } }
+  .hero-image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+  .hero-content { padding: clamp(24px, 5vw, 48px); display: flex; flex-direction: column; justify-content: center; }
+  .hero-meta { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; }
+  .hero-title { font-size: clamp(24px, 3vw, 32px); margin-bottom: 16px; }
+  .hero-title a { color: var(--text-primary); text-decoration: none; }
+  .hero-title a:hover { color: var(--brand-orange); }
+  .hero-excerpt { margin-bottom: 24px; flex-grow: 1; color: var(--text-secondary); line-height: 1.7; }
+  .hero-cta { align-self: flex-start; font-weight: 700; color: var(--brand-orange); text-decoration: none; }
+  .hero-cta:hover { text-decoration: underline; }
+  .post-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; }
+  @media (max-width: 767px) { .post-grid { grid-template-columns: 1fr; gap: 24px; } }
+  .post-card { background-color: var(--surface); border: 1px solid var(--ring); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-md); transition: transform .2s ease-out, box-shadow .2s ease-out; display: flex; flex-direction: column; }
+  .post-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+  .card-image-link { display: block; }
+  .card-image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  .card-content { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
+  .card-meta { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+  .card-title { font-size: 18px; margin-bottom: 8px; }
+  .card-title a { color: var(--text-primary); text-decoration: none; }
+  .card-title a:hover { color: var(--brand-orange); }
+  .card-excerpt { font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin: 0; flex-grow: 1; }
+  .prose-excerpt { font-size: 1em; line-height: 1.7; }
+  .prose-excerpt :global(p) { margin: 0 0 1em; color: var(--text-secondary); }
+  .prose-excerpt :global(p:last-child) { margin-bottom: 0; }
+  .prose-excerpt :global(h1), .prose-excerpt :global(h2), .prose-excerpt :global(h3), .prose-excerpt :global(h4) { font-size: 1em; font-weight: 600; color: var(--text-primary); margin: 0; }
+  .prose-excerpt :global(strong) { font-weight: 700; color: var(--text-primary); }
+  .card-excerpt.prose-excerpt { font-size: 14px; }
+  .pager { margin-top: 48px; }
+  .pager ul { list-style: none; padding: 0; margin: 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .pg-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 72px; height: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--ring); background: var(--surface-2); color: var(--text-primary); font-weight: 700; text-decoration: none; }
+  .pg-btn[aria-disabled="true"] { opacity: .6; pointer-events: none; }
+  .pg-status { font-weight: 700; color: var(--text-secondary); padding: 6px 8px; }
+</style>

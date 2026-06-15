@@ -1,0 +1,369 @@
+---
+// ===== src/layouts/Base.astro =====
+/* 
+  - FIX: Re-enabled the manifest link now that the file exists.
+  - ADDED: A global script to handle JavaScript-triggered downloads.
+*/
+
+import '../styles/global.css';
+import { getSettings } from '../services/api';
+import LanguageSwitcher from '../components/LanguageSwitcher.astro';
+import { useI18n, locales, createPath, getPathWithoutLocale } from '../i18n';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  jsonLd?: Record<string, any> | Record<string, any>[];
+  prevUrl?: string;
+  nextUrl?: string;
+  rssUrl?: string;
+  lang?: 'en' | 'hi';
+}
+
+const {
+  title = 'Starsuu7 — Teen Patti & Rummy Real Cash App | UU7 777',
+  description: pageDescription = 'Play Teen Patti & Rummy on Starsuu7 (UU7 • 777). Secure payments, instant withdrawals, 24/7 support. India’s trusted real-cash gaming app. 18+ only, play responsibly.',
+  canonical,
+  jsonLd,
+  prevUrl,
+  nextUrl,
+  rssUrl,
+  lang = 'en',
+} = Astro.props;
+
+const siteBase = new URL('/', Astro.site).toString();
+const pathname = Astro.url.pathname;
+const url = canonical ?? new URL(pathname, Astro.site).toString();
+const pageLocale = 'en_IN';
+
+const pathWithoutLocale = getPathWithoutLocale(pathname);
+
+const menuLinks = [
+  { href: createPath('/#how', lang), label: 'How to Play' },
+  { href: createPath('/#promos', lang), label: 'Promotions' },
+  { href: createPath('/#about', lang), label: 'About Us' },
+  { href: createPath('/faq/', lang), label: 'FAQ' },
+  { href: createPath('/blog/', lang), label: 'Blog' },
+];
+const downloadLink = createPath('/#download', lang);
+
+const settings = await getSettings(); 
+const brandName = settings?.siteName || 'Starsuu7';
+const logoUrl = new URL(settings?.logoUrl || '/logo.webp', Astro.site).toString();
+const ogImage = new URL('/wordpress/STARSUU7-Game.webp', Astro.site).toString();
+const contentRating = '18+';
+
+let release: Record<string, string> = {};
+try {
+  release = (await import('../data/release.json')).default as Record<string, string>;
+} catch {}
+
+const downloadUrl = settings?.apkDownloadLink || release.downloadUrl || '#';
+const softwareVersion = release.version ?? '1.0.0';
+const fileSize = release.size ?? '22.1 MB';
+const updatedHuman = release.updated ?? '2025-10-03';
+const dateModifiedISO = new Date(updatedHuman).toISOString();
+
+const sameAs = [
+  settings?.twitterUrl,
+  settings?.facebookUrl,
+  settings?.instagramUrl,
+  settings?.youtubeUrl,
+  settings?.telegramUrl,
+  settings?.whatsappUrl
+].filter(Boolean) as string[];
+
+const ldOrganization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: brandName,
+  url: siteBase,
+  logo: { '@type': 'ImageObject', url: logoUrl },
+  ...(sameAs.length ? { sameAs } : {}),
+  alternateName: ['UU7', '777', 'Starsuu7 App'],
+  contactPoint: [{ '@type': 'ContactPoint', contactType: 'customer support', availableLanguage: ['en'], url: `${siteBase}#support` }]
+};
+const ldWebSite = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: brandName,
+  url: siteBase,
+  inLanguage: 'en-IN',
+  potentialAction: { '@type': 'SearchAction', target: `${siteBase}search?q={search_term_string}`, 'query-input': 'required name=search_term_string' }
+};
+const ldMobileApp = {
+  '@context': 'https://schema.org',
+  '@type': 'MobileApplication',
+  name: brandName,
+  operatingSystem: 'Android',
+  applicationCategory: 'GameApplication',
+  inLanguage: 'en-IN',
+  url: siteBase,
+  image: logoUrl,
+  contentRating,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR', availability: 'https://schema.org/InStock', url: downloadUrl },
+  downloadUrl,
+  softwareVersion,
+  fileSize,
+  dateModified: dateModifiedISO,
+  publisher: { '@type': 'Organization', name: brandName, url: siteBase, logo: { '@type': 'ImageObject', url: logoUrl } }
+};
+const ldSoftware = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: brandName,
+  operatingSystem: 'Android',
+  applicationCategory: 'GameApplication',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR', url: downloadUrl },
+  downloadUrl
+};
+const ldBlocks: Array<Record<string, any>> = [ ldOrganization, ldWebSite, ldMobileApp, ldSoftware ];
+if (jsonLd) {
+  if (Array.isArray(jsonLd)) {
+    ldBlocks.push(...jsonLd);
+  } else {
+    ldBlocks.push(jsonLd);
+  }
+} else {
+  ldBlocks.push({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: title,
+    description: pageDescription,
+    url,
+    isPartOf: { '@type': 'WebSite', url: siteBase, name: brandName },
+    inLanguage: 'en-IN'
+  });
+}
+---
+
+<!DOCTYPE html>
+<html lang={lang} dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{title}</title>
+    <meta name="description" content={pageDescription} />
+    <meta name="keywords" content="Starsuu7, UU7, 777, Starsuu7 app, Starsuu7 APK, Teen Patti app, Rummy app, real cash games India, Teen Patti real money, Rummy real money, Starsuu7 download" />
+
+    <link rel="canonical" href={url} />
+    
+    {locales.map(locale => (
+      <link rel="alternate" hreflang={locale} href={new URL(createPath(pathWithoutLocale, locale), Astro.site).toString()} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={new URL(createPath(pathWithoutLocale, 'en'), Astro.site).toString()} />
+
+
+    {prevUrl && <link rel="prev" href={prevUrl} />}
+    {nextUrl && <link rel="next" href={nextUrl} />}
+    {rssUrl && <link rel="alternate" type="application/rss+xml" title="RSS Feed" href={rssUrl} />}
+
+    <meta name="theme-color" content="#f97316" />
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
+
+    <link rel="icon" href="/logo.webp" type="image/webp" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet" />
+
+    <meta property="og:site_name" content={brandName} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={pageLocale} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content="Starsuu7 — Teen Patti & Rummy" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:site" content="@starsuu7" />
+
+    <meta name="ahrefs-site-verification" content="9b4a068be0accae70bb69802a875d1f5d6f987bb64e6f428005d97af07a52f2c" />
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NSX5MEH182"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-NSX5MEH182', { send_page_view: true });
+    </script>
+
+    <script type="application/ld+json" set:html={JSON.stringify(ldBlocks)} />
+  </head>
+
+  <body>
+    <a id="top" href="#main" class="skiplink">Skip to content</a>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <div id="global-mobile-menu" aria-hidden="true">
+      <div class="gmm-backdrop" data-gmm-close tabindex="-1" aria-hidden="true"></div>
+      <aside class="gmm-sheet" role="dialog" aria-modal="true" aria-labelledby="gmm-title">
+        <header class="gmm-head">
+          <h2 id="gmm-title">Menu</h2>
+          <button class="gmm-close" type="button" aria-label="Close menu" data-gmm-close>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </header>
+        <nav class="gmm-nav" role="navigation" aria-label="Mobile">
+          {menuLinks.map(link => (
+            <a href={link.href} class="gmm-link" data-gmm-link>{link.label}</a>
+          ))}
+          <a href={downloadLink} class="gmm-link gmm-download" data-gmm-link>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></svg>
+            Download App
+          </a>
+        </nav>
+      </aside>
+    </div>
+
+    <LanguageSwitcher />
+
+    <script is:inline>
+      (function () {
+        const portal = document.getElementById('global-mobile-menu');
+        const sheet = portal && portal.querySelector('.gmm-sheet');
+        const focusablesSel = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+        let lastActive = null;
+        function trapFocus(e) {
+          if (!portal || portal.getAttribute('aria-hidden') === 'true') return;
+          const nodes = sheet ? sheet.querySelectorAll(focusablesSel) : [];
+          const first = nodes[0];
+          const last = nodes[nodes.length - 1];
+          if (!first || !last) return;
+          if (e.key === 'Tab') {
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } 
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            if (window.AppMenu && typeof window.AppMenu.close === 'function') window.AppMenu.close();
+          }
+        }
+        function openMenu() {
+          if (!portal) return;
+          lastActive = document.activeElement || null;
+          portal.setAttribute('aria-hidden', 'false');
+          document.documentElement.style.overflow = 'hidden';
+          document.body.style.touchAction = 'none';
+          if (sheet && typeof sheet.focus === 'function') sheet.focus();
+          document.addEventListener('keydown', trapFocus);
+        }
+        function closeMenu() {
+          if (!portal) return;
+          portal.setAttribute('aria-hidden', 'true');
+          document.documentElement.style.overflow = '';
+          document.body.style.touchAction = '';
+          document.removeEventListener('keydown', trapFocus);
+          try {
+            if (lastActive && 'focus' in lastActive && typeof lastActive.focus === 'function') {
+              (lastActive).focus();
+            }
+          } catch (_) {}
+        }
+        window.AppMenu = { open: openMenu, close: closeMenu, toggle: () => (portal && portal.getAttribute('aria-hidden') === 'true' ? openMenu() : closeMenu()) };
+        window.addEventListener('open-global-menu', () => openMenu());
+        document.addEventListener('click', (e) => {
+          const t = e.target;
+          if (!(t instanceof Element)) return;
+          if (t.closest('[data-gmm-close]')) { e.preventDefault(); closeMenu(); }
+          if (t.closest('[data-gmm-link]')) { closeMenu(); }
+        }, { passive: false });
+        let lcLoaded = false;
+        function loadLiveChat() {
+          if (lcLoaded) return;
+          lcLoaded = true;
+          window.__lc = window.__lc || {};
+          window.__lc.license = 18988469;
+          window.__lc.integration_name = 'manual_channels';
+          window.__lc.product_name = 'livechat';
+          const s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://cdn.livechatinc.com/tracking.js';
+          document.head.appendChild(s);
+          (function waitLC() {
+            if (!window.LiveChatWidget || !window.LiveChatWidget.on) { setTimeout(waitLC, 80); return; }
+            window.LiveChatWidget.on('ready', function () {
+              try {
+                var bubble = document.getElementById('chat-widget-container');
+                if (bubble) {
+                  bubble.style.right = '12px';
+                  bubble.style.bottom = 'calc(160px + env(safe-area-inset-bottom))';
+                  bubble.style.zIndex = '10015';
+                }
+              } catch (_) {}
+            });
+          })();
+        }
+        function onFirstIntent() {
+          loadLiveChat();
+          window.removeEventListener('pointerdown', onFirstIntent);
+          window.removeEventListener('keydown', onFirstIntent);
+          window.removeEventListener('scroll', onFirstIntent, { passive: true });
+        }
+        window.addEventListener('pointerdown', onFirstIntent, { passive: true });
+        window.addEventListener('keydown', onFirstIntent);
+        window.addEventListener('scroll', onFirstIntent, { passive: true });
+        (window.requestIdleCallback || ((cb) => setTimeout(cb, 1500)))(() => {
+          if (!lcLoaded) loadLiveChat();
+        });
+      })();
+
+      // --- NEW SCRIPT FOR JS-TRIGGERED DOWNLOADS ---
+      document.addEventListener('click', function(e) {
+        const target = e.target.closest('[data-js-download]');
+        if (target && target.dataset.url) {
+          e.preventDefault(); // Prevent default action if it's an <a> tag
+          window.location.href = target.dataset.url;
+        }
+      }, { passive: false });
+    </script>
+  </body>
+</html>
+
+<style>
+  .skiplink {
+    position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;
+  }
+  .skiplink:focus {
+    left: 12px; top: 12px; width: auto; height: auto; background:#fff; color:#000;
+    padding:8px 12px; border-radius:8px; z-index: 12000; text-decoration: none;
+  }
+  #global-mobile-menu { position: fixed; inset: 0; z-index: 11000; display: grid; grid-template-rows: 1fr; pointer-events: none; }
+  #global-mobile-menu[aria-hidden="true"] { visibility: hidden; opacity: 0; }
+  #global-mobile-menu[aria-hidden="false"] { visibility: visible; opacity: 1; pointer-events: auto; }
+  .gmm-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); }
+  .gmm-sheet {
+    position: fixed; inset-inline: 0; bottom: 0;
+    transform: translateY(100%);
+    transition: transform .28s cubic-bezier(.22,1,.36,1);
+    background: var(--surface);
+    border-top-left-radius: 18px; border-top-right-radius: 18px;
+    border-top: 1px solid var(--ring);
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    max-height: 86vh; overflow: auto; outline: none;
+  }
+  #global-mobile-menu[aria-hidden="false"] .gmm-sheet { transform: translateY(0); }
+  .gmm-head { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--ring); position: sticky; top: 0; background: var(--surface); border-top-left-radius: 18px; border-top-right-radius: 18px; }
+  .gmm-head h2 { margin: 0; font-size: 16px; font-weight: 800; color: var(--text-primary); }
+  .gmm-close { display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--ring); background: var(--surface-2); }
+  .gmm-close svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.4; }
+  .gmm-nav { display: grid; padding: 10px; gap: 8px; }
+  .gmm-link { display: flex; align-items: center; gap: 10px; padding: 14px 12px; border-radius: 12px; text-decoration: none; color: var(--text-primary); background: var(--surface-2); border: 1px solid var(--ring); font-weight: 700; }
+  .gmm-link:hover { background: color-mix(in oklab, var(--surface-2) 85%, white); }
+  .gmm-download { justify-content: center; background: linear-gradient(180deg, var(--brand-gold), var(--brand-orange)); color: var(--ink); border-color: color-mix(in oklab, var(--brand-orange) 30%, var(--brand-gold)); }
+  .gmm-download svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.6; }
+  @media (min-width: 768px){ #global-mobile-menu { display: none; } }
+</style>

@@ -1,0 +1,177 @@
+---
+// ===== src/components/Testimonials.astro =====
+// --- REFACTORED: Now uses the centralized 'useTranslations' utility ---
+
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
+
+interface Props {
+  lang?: Locale;
+}
+const { lang = 'en' } = Astro.props as Props;
+const t = useTranslations(lang);
+
+// --- UPDATED: Fetch all content dynamically from the locale file ---
+const title = t('testimonials.title');
+const description = t('testimonials.description');
+
+// Type-safe check for the testimonials list
+const testimonialsResult = t('testimonials.list');
+const testimonials: { name: string; quote: string }[] = Array.isArray(testimonialsResult) ? testimonialsResult : [];
+---
+<section id="testimonials" class="testimonials-section">
+  <div class="container">
+    <header class="section-head">
+      {/* UPDATED: Dynamic text */}
+      <h2>{title}</h2>
+      <p class="muted">{description}</p>
+    </header>
+
+    <div class="testimonial-carousel-wrapper">
+      <div class="grid">
+        {/* UPDATED: Map over the dynamic list of testimonials */}
+        {testimonials.map(t => (
+          <figure class="testimonial-card">
+            <blockquote>"{t.quote}"</blockquote>
+            <figcaption>— {t.name}</figcaption>
+          </figure>
+        ))}
+      </div>
+      <div class="dots" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Styles remain unchanged */
+  .testimonials-section { 
+    padding-block: 48px;
+    background-color: var(--surface-2);
+    border-top: 1px solid var(--ring);
+    border-bottom: 1px solid var(--ring);
+  }
+  .section-head { 
+    text-align: center; 
+    max-width: 640px; 
+    margin-inline: auto; 
+    margin-bottom: 32px; 
+  }
+  .section-head h2 { 
+    font-size: clamp(24px, 4vw, 36px); 
+    margin-bottom: 8px;
+  }
+  .grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 85%;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .grid::-webkit-scrollbar { display: none; }
+  .testimonial-card {
+    scroll-snap-align: start;
+  }
+  .testimonial-carousel-wrapper {
+    padding-left: 16px;
+  }
+  @media (min-width: 768px) {
+    .testimonial-carousel-wrapper { padding-left: 0; }
+  }
+  @media (min-width: 768px) {
+    .grid {
+      grid-auto-flow: initial;
+      grid-auto-columns: initial;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      overflow-x: visible;
+    }
+  }
+  .testimonial-card {
+    background: var(--surface);
+    border: 1px solid var(--ring);
+    border-radius: 18px;
+    padding: 24px;
+    margin: 0;
+    border-top: 4px solid var(--brand-orange);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  blockquote {
+    margin: 0 0 16px;
+    padding: 0;
+    font-style: italic;
+    color: var(--text-primary);
+    flex-grow: 1;
+  }
+  figcaption {
+    text-align: right;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+  .dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 24px;
+  }
+  .dots > button {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: var(--ring);
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+  }
+  .dots > button.is-active {
+    background: var(--brand-orange);
+    transform: scale(1.2);
+  }
+  @media (min-width: 768px) {
+    .dots { display: none; }
+  }
+</style>
+
+<script>
+  // Script remains unchanged
+  const wrapper = document.querySelector('.testimonial-carousel-wrapper') as HTMLElement | null;
+  if (wrapper) {
+    const grid = wrapper.querySelector('.grid') as HTMLElement | null;
+    const dotsContainer = wrapper.querySelector('.dots') as HTMLElement | null;
+    const cards = Array.from(wrapper.querySelectorAll('.testimonial-card')) as HTMLElement[];
+    if (grid && dotsContainer && cards.length > 0 && window.matchMedia("(max-width: 767px)").matches) {
+      cards.forEach((_, i) => {
+        const button = document.createElement('button');
+        button.setAttribute('aria-label', `Go to testimonial ${i + 1}`);
+        button.addEventListener('click', () => {
+          const cardWidth = cards[0].offsetWidth;
+          const gap = parseInt(window.getComputedStyle(grid).gap);
+          grid.scrollTo({
+            left: i * (cardWidth + gap),
+            behavior: 'smooth'
+          });
+        });
+        dotsContainer.appendChild(button);
+      });
+      const dots = Array.from(dotsContainer.querySelectorAll('button'));
+      if (dots.length > 0) {
+        dots[0].classList.add('is-active');
+      }
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const index = cards.indexOf(entry.target as HTMLElement);
+            dots.forEach(dot => dot.classList.remove('is-active'));
+            if (dots[index]) {
+              dots[index].classList.add('is-active');
+            }
+          }
+        });
+      }, { root: grid, threshold: 0.6 });
+      cards.forEach(card => observer.observe(card));
+    }
+  }
+</script>

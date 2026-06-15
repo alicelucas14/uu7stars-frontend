@@ -1,0 +1,80 @@
+---
+// ===== src/pages/hi/index.astro =====
+// --- UPDATED: Pass the 'lang' prop to multilingual components ---
+
+import { useI18n } from "../../i18n"; // <-- IMPORT i18n utilities
+import Base from "../../layouts/Base.astro";
+import Header from "../../components/Header.astro";
+import MobileAppShell from "../../components/MobileAppShell.astro";
+import Hero from "../../components/Hero.astro";
+import Stats from "../../components/Stats.astro"; 
+import GameGrid from "../../components/GameGrid.astro";
+import AboutTabs from "../../components/AboutTabs.astro";
+import PromoHowToPlay from "../../components/PromoHowToPlay.astro";
+import Promotions from "../../components/Promotions.astro";
+import HowToPlay from "../../components/HowToPlay.astro";
+import RecentBlogs from "../../components/RecentBlogs.astro";
+import Testimonials from "../../components/Testimonials.astro";
+import FAQ from "../../components/FAQ.astro";
+import DownloadCTA from "../../components/DownloadCTA.astro";
+import Footer from "../../components/Footer.astro";
+
+// --- ADDED: Get the current language from the URL ---
+const { locale } = useI18n(Astro);
+
+// We will eventually make these titles and descriptions dynamic based on language.
+const title = "Starsuu7 (UU7 • 777) — तीन पत्ती और रम्मी रियल कैश ऐप भारत में";
+const description = "Starsuu7 (UU7 / 777) पर तीन पत्ती और रम्मी खेलें। सुरक्षित जमा, तुरंत निकासी, और 24/7 सहायता। Starsuu7 APK डाउनलोड करें और आज ही जीतना शुरू करें। केवल 18+ के लिए।";
+---
+<Base {title} {description}>
+  
+  <!-- Desktop Layout -->
+  <div class="desktop-layout">
+    <Header lang={locale} />
+    <main>
+      <Hero lang={locale} />
+      <Stats lang={locale} />
+      <Promotions lang={locale} />
+      {/* --- UPDATED: Pass the current locale to the component --- */}
+      <GameGrid lang={locale} />
+      <AboutTabs lang={locale} />
+      <PromoHowToPlay lang={locale} />
+      <HowToPlay lang={locale} />
+      <RecentBlogs lang={locale} />
+      <Testimonials lang={locale} />
+      <FAQ lang={locale} />
+      <DownloadCTA lang={locale} />
+    </main>
+    <Footer lang={locale} />
+  </div>
+
+  <!-- Mobile Layout -->
+  <div class="mobile-layout">
+    <MobileAppShell active="home" lang={locale} >
+      <Hero lang={locale} />
+      <Stats lang={locale} />
+      <Promotions lang={locale} />
+      {/* --- UPDATED: Pass the current locale to the component --- */}
+      <GameGrid lang={locale} />
+      <AboutTabs lang={locale} />
+      <PromoHowToPlay lang={locale} />
+      <HowToPlay lang={locale} />
+      <RecentBlogs lang={locale} />
+      <Testimonials lang={locale} />
+      <FAQ lang={locale} />
+      <DownloadCTA lang={locale} />
+    </MobileAppShell>
+    <Footer lang={locale} />
+  </div>
+
+</Base>
+
+<style>
+  /* Styles are identical to the English homepage */
+  .desktop-layout { display: none; }
+  .mobile-layout { display: block; }
+  @media (min-width: 768px) {
+    .desktop-layout { display: block; }
+    .mobile-layout { display: none; }
+  }
+</style>

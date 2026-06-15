@@ -1,0 +1,79 @@
+---
+// ===== src/pages/index.astro =====
+// --- UPDATED: Pass the 'lang' prop to all translated components ---
+
+import { useI18n } from "../i18n"; // <-- IMPORT i18n utilities
+import Base from "../layouts/Base.astro";
+import Header from "../components/Header.astro";
+import MobileAppShell from "../components/MobileAppShell.astro";
+import Hero from "../components/Hero.astro";
+import Stats from "../components/Stats.astro"; 
+import GameGrid from "../components/GameGrid.astro";
+import AboutTabs from "../components/AboutTabs.astro";
+import PromoHowToPlay from "../components/PromoHowToPlay.astro";
+import Promotions from "../components/Promotions.astro";
+import HowToPlay from "../components/HowToPlay.astro";
+import RecentBlogs from "../components/RecentBlogs.astro";
+import Testimonials from "../components/Testimonials.astro";
+import FAQ from "../components/FAQ.astro";
+import DownloadCTA from "../components/DownloadCTA.astro";
+import Footer from "../components/Footer.astro";
+
+// --- ADDED: Get the current language from the URL ---
+const { locale } = useI18n(Astro);
+
+const title = "Starsuu7 (UU7 • 777) — Teen Patti & Rummy Real Cash App in India";
+const description = "Play Teen Patti & Rummy on Starsuu7 (also known as UU7 / 777). Secure deposits, instant withdrawals, and 24/7 support. Download Starsuu7 APK and start winning today. 18+ only.";
+---
+<Base {title} {description}>
+  
+  <!-- This is the Desktop Layout -->
+  <div class="desktop-layout">
+    <Header lang={locale} />
+    <main>
+      {/* --- UPDATED: Pass the lang prop to all components --- */}
+      <Hero lang={locale} />
+      <Stats lang={locale} />
+      <Promotions lang={locale} />
+      <GameGrid lang={locale} />
+      <AboutTabs lang={locale} />
+      <PromoHowToPlay lang={locale} />
+      <HowToPlay lang={locale} />
+      <RecentBlogs lang={locale} />
+      <Testimonials lang={locale} />
+      <FAQ lang={locale} />
+      <DownloadCTA lang={locale} />
+    </main>
+    <Footer lang={locale} />
+  </div>
+
+  <!-- This is the Mobile Layout -->
+  <div class="mobile-layout">
+    <MobileAppShell active="home" lang={locale} >
+      {/* --- UPDATED: Pass the lang prop to all components --- */}
+      <Hero lang={locale} />
+      <Stats lang={locale} />
+      <Promotions lang={locale} />
+      <GameGrid lang={locale} />
+      <AboutTabs lang={locale} />
+      <PromoHowToPlay lang={locale} />
+      <HowToPlay lang={locale} />
+      <RecentBlogs lang={locale} />
+      <Testimonials lang={locale} />
+      <FAQ lang={locale} />
+      <DownloadCTA lang={locale} />
+    </MobileAppShell>
+    <Footer lang={locale} />
+  </div>
+
+</Base>
+
+<style>
+  /* Styles remain unchanged */
+  .desktop-layout { display: none; }
+  .mobile-layout { display: block; }
+  @media (min-width: 768px) {
+    .desktop-layout { display: block; }
+    .mobile-layout { display: none; }
+  }
+</style>

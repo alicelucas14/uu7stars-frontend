@@ -1,0 +1,129 @@
+---
+// ===== src/pages/hi/blog/[slug].astro =====
+// --- FINAL UPDATE: Integrated the new BlogCommentsSection component ---
+
+import { marked } from 'marked';
+import Base from '../../../layouts/Base.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import MobileAppShell from '../../../components/MobileAppShell.astro';
+import ArticleHead from '../../../components/ArticleHead.astro';
+import SocialShare from '../../../components/SocialShare.astro';
+import RecentPosts from '../../../components/RecentPosts.astro';
+import SidebarPromos from '../../../components/SidebarPromos.astro';
+import SidebarCta from '../../../components/SidebarCta.astro';
+import TagCloud from '../../../components/TagCloud.astro';
+import AuthorBio from '../../../components/AuthorBio.astro';
+import CategoriesList from '../../../components/CategoriesList.astro';
+import BlogCommentsSection from '../../../components/BlogCommentsSection.astro'; // <-- IMPORT new component
+import { getBlogPosts, getBlogPostBySlug } from '../../../services/api';
+import { useTranslations } from '../../../lib/i18n';
+import type { Locale } from '../../../i18n';
+
+export async function getStaticPaths() {
+  const posts = await getBlogPosts('hi');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+  }));
+}
+
+const locale: Locale = 'hi';
+const t = useTranslations(locale);
+
+const { slug } = Astro.params;
+const post = await getBlogPostBySlug(slug as string, locale);
+
+if (!post) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+const postTitle = post.title.hi;
+const postExcerpt = post.excerpt.hi;
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+const imageUrl = post.image.startsWith('http') ? post.image : `${API_BASE_URL}${post.image}`;
+const contentHtml = await marked.parse(post.body.hi);
+
+const pageTitle = t('blogPost.title').replace('{postTitle}', postTitle);
+const pageDescription = postExcerpt;
+const canonical = new URL(`/hi/blog/${slug}/`, Astro.site).toString();
+
+const articleJsonLd = { /* ... JSON-LD remains unchanged ... */ };
+---
+
+<Base title={pageTitle} description={pageDescription} canonical={canonical} jsonLd={articleJsonLd} lang={locale}>
+  
+  <div class="desktop-layout">
+    <Header lang={locale} />
+    <main class="post-page">
+      <div class="container">
+        <div class="layout-grid">
+          
+          <article class="main-content">
+            <figure class="featured-image">
+              <img src={imageUrl} alt={`Featured image for ${postTitle}`} width="1200" height="600" />
+            </figure>
+            <ArticleHead
+              title={postTitle}
+              publishedAt={post.publishedAt}
+              author={post.author}
+              tags={post.tags}
+              lang={locale}
+            />
+            <div class="prose" set:html={contentHtml} />
+            <SocialShare url={canonical} title={postTitle} text={postExcerpt} />
+            
+            <!-- NEW: Added Blog Comments Section for Desktop -->
+            <BlogCommentsSection postId={post._id} lang={locale} />
+
+          </article>
+
+          <aside class="sidebar">
+            <div class="sidebar-inner">
+              <AuthorBio authorName={post.author} lang={locale} />
+              <CategoriesList lang={locale} />
+              <TagCloud lang={locale} />
+              <RecentPosts excludeSlug={slug} lang={locale} />
+              <SidebarPromos lang={locale} />
+              <SidebarCta lang={locale} />
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+    <Footer lang={locale} />
+  </div>
+
+  <div class="mobile-layout">
+    <MobileAppShell title={t('blogPost.title').replace('{postTitle}', '')} active="blog" showBack={true} lang={locale}>
+      <main class="post-page">
+        <article class="main-content">
+           <figure class="featured-image">
+            <img src={imageUrl} alt={`Featured image for ${postTitle}`} width="1200" height="600" />
+          </figure>
+          <div class="container">
+            <ArticleHead
+              title={postTitle}
+              publishedAt={post.publishedAt}
+              author={post.author}
+              tags={post.tags}
+              lang={locale}
+            />
+            <div class="prose" set:html={contentHtml} />
+            <SocialShare url={canonical} title={postTitle} text={postExcerpt} />
+
+            <!-- NEW: Added Blog Comments Section for Mobile -->
+            <BlogCommentsSection postId={post._id} lang={locale} />
+
+          </div>
+        </article>
+      </main>
+    </MobileAppShell>
+    <Footer lang={locale} />
+  </div>
+</Base>
+
+<style>
+/* Styles are identical to the English version */
+.desktop-layout { display: none; } .mobile-layout { display: block; } @media (min-width: 768px) { .desktop-layout { display: block; } .mobile-layout { display: none; } } .post-page { padding-block: 48px; } @media (max-width: 767px) { .post-page { padding-block: 0 24px; } .mobile-layout .container { padding-inline: 0; } } .layout-grid { display: grid; grid-template-columns: 1fr; gap: 32px; } @media (min-width: 1024px) { .layout-grid { grid-template-columns: 2.5fr 1fr; } } .featured-image { margin: 0 0 24px; } @media (max-width: 767px) { .featured-image { margin-bottom: 0; } } .featured-image img { width: 100%; height: auto; max-height: 500px; object-fit: cover; border-radius: 16px; border: 1px solid var(--ring); box-shadow: var(--shadow-md); } @media (max-width: 767px) { .featured-image img { border-radius: 0; border-inline: none; } } .prose { font-size: 17px; line-height: 1.8; color: var(--text-secondary); } .prose > :global(* + *) { margin-top: 1.25em; } .prose :global(h2), .prose :global(h3) { line-height: 1.3; margin-top: 2em; margin-bottom: 1em; color: var(--text-primary); } .prose :global(h2) { font-size: 1.75em; } .prose :global(h3) { font-size: 1.4em; } .prose :global(a) { text-decoration: underline; color: var(--brand-orange); } .prose :global(strong) { color: var(--text-primary); } .prose :global(ul), .prose :global(ol) { padding-left: 2em; } .prose :global(li) { margin-top: 0.5em; } .prose :global(blockquote) { padding-left: 1.5em; border-left: 3px solid var(--ring); font-style: italic; } .prose :global(img) { border-radius: 12px; } .sidebar-inner { position: sticky; top: 88px; display: grid; gap: 24px; }
+</style>

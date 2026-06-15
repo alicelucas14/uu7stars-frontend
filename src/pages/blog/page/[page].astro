@@ -1,0 +1,154 @@
+---
+// ===== src/pages/blog/page/[page].astro =====
+// --- CORRECTED: Parses Markdown in excerpts ---
+import { marked } from 'marked';
+import Base from '../../../layouts/Base.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import MobileAppShell from '../../../components/MobileAppShell.astro';
+import { getBlogPosts } from '../../../services/api';
+import type { BlogPostListItem } from '../../../services/api';
+import { useTranslations } from '../../../lib/i18n';
+import type { Locale } from '../../../i18n';
+
+const locale: Locale = 'en';
+const t = useTranslations(locale);
+
+const { page } = Astro.params;
+const blogRoot = '/blog/';
+
+const POSTS_PER_PAGE = Number(import.meta.env.PUBLIC_POSTS_PER_PAGE || 9);
+const CURRENT_PAGE = Number.parseInt(page ?? '1', 10);
+
+const allPosts: BlogPostListItem[] = await getBlogPosts(locale);
+const totalPages = Math.max(1, Math.ceil(allPosts.length / POSTS_PER_PAGE));
+
+if (Number.isNaN(CURRENT_PAGE) || CURRENT_PAGE < 1) { return Astro.redirect(blogRoot); }
+if (CURRENT_PAGE === 1) { return Astro.redirect(blogRoot); }
+if (CURRENT_PAGE > totalPages && totalPages > 0) { return Astro.redirect(blogRoot + `page/${totalPages}/`); }
+
+const start = (CURRENT_PAGE - 1) * POSTS_PER_PAGE;
+const pagePosts = allPosts.slice(start, start + POSTS_PER_PAGE);
+
+const canonical = new URL(blogRoot + `page/${CURRENT_PAGE}/`, Astro.site).toString();
+const prevUrl = CURRENT_PAGE > 1 ? new URL(CURRENT_PAGE === 2 ? blogRoot : blogRoot + `page/${CURRENT_PAGE - 1}/`, Astro.site).toString() : undefined;
+const nextUrl = CURRENT_PAGE < totalPages ? new URL(blogRoot + `page/${CURRENT_PAGE + 1}/`, Astro.site).toString() : undefined;
+
+const pageTitle = t('blogPaginated.title').replace('{currentPage}', String(CURRENT_PAGE));
+const pageDescription = t('blogPaginated.description');
+const h1 = t('blogPaginated.h1');
+const firstPageText = t('blogPaginated.firstPage');
+
+const formatDate = (date: string) => new Date(date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+const toAbsolute = (p?: string) => !p ? '' : (p.startsWith('http') ? p : new URL(p, API_BASE_URL).toString());
+---
+<Base title={pageTitle} description={pageDescription} canonical={canonical} prevUrl={prevUrl} nextUrl={nextUrl} lang={locale}>
+
+  <div class="desktop-layout">
+    <Header lang={locale} />
+  </div>
+  <div class="mobile-layout">
+    <MobileAppShell title={`${h1} - Page ${CURRENT_PAGE}`} active="blog" lang={locale} />
+  </div>
+
+  <main class="blog-index">
+    <div class="container">
+      <header class="section-head">
+        <div>
+          <h1>{h1}</h1>
+          <p class="muted">{t('blogIndex.pager.pageStatus').replace('{currentPage}', String(CURRENT_PAGE)).replace('{totalPages}', String(totalPages))}</p>
+        </div>
+        <a href={blogRoot} class="btn-view-all" aria-label="Go to page 1">{firstPageText}</a>
+      </header>
+
+      {pagePosts.length === 0 ? ( <p class="muted">{t('blogPaginated.noPosts')}</p> ) : (
+        <div class="post-grid">
+          {pagePosts.map(async (post) => {
+            const postUrl = blogRoot + `${post.slug}/`;
+            return (
+              <article class="post-card">
+                <a href={postUrl} class="card-image-link" aria-label={`Read more: ${post.title}`}>
+                  <img src={toAbsolute(post.image)} alt={`Featured image for blog post: ${post.title}`} loading="lazy" width="400" height="250" class="card-image"/>
+                </a>
+                <div class="card-content">
+                  <p class="card-meta"><time datetime={post.publishedAt}>{formatDate(post.publishedAt)}</time></p>
+                  <h2 class="card-title"><a href={postUrl}>{post.title}</a></h2>
+                  
+                  <!-- UPDATED: Use set:html to render parsed Markdown -->
+                  <div class="card-excerpt prose-excerpt" set:html={await marked.parse(post.excerpt || '')} />
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      <nav class="pager" aria-label="Pagination">
+        <ul>
+          <li class="desktop-layout"><a class="pg-btn" href={blogRoot} aria-label="Go to first page">« {firstPageText}</a></li>
+          <li>{prevUrl ? (<a class="pg-btn" href={prevUrl} aria-label="Previous page">{t('blogIndex.pager.prev')}</a>) : (<span class="pg-btn" aria-disabled="true">{t('blogIndex.pager.prev')}</span>)}</li>
+          <li class="pg-status" aria-current="page">{t('blogIndex.pager.pageStatus').replace('{currentPage}', String(CURRENT_PAGE)).replace('{totalPages}', String(totalPages))}</li>
+          <li>{nextUrl ? (<a class="pg-btn" href={nextUrl} aria-label="Next page">{t('blogIndex.pager.next')}</a>) : (<span class="pg-btn" aria-disabled="true">{t('blogIndex.pager.next')}</span>)}</li>
+          <li class="desktop-layout">{CURRENT_PAGE < totalPages ? (<a class="pg-btn" href={blogRoot + `page/${totalPages}/`} aria-label="Go to last page">{t('blogIndex.pager.last')}</a>) : (<span class="pg-btn" aria-disabled="true">{t('blogIndex.pager.last')}</span>)}</li>
+        </ul>
+      </nav>
+    </div>
+  </main>
+
+  <Footer lang={locale} />
+</Base>
+
+<style>
+  .desktop-layout { display: none; }
+  .mobile-layout { display: block; }
+  @media (min-width: 768px) {
+    .desktop-layout { display: block; }
+    .mobile-layout { display: none; }
+  }
+  .pager .desktop-layout { display: none; }
+  @media (min-width: 768px) {
+    .pager .desktop-layout { display: inline-flex; }
+  }
+  .blog-index { padding-block: 48px; background-color: var(--surface); border-top: 1px solid var(--ring); }
+  @media (max-width: 767px) {
+    .blog-index { padding-block: 24px; border-top: none; }
+    .mobile-layout + .blog-index { padding-top: 0; }
+  }
+  .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .section-head h1 { font-size: clamp(24px, 4vw, 36px); margin: 0 0 4px; }
+  .btn-view-all { display: inline-block; padding: 10px 16px; font-size: 14px; font-weight: 600; color: var(--text-primary); background-color: var(--surface-2); border: 1px solid var(--ring); border-radius: 10px; text-decoration: none; }
+  .btn-view-all:hover { background-color: var(--surface); }
+  .post-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 12px; }
+  @media (max-width: 767px) { .post-grid { grid-template-columns: 1fr; } }
+  .post-card { background-color: var(--surface); border: 1px solid var(--ring); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-md); transition: transform .2s ease-out, box-shadow .2s ease-out; display: flex; flex-direction: column; }
+  .post-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+  .card-image-link { display: block; }
+  .card-image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  .card-content { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
+  .card-meta { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
+  .card-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .card-title a { color: var(--text-primary); text-decoration: none; }
+  .card-title a:hover { color: var(--brand-orange); }
+  .card-excerpt {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0;
+    flex-grow: 1;
+  }
+  .prose-excerpt { font-size: 14px; line-height: 1.6; }
+  .prose-excerpt :global(p) { margin: 0 0 1em; color: var(--text-secondary); }
+  .prose-excerpt :global(p:last-child) { margin-bottom: 0; }
+  .prose-excerpt :global(h1), .prose-excerpt :global(h2), .prose-excerpt :global(h3), .prose-excerpt :global(h4) {
+    font-size: 1em; font-weight: 600; color: var(--text-primary); margin: 0;
+  }
+  .prose-excerpt :global(strong) { font-weight: 700; color: var(--text-primary); }
+  
+  .pager { margin-top: 28px; }
+  .pager ul { list-style: none; padding: 0; margin: 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .pg-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 72px; height: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--ring); background: var(--surface-2); color: var(--text-primary); font-weight: 700; text-decoration: none; }
+  .pg-btn[aria-disabled="true"] { opacity: .6; pointer-events: none; }
+  .pg-status { font-weight: 700; color: var(--text-secondary); padding: 6px 8px; }
+</style>

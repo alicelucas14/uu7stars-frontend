@@ -1,0 +1,206 @@
+---
+/**
+ * CrossLinkStrip.astro
+ * --- REFACTORED: Now uses the centralized 'useTranslations' utility. ---
+ */
+
+import { getPromotions, getReviews, type Promotion, type ReviewListItem } from '../services/api';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n'; // <-- IMPORT the new utility
+
+interface Props {
+  showPromotions?: boolean;
+  showReviews?: boolean;
+  titlePromos?: string;
+  titleReviews?: string;
+  limitPromos?: number;
+  limitReviews?: number;
+  matchTerms?: string[];
+  excludeSlug?: string;
+  lang?: Locale;
+}
+
+const {
+  showPromotions = false,
+  showReviews = false,
+  titlePromos = 'Current Promotions — Starsuu7 (UU7 • 777)',
+  titleReviews = 'Popular Reviews — Starsuu7 (UU7 • 777)',
+  limitPromos = 6,
+  limitReviews = 6,
+  matchTerms = [],
+  excludeSlug,
+  lang = 'en'
+} = Astro.props as Props;
+
+// --- UPDATED: Get the translation function for the current language ---
+const t = useTranslations(lang);
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+const abs = (p?: string) => (!p ? '' : (p.startsWith('http') ? p : `${API_BASE_URL}${p}`));
+
+const needles = matchTerms
+  .map((t) => String(t || '').toLowerCase().trim())
+  .filter(Boolean);
+
+const promosAll = showPromotions && getPromotions ? await getPromotions(lang).catch(() => []) : [];
+const reviewsAll = showReviews && getReviews ? await getReviews(lang).catch(() => []) : [];
+
+const scoreText = (text: string): number => {
+  if (!needles.length || !text) return 0;
+  const hay = text.toLowerCase();
+  let s = 0;
+  for (const n of needles) if (n && hay.includes(n)) s += 1;
+  return s;
+};
+
+const scoredPromos = promosAll
+  .filter((p) => p.imageUrl && (!excludeSlug || p.slug !== excludeSlug))
+  .map((p) => ({
+    ...p,
+    _score:
+      scoreText(`${p.title} ${p.subtitle ?? ''} ${p.description ?? ''}`) +
+      scoreText((p.details || []).join(' ')),
+  }))
+  .sort((a, b) => {
+    if (b._score !== a._score) return b._score - a._score;
+    return 0;
+  })
+  .slice(0, limitPromos);
+
+const scoredReviews = reviewsAll
+  .filter((r) => r.image && (!excludeSlug || r.slug !== excludeSlug))
+  .map((r) => ({
+    ...r,
+    _score: scoreText(`${r.title} ${r.excerpt ?? ''} ${r.gameName ?? ''}`),
+  }))
+  .sort((a, b) => {
+    if (b._score !== a._score) return b._score - a._score;
+    const ar = Number.isFinite(+a.rating) ? +a.rating : -1;
+    const br = Number.isFinite(+b.rating) ? +b.rating : -1;
+    if (br !== ar) return br - ar;
+    return 0;
+  })
+  .slice(0, limitReviews);
+
+const hasPromos = showPromotions && scoredPromos.length > 0;
+const hasReviews = showReviews && scoredReviews.length > 0;
+const renderAnything = hasPromos || hasReviews;
+---
+
+{renderAnything && (
+  <section class="xlinks" aria-label="Internal linking">
+    <div class="container">
+      {hasPromos && (
+        <div class="strip">
+          <header class="head">
+            <h2>{titlePromos}</h2>
+            {/* UPDATED: Use the 't' function with a key from our JSON file */}
+            <p class="muted" set:html={t('crossLinkStrip.descPromos')}></p>
+          </header>
+
+          <div class="grid promos">
+            {scoredPromos.map((p: Promotion) => {
+              const href = `/promotions/${p.slug}`;
+              const img = abs(p.imageUrl);
+              const badge = p.badgeText || '';
+              return (
+                <article class="card promo">
+                  <a href={href} class="artlink" aria-label={`View promotion: ${p.title}`}>
+                    {img && <img src={img} alt="" width="480" height="300" loading="lazy" class="cover" />}
+                    {badge && <span class="badge">{badge}</span>}
+                  </a>
+                  <div class="content">
+                    <h3 class="title"><a href={href}>{p.title}</a></h3>
+                    {p.subtitle && <p class="subtitle">{p.subtitle}</p>}
+                    {p.description && <p class="excerpt">{p.description}</p>}
+                    <a class="cta" href={href}>Learn more</a>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          <div class="more">
+            {/* UPDATED: Use the 't' function */}
+            <a class="btn ghost" href="/promotions/" aria-label={t('crossLinkStrip.seeAllPromos')}>
+              {t('crossLinkStrip.seeAllPromos')}
+            </a>
+          </div>
+        </div>
+      )}
+
+      {hasReviews && (
+        <div class="strip">
+          <header class="head">
+            <h2>{titleReviews}</h2>
+            {/* UPDATED: Use the 't' function */}
+            <p class="muted" set:html={t('crossLinkStrip.descReviews')}></p>
+          </header>
+
+          <div class="grid reviews">
+            {scoredReviews.map((r: ReviewListItem) => {
+              const href = `/reviews/${r.slug}`;
+              const img = abs(r.image);
+              const stars = Number.isFinite(+r.rating) ? Math.max(0, Math.min(5, Math.round(+r.rating))) : 0;
+              return (
+                <article class="card review">
+                  <a href={href} class="artlink" aria-label={`Read review: ${r.title}`}>
+                    {img && <img src={img} alt="" width="480" height="300" loading="lazy" class="cover" />}
+                    {stars > 0 && <span class="rating" aria-label={`${stars} out of 5`}>{'★'.repeat(stars)}{'☆'.repeat(5 - stars)}</span>}
+                  </a>
+                  <div class="content">
+                    <h3 class="title"><a href={href}>{r.title}</a></h3>
+                    {r.gameName && <p class="meta"><strong>Game:</strong> {r.gameName}</p>}
+                    {r.excerpt && <p class="excerpt">{r.excerpt}</p>}
+                    <a class="cta" href={href}>Read full review</a>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          <div class="more">
+            {/* UPDATED: Use the 't' function */}
+            <a class="btn ghost" href="/reviews/" aria-label={t('crossLinkStrip.seeAllReviews')}>
+              {t('crossLinkStrip.seeAllReviews')}
+            </a>
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+)}
+<style>
+  .xlinks { padding-block: 32px; background: var(--surface-2); border-top: 1px solid var(--ring); border-bottom: 1px solid var(--ring); }
+  .strip + .strip { margin-top: 28px; }
+
+  .head { text-align: center; max-width: 780px; margin: 0 auto 18px; }
+  .head h2 { margin: 0 0 6px; font-size: clamp(22px, 3.6vw, 28px); }
+  .head .muted { margin: 0; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow-md); transition: transform .2s ease-out, box-shadow .2s ease-out; }
+  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+  .artlink { position: relative; display: block; }
+  .cover { width: 100%; height: auto; object-fit: cover; display: block; }
+  .badge, .rating { position: absolute; left: 10px; top: 10px; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 900; background: var(--brand-gold); color: #0b0b0f; border: 1px solid color-mix(in oklab, #000 15%, var(--brand-gold)); }
+
+  .content { padding: 14px; display: flex; flex-direction: column; gap: 6px; flex-grow: 1; }
+  .title { font-size: 17px; margin: 0; }
+  .title a { color: var(--text-primary); font-weight: 800; text-decoration: none; }
+  .title a:hover { color: var(--brand-orange); }
+  .subtitle, .meta { margin: 0; color: var(--text-primary); font-weight: 600; font-size: 13px; }
+  .excerpt { margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.55; flex-grow: 1; }
+  .cta { align-self: flex-start; color: var(--brand-orange); font-weight: 700; text-decoration: none; }
+  .cta:hover { text-decoration: underline; }
+
+  .more { margin-top: 14px; display: grid; place-items: center; }
+  .btn.ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border-radius: 10px; color: var(--text-primary); background: var(--surface); border: 1px dashed var(--ring); text-decoration: none; font-weight: 800; }
+  .btn.ghost:hover { border-style: solid; }
+</style>

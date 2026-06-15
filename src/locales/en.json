@@ -1,0 +1,431 @@
+{
+"header": {
+    "nav": {
+      "how": "How to Play",
+      "promos": "Promotions",
+      "reviews": "Reviews",
+      "about": "About Us",
+      "faq": "FAQ",
+      "blog": "Blog"
+    },
+    "cta": "Download Starsuu7 APK"
+  },
+  "crossLinkStrip": {
+    "descPromos": "Latest bonuses and offers for <strong>Starsuu7</strong> (aka <strong>UU7</strong> • <strong>777</strong>).",
+    "descReviews": "Trusted takes on Teen Patti, Rummy & more—only on <strong>Starsuu7</strong>.",
+    "seeAllPromos": "See all promotions",
+    "seeAllReviews": "See all reviews"
+  },
+  "gameGrid": {
+    "title": "Featured Game Reviews",
+    "description": "Get expert insights, ratings, and strategy tips for our most popular games before you play.",
+    "cta": "Read Full Review",
+    "seeAll": "See All Reviews"
+  },
+  "footer": {
+    "tagline": "Experience fair, secure, and thrilling online gaming. Your entertainment is our priority.",
+    "quicklinks": "Quicklinks",
+    "legal": "Legal",
+    "integrity": "Integrity & Security",
+    "partners": "Withdrawal Partners",
+    "disclaimer": "<strong>Disclaimer:</strong> Services are <strong>not available</strong> in Assam, Arunachal Pradesh, Andhra Pradesh, Telangana, Odisha, and Nagaland.",
+    "responsible": "For players aged <strong>18+</strong>. Please play responsibly.",
+    "copyright": "All rights reserved.",
+    "nav": {
+      "home": "Home",
+      "games": "Games",
+      "faq": "FAQ",
+      "about": "About Us"
+    },
+    "legalNav": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "responsible": "Responsible Gaming"
+    },
+    "integrityBadges": {
+      "noBot": "No Bot Guarantee",
+      "iso": "ISO Certified",
+      "withdrawal": "Instant Withdrawal",
+      "rng": "RNG Certified"
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "description": "Have questions? We've got answers. If you don't find what you're looking for, our 24/7 support is ready to help.",
+    "viewAll": "View All FAQs",
+    "list": [
+      { 
+        "q": "How do I create an account on Starsuu7?", 
+        "a": "To create an account, visit Starsuu7 and download the game. Fill out the required fields with your personal information and follow the prompts to complete the registration process." 
+      },
+      { 
+        "q": "What types of games are available on Starsuu7?", 
+        "a": "Starsuu7 offers a wide variety of games, including Rummy, Teen Patti, casino games, lotteries, and more. New games are regularly added to keep the gaming experience exciting. For tips, strategies, and insights on game varieties, check out our Starsuu7 blog for card game lovers." 
+      },
+      { 
+        "q": "Is Starsuu7 safe and secure?", 
+        "a": "Yes! Starsuu7 uses advanced encryption and security measures to protect user data and transactions. We are committed to providing a secure, fair, and enjoyable gaming environment for all players." 
+      },
+      { 
+        "q": "I forgot my password. How can I reset it?", 
+        "a": "Click on the “Forgot Password” link on the login page. Enter your registered email address, and we’ll send you instructions to reset your password." 
+      },
+      { 
+        "q": "How can I update my personal information?", 
+        "a": "Log in to your account, navigate to the “Profile” section, and edit your details. Don’t forget to save the changes!" 
+      },
+      { 
+        "q": "How do I make a deposit?", 
+        "a": "Log in to your Starsuu7 account, go to the “Banking” or “Wallet” section, and select “Deposit”. Choose your preferred payment method, enter the necessary details, and confirm your transaction." 
+      }
+    ]
+  },
+  "hero": {
+    "h1": "Starsuu7 — Teen Patti & Rummy real cash app",
+    "lead": "Play skill-based Teen Patti and Rummy on Starsuu7 with secure payments, quick <strong>withdrawals</strong>, and friendly 24/7 support. Download the Starsuu7 APK and start in minutes. For players 18+; play responsibly.",
+    "ctaAriaLabel": "Download the Starsuu7 app",
+    "ctaButton": "Download App",
+    "ctaBonus": "Get Cash Bonus on 1st Add Cash*",
+    "imageAlt": "Starsuu7 app — Teen Patti & Rummy real cash games"
+  },
+  "stats": {
+    "winners": "Winners",
+    "players": "Players",
+    "winnings": "Winnings",
+    "support": "Support"
+  },
+  "promotions": {
+    "title": "Offers & Promotions",
+    "description": "Maximize your winnings with our exciting bonuses and special offers, designed for new and regular players alike.",
+    "viewAll": "See All Promotions",
+    "steps": [
+      { 
+        "title": "Sign Up & Get Bonus", 
+        "body": "New to Starsuu7? Register today and make your first deposit to claim an exclusive welcome bonus to kickstart your journey." 
+      },
+      { 
+        "title": "Explore Daily Offers", 
+        "body": "Visit the in-app Promotions tab daily for new deposit bonuses, cashback rewards, and special event offers." 
+      },
+      { 
+        "title": "Join Tournaments", 
+        "body": "Compete against other skilled players in our exciting tournaments. Climb the leaderboard to win from massive prize pools." 
+      }
+    ]
+  },
+  "aboutTabs": {
+    "title": "About Starsuu7",
+    "intro1": "Welcome to <strong>Starsuu7</strong> (also known as <strong>UU7</strong> / <strong>777</strong>) — a simple, mobile-first way to play Teen Patti, Rummy, and more. Enjoy a smooth app experience with easy onboarding, quick wallet actions, and helpful support.",
+    "intro2": "If you’re new, head to the <a href=\"/#download\">Download</a> section to get the official APK and start in minutes. For region eligibility and safety tips, see our <a href=\"/faq#compliance\">FAQ</a>.",
+    "tab1": {
+      "title": "What Makes Starsuu7 Safe?",
+      "h1": "Standard Security Practices",
+      "p1": "Starsuu7 uses common security measures—such as transport-layer encryption and protective controls—to help keep account and transaction data secure. For best results, use strong passwords, enable device locks, and never share OTPs.",
+      "h2": "Account Controls",
+      "p2": "Manage login, KYC, and wallet settings in-app. Keep your name and payout details consistent to avoid withdrawal delays. Learn more in the <a href=\"/faq#payments\">KYC, Deposits &amp; Withdrawals</a> section.",
+      "h3": "Responsive Support",
+      "p3": "Got a question about Teen Patti, Rummy, gameplay, or payouts? Our team aims to respond quickly via Help/Live Chat. Include your user ID and a brief description for faster resolution.",
+      "h4": "Faster Wallet Actions",
+      "p4": "Deposits and withdrawals are streamlined after KYC. Processing times can vary by method and routine reviews—track status in Wallet → Transactions."
+    },
+    "tab2": {
+      "title": "Compliance & Eligibility",
+      "p1": "Availability for real-money, skill-based play varies by state in India. Services are <strong>not available</strong> in <em>Assam, Arunachal Pradesh, Andhra Pradesh, Telangana, Odisha, and Nagaland</em>. Starsuu7 is for players <strong>18+</strong>. Please review local rules before playing and see our <a href=\"/faq#compliance\">FAQ on legality &amp; eligibility</a>.",
+      "h1": "Fair-Play Approach",
+      "p2": "Games are designed for skill-based entertainment. Start at low stakes, learn hand rankings and table etiquette, and play responsibly.",
+      "h2": "Helpful Links",
+      "p3": "• <a href=\"/#download\">Download Starsuu7 (UU7 • 777) APK</a> • <a href=\"/faq#promos\">Promotions &amp; Welcome Bonus</a> • <a href=\"/faq#responsible\">Responsible Play</a>"
+    },
+    "tab3": {
+      "title": "Discover Starsuu7 Online",
+      "h1": "Game Highlights",
+      "p1": "Explore Teen Patti, Rummy, Andar Bahar, Dragon vs Tiger, and more—new titles are added periodically. Jump in from the <a href=\"/#games\">Games</a> section or go straight to the <a href=\"/#download\">Download</a> button to play on Android.",
+      "h2": "Smooth Mobile Experience",
+      "p2": "Starsuu7 runs great on modern Android devices. For the best experience, keep your OS updated and disable aggressive battery savers that can throttle live gameplay.",
+      "h3": "Get the APK",
+      "p3": "Install the latest build from the official site. Use the primary CDN or the mirror link based on your network conditions: visit <a href=\"/#download\">Download Starsuu7 APK</a>."
+    }
+  },
+  "howToPlay": {
+    "title": "Get Started in 3 Easy Steps",
+    "description": "Joining the action at Starsuu7 is simple. Follow these steps and you'll be playing and winning in minutes.",
+    "viewAll": "Find More Guides & Strategies",
+    "steps": [
+      { 
+        "title": "Download & Sign Up", 
+        "body": "Get the app from our site and create your account in under a minute. It’s fast, free, and secure." 
+      },
+      { 
+        "title": "Add Cash to Wallet", 
+        "body": "Make your first deposit using any of our secure payment methods to get a generous welcome bonus." 
+      },
+      { 
+        "title": "Play & Win Big", 
+        "body": "Choose your favorite game, join a table, and put your skills to the test to win real cash prizes." 
+      }
+    ]
+  },
+  "recentBlogs": {
+    "title": "Latest From Our Blog",
+    "description": "Get the latest tips, news, and game strategies from our experts.",
+    "viewAll": "View All Posts →",
+    "readMore": "Read More"
+  },
+  "testimonials": {
+    "title": "What Our Players Say",
+    "description": "We are proud to have a community of happy players. Here’s what some of them have to say about Starsuu7.",
+    "list": [
+      { 
+        "name": "Rohan S.", 
+        "quote": "The best Teen Patti experience online! The withdrawals are actually instant, unlike other apps. Highly recommended." 
+      },
+      { 
+        "name": "Priya K.", 
+        "quote": "I love the smooth interface and fair play. The 24/7 customer support is also very helpful and responsive." 
+      },
+      { 
+        "name": "Ankit M.", 
+        "quote": "Finally, a gaming app that is both fun and trustworthy. I have won a good amount and the process was seamless." 
+      }
+    ]
+  },
+  "promoHowToPlay": {
+    "promoTitle": "Promotion & Offer",
+    "howToTitle": "How To Play Staruu7 Games",
+    "seeAll": "See All Promotions &rarr;",
+    "steps": [
+      {
+        "title": "Basic Game Settings",
+        "text": "Two to five players usually play Teen Patti, with each player holding three cards. With the exception of the little king, it employs two set decks of cards, for a total of 106 cards."
+      },
+      {
+        "title": "Fundamental Game Rules",
+        "text": "Three hands are handed to each participant, and the larger hand wins after the cards are compared based on the type of hand."
+      },
+      {
+        "title": "Types of Cards",
+        "list": [
+          "Trail, Trio, or Set (three individuals of the same rank)",
+          "Straight Flush, Pure Sequence, or Pure Run (three cards in the same suit in a row)",
+          "Run/Straight/Sequence (three cards in a row, not all in the same suit)",
+          "Color/Flush (three identical cards, not in order)",
+          "Pair/Two of a Kind (two identically ranked cards)",
+          "High Card: three cards that don't fit into any of the combinations listed above"
+        ]
+      },
+      {
+        "title": "Ante Betting",
+        "text": "Each player puts a certain amount into the pot, which is the starting wager. After shuffling the deck, the dealer deals each player three cards, face down."
+      }
+    ]
+  },
+  "downloadCta": {
+    "title": "Download Starsuu7",
+    "subheading": "Instant withdrawals, quick KYC, and 24/7 support. New users get a cash bonus on 1st add cash.*",
+    "buildDetails": "Build details",
+    "apkVersion": "APK version",
+    "fileSize": "File size",
+    "lastUpdated": "Last updated",
+    "security": "Security and support",
+    "secureDownload": "Secure Download",
+    "support": "24/7 Support",
+    "quickKyc": "Quick KYC",
+    "mainCtaAria": "Download Starsuu7 APK (get cash bonus on first add cash)",
+    "mainCta": "Download APK",
+    "bonusInfo": "Get Cash Bonus on 1st Add Cash*",
+    "qrScan": "Scan to Download",
+    "mirrorLink": "Mirror Link",
+    "copyLink": "Copy Link",
+    "tinyNote": "*Bonus terms apply. Available to new users only.",
+    "script": {
+      "copyLink": "Copy Link",
+      "copied": "Copied!",
+      "copyError": "Press Ctrl/Cmd+C",
+      "toastTitle": "Installing the APK",
+      "toastStep1": "When the download finishes, tap <em>Open</em>.",
+      "toastStep2": "If prompted, allow installs from your browser.",
+      "toastStep3": "Tap <em>Install</em> → <em>Open</em>.",
+      "toastDismiss": "Got it"
+    }
+  },
+  "mobileAppShell": {
+    "home": "Home",
+    "blog": "Blog",
+    "promos": "Promos",
+    "download": "Download",
+    "faq": "FAQ",
+    "aria": {
+      "goBack": "Go back",
+      "openMenu": "Open menu",
+      "downloadApp": "Download App"
+    }
+  },
+  "blogIndex": {
+    "title": "Blog | Starsuu7 — Teen Patti & Rummy Tips, Tricks & News",
+    "description": "Read Starsuu7 blog articles on Teen Patti, Rummy, and real-cash game strategies. Learn, improve, and play smarter.",
+    "h1": "Starsuu7 Blog",
+    "subheading": "Strategies, news, and guides for Teen Patti & Rummy players.",
+    "cta": "Download Starsuu7 APK",
+    "pager": {
+      "prev": "‹ Prev",
+      "next": "Next ›",
+      "last": "Last »",
+      "pageStatus": "Page {currentPage} / {totalPages}"
+    }
+  },
+  "blogPaginated": {
+    "title": "Blog — Page {currentPage} | Starsuu7",
+    "description": "Latest tips, news, and game strategies from the Starsuu7 team.",
+    "h1": "Blog",
+    "firstPage": "First Page",
+    "noPosts": "No posts found for this page.",
+    "readMore": "Read More"
+  },
+  "blogPost": {
+    "title": "{postTitle} | Starsuu7 Blog",
+    "byAuthor": "By {authorName}",
+    "commentsTitle": "Comments"
+  },
+  "promotionPost": {
+    "backLink": "← All Promotions",
+    "subheading": "Official Starsuu7 offer (also known as <strong>UU7</strong> / <strong>777</strong>). Terms may apply.",
+    "subheadingMobile": "Official Starsuu7 offer. Terms may apply.",
+    "claimOffer": "Claim Offer",
+    "downloadApp": "Download Starsuu7 App",
+    "howToClaim": "How to claim",
+    "noteTitle": "Heads up:",
+    "noteBody": "Starsuu7 promotions are for players 18+. Play responsibly. Availability may vary by region.",
+    "relatedTitle": "Related Reviews (Starsuu7 • UU7 • 777)",
+    "relatedDescription": "Explore gameplay, fairness and ratings from our review hub.",
+    "seeAllReviews": "See all reviews →"
+  },
+  "promotionsIndex": {
+    "title": "Promotions & Offers — Starsuu7 (UU7 • 777)",
+    "description": "Claim Starsuu7 promotions: welcome bonuses, add-cash boosts, leaderboard rewards, and more for Teen Patti & Rummy. 18+ only — play responsibly.",
+    "h1": "Promotions & Offers",
+    "subheading": "Maximize value on <strong>Starsuu7</strong> (aka <strong>UU7</strong> • <strong>777</strong>). Grab welcome bonuses, add-cash boosts, and special events for Teen Patti, Rummy & more.",
+    "learnMore": "Learn more",
+    "noPromos": "No promotions are live at the moment. Check back soon!"
+  },
+  "reviewsIndex": {
+    "title": "Game Reviews — Starsuu7 (UU7 • 777)",
+    "description": "Honest Starsuu7 game reviews: Teen Patti, Rummy, Andar Bahar, Dragon vs Tiger and more. Get pros/cons, ratings, and gameplay tips.",
+    "h1": "Game Reviews",
+    "subheading": "Explore real, concise reviews for <strong>Starsuu7</strong> (aka <strong>UU7</strong> • <strong>777</strong>) games. See ratings, pros/cons, and quick-read summaries before you play Teen Patti, Rummy, and other titles.",
+    "readMore": "Read full review",
+    "noReviews": "No reviews yet. Check back soon!"
+  },
+  "reviewPost": {
+    "title": "{reviewTitle} | Starsuu7 Game Reviews",
+    "description": "Read our full review of {gameName} on Starsuu7. Get ratings, pros, cons, and gameplay details for Teen Patti, Rummy, and more.",
+    "reviewOf": "A review of: <strong>{gameName}</strong>",
+    "ourRating": "Our Rating",
+    "game": "Game",
+    "developer": "Developer",
+    "pros": "Pros",
+    "cons": "Cons",
+    "playerReviews": "Player Reviews",
+    "averageRating": "Average rating",
+    "rated": "Rated"
+  },
+  "faqPage": {
+    "title": "FAQ | Starsuu7 - Answers to Your Questions",
+    "description": "Find answers to frequently asked questions about creating an account, game rules for Teen Patti and Rummy, account management, and security on Starsuu7.",
+    "h1": "Starsuu7 Frequently Asked Questions (FAQs)",
+    "mobileIntro": "Find answers to common questions below.",
+    "list": [
+      { "q": "How do I create an account on Starsuu7?", "a": "Visit the Starsuu7 website and download the game. Fill in the required fields with your personal information and follow the prompts to complete registration." },
+      { "q": "What types of games are available on Starsuu7?", "a": "Starsuu7 offers Rummy, Teen Patti, casino games, lotteries, and more. New games are added regularly." },
+      { "q": "How to Play Teen Patti", "a": "Each player is dealt three cards. Aim to have the best hand or bluff opponents to win the pot." },
+      { "q": "How to Play Rummy", "a": "Form valid sets and sequences by picking and discarding cards efficiently." },
+      { "q": "Is Starsuu7 safe and secure?", "a": "Yes. We use advanced encryption and other security measures to protect data and transactions." },
+      { "q": "I forgot my password. How can I reset it?", "a": "Click “Forgot Password” on the login page, enter your registered email, then follow the emailed instructions." },
+      { "q": "How can I update my personal information?", "a": "Log in, go to the Profile section, edit your details, and save." },
+      { "q": "How do I make a deposit?", "a": "Log in, open Banking/Wallet → Deposit, select a payment method, enter details, and confirm." },
+      { "q": "How long do withdrawals take on Starsuu7?", "a": "Typically within 24 hours, depending on the payment method." },
+      { "q": "Can I play games on my mobile device?", "a": "Yes. Starsuu7 is optimized for mobile, via browser or the Android app." },
+      { "q": "What should I do if a game freezes?", "a": "Refresh the page or restart the app. If it persists, contact support via Help." },
+      { "q": "How do I claim a bonus?", "a": "Follow the instructions in the Promotions page or in-app notices. Most bonuses apply automatically once criteria are met." }
+    ]
+  },
+  "privacyPolicyPage": {
+    "title": "Privacy Policy | Starsuu7",
+    "description": "Learn how Starsuu7 (UU7 • 777) collects, uses, and protects your personal information. Your privacy and data security are our top priorities.",
+    "h1": "Privacy Policy",
+    "lastUpdated": "Last Updated: October 07, 2025",
+    "sections": [
+      {
+        "title": "1. Introduction",
+        "content": "<p>Welcome to Starsuu7 (\"we,\" \"our,\" or \"us\"). We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application and website (our \"Services\"). Please read this policy carefully. If you do not agree with the terms of this privacy policy, please do not access the Services.</p>"
+      },
+      {
+        "title": "2. Information We Collect",
+        "content": "<p>We may collect information about you in a variety of ways. The information we may collect via the Services includes:</p><ul><li><strong>Personal Data:</strong> Personally identifiable information, such as your name, email address, and telephone number, that you voluntarily give to us when you register with the Services.</li><li><strong>Financial Data:</strong> Financial information, such as data related to your payment method (e.g., valid credit card number, card brand, expiration date) that we may collect when you make a deposit or request a withdrawal.</li><li><strong>Data from Social Networks:</strong> User information from social networking sites, such as Facebook, Google, if you connect your account to such social networks.</li></ul>"
+      },
+      {
+        "title": "3. Use of Your Information",
+        "content": "<p>Having accurate information about you permits us to provide you with a smooth, efficient, and customized experience. Specifically, we may use information collected about you via the Services to:</p><ul><li>Create and manage your account.</li><li>Process your transactions and send you related information, including purchase confirmations and invoices.</li><li>Monitor and analyze usage and trends to improve your experience with the Services.</li><li>Notify you of updates to the Services.</li><li>Resolve disputes and troubleshoot problems.</li></ul>"
+      },
+      {
+        "title": "4. Contact Us",
+        "content": "<p>If you have questions or comments about this Privacy Policy, please contact us through the in-app support chat or via our support email address.</p>"
+      }
+    ]
+  },
+  "termsOfServicePage": {
+    "title": "Terms of Service | Starsuu7",
+    "description": "Read the official Terms of Service for using the Starsuu7 (UU7 • 777) app and website. Understand the rules, your responsibilities, and our commitments.",
+    "h1": "Terms of Service",
+    "lastUpdated": "Last Updated: October 07, 2025",
+    "sections": [
+      {
+        "title": "1. Agreement to Terms",
+        "content": "<p>By using our Services, you agree to be bound by these Terms of Service. If you do not agree to these Terms, do not use the Services. We may modify the Terms at any time, and such modifications shall be effective immediately upon posting.</p>"
+      },
+      {
+        "title": "2. Eligibility and Account",
+        "content": "<p>You must be at least 18 years of age to use our Services. You are responsible for maintaining the confidentiality of your account and password and for restricting access to your device. You agree to accept responsibility for all activities that occur under your account.</p><p>Our real-money gaming services are not available in the states of Assam, Arunachal Pradesh, Andhra Pradesh, Telangana, Odisha, and Nagaland.</p>"
+      },
+      {
+        "title": "3. User Conduct",
+        "content": "<p>You agree not to use the Services for any unlawful purpose or any purpose prohibited under this clause. You agree not to use the Services in any way that could damage the Services, the reputation of Starsuu7, or the general business of Starsuu7.</p><ul><li>You will not engage in any form of cheating or collusion.</li><li>You will not use any unauthorized third-party software.</li><li>You will not harass, abuse, or harm another person or group.</li></ul>"
+      },
+      {
+        "title": "4. Termination",
+        "content": "<p>We may terminate or suspend your account and bar access to the Services immediately, without prior notice or liability, under our sole discretion, for any reason whatsoever and without limitation, including but not limited to a breach of the Terms.</p>"
+      },
+      {
+        "title": "5. Contact Us",
+        "content": "<p>If you have any questions about these Terms, please contact us through the in-app support chat.</p>"
+      }
+    ]
+  },
+  "responsibleGamingPage": {
+    "title": "Responsible Gaming | Starsuu7",
+    "description": "Starsuu7 (UU7 • 777) is committed to responsible gaming. Learn about our policies, tools for self-control, and resources to help you play safely and responsibly.",
+    "h1": "Responsible Gaming Policy",
+    "lastUpdated": "Last Updated: October 07, 2025",
+    "sections": [
+      {
+        "title": "1. Our Commitment",
+        "content": "<p>Starsuu7 is committed to providing a fun and entertaining gaming experience while promoting responsible gaming practices. We believe in protecting our players and providing a secure environment. Gaming should be an enjoyable leisure activity and not a source of financial stress.</p>"
+      },
+      {
+        "title": "2. Age Verification",
+        "content": "<p>We strictly prohibit anyone under the age of 18 from playing our games. We perform age verification checks and may request identification documents to verify a player's age. Any account found to be used by an underage individual will be immediately terminated.</p>"
+      },
+      {
+        "title": "3. Playing Responsibly",
+        "content": "<p>To ensure you continue to enjoy safe and manageable play, we encourage you to keep the following in mind:</p><ul><li>Play for entertainment, not as a way of making money.</li><li>Only play with money you can afford to lose.</li><li>Set limits for your deposits, wagers, and losses before you start playing.</li><li>Never chase your losses.</li><li>Balance gaming with other activities.</li><li>Do not play when you are under stress, depressed, or under the influence.</li></ul>"
+      },
+      {
+        "title": "4. Self-Exclusion",
+        "content": "<p>If you feel that you are developing a dependency on gaming, we offer a self-exclusion feature. You can request to be temporarily or permanently excluded from our services by contacting our customer support team. During the self-exclusion period, you will not be able to access your account.</p>"
+      },
+      {
+        "title": "5. Getting Help",
+        "content": "<p>If you are concerned about your gaming habits or are affected by someone else's, there are resources available to provide help and support. We encourage you to seek assistance from relevant counseling organizations if you feel you need it.</p>"
+      }
+    ]
+  }
+}

@@ -1,0 +1,151 @@
+---
+// ===== src/components/Footer.astro =====
+// --- REFACTOR: All links are now language-aware using the createPath utility ---
+
+import BadgeIcon from './BadgeIcon.astro';
+import { getSettings } from '../services/api';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
+import { createPath } from '../lib/paths'; // <-- IMPORT the new utility
+
+interface Props {
+  lang?: Locale;
+}
+const { lang = 'en' } = Astro.props as Props;
+const t = useTranslations(lang);
+
+const settings = await getSettings();
+const year = new Date().getFullYear();
+
+// --- UPDATED: home link is now language-aware ---
+const brandInfo = {
+  name: settings?.siteName || "Starsuu7",
+  tagline: t('footer.tagline'),
+  homeUrl: createPath('/', lang)
+};
+
+const potentialSocials = [
+  { key: 'youtubeUrl', imgSrc: "/wordpress/youtube.png", label: 'YouTube' },
+  { key: 'facebookUrl', imgSrc: "/wordpress/facebook.png", label: 'Facebook' },
+  { key: 'instagramUrl', imgSrc: "/wordpress/instagram.webp", label: 'Instagram' },
+  { key: 'telegramUrl', imgSrc: "/wordpress/telegram.png", label: 'Telegram' },
+  { key: 'whatsappUrl', imgSrc: "/wordpress/whatsapp.png", label: 'WhatsApp' },
+  { key: 'twitterUrl', imgSrc: "/wordpress/x.webp", label: 'Twitter' },
+];
+
+const socialLinks = settings
+  ? potentialSocials
+      .map(s => ({ ...s, href: settings[s.key as keyof typeof settings] as string }))
+      .filter(s => s.href)
+  : [];
+
+// --- UPDATED: All hrefs are now built dynamically using createPath ---
+const navLinks = [
+  { href: createPath("/", lang), label: t('footer.nav.home') },
+  { href: createPath("/#games", lang), label: t('footer.nav.games') },
+  { href: createPath("/faq/", lang), label: t('footer.nav.faq') },
+  { href: createPath("/#about", lang), label: t('footer.nav.about') }
+];
+
+const legalLinks = [
+  { href: createPath("/privacy-policy/", lang), label: t('footer.legalNav.privacy') },
+  { href: createPath("/terms-of-service/", lang), label: t('footer.legalNav.terms') },
+  { href: createPath("/responsible-gaming/", lang), label: t('footer.legalNav.responsible') }
+];
+// --- END UPDATE ---
+
+const integrityBadges = [
+  { icon: 'no-bot', text: t('footer.integrityBadges.noBot') },
+  { icon: 'iso', text: t('footer.integrityBadges.iso') },
+  { icon: 'withdrawal', text: t('footer.integrityBadges.withdrawal') },
+  { icon: 'rng', text: t('footer.integrityBadges.rng') },
+];
+
+const paymentPartners = [
+  { imgSrc: "/wordpress/payment-1.webp", alt: "Paytm" },
+  { imgSrc: "/wordpress/payment5-2.webp", alt: "RuPay" },
+  { imgSrc: "/wordpress/payment7.webp", alt: "PhonePe" },
+  { imgSrc: "/wordpress/payment6-2.webp", alt: "UPI" },
+  { imgSrc: "/wordpress/payment2-2.webp", alt: "Visa" },
+  { imgSrc: "/wordpress/payment4-2.webp", alt: "Mastercard" },
+];
+---
+
+<footer class="site-footer" role="contentinfo">
+  <div class="container footer-inner">
+
+    <section class="brand-card">
+      {/* UPDATED: Language-aware home link */}
+      <a href={brandInfo.homeUrl} class="brand" aria-label={`${brandInfo.name} — Home`}>
+        <img src= "/logo.webp" width="44" height="44" alt={`${brandInfo.name} logo`} decoding="async" loading="lazy" />
+        <div class="brand-names">
+          <strong class="brand-name">{brandInfo.name}</strong>
+          <span class="brand-tag">{brandInfo.tagline}</span>
+        </div>
+      </a>
+      {socialLinks.length > 0 && (
+        <div class="socials" aria-label="Follow us">
+          {socialLinks.map(s => (
+            <a class="social" href={s.href} aria-label={s.label} title={s.label} target="_blank" rel="noopener noreferrer">
+              <img src={s.imgSrc} alt={s.label} width="20" height="20" decoding="async" loading="lazy" />
+            </a>
+          ))}
+        </div>
+      )}
+    </section>
+
+    <section class="sections" aria-label="Footer navigation">
+      <details class="sec" open>
+        <summary class="sec-head">{t('footer.quicklinks')}</summary>
+        <nav class="sec-body list-grid" aria-label="Quicklinks">
+          {navLinks.map(l => <a class="link" href={l.href}>{l.label}</a>)}
+        </nav>
+      </details>
+      <details class="sec" open>
+        <summary class="sec-head">{t('footer.legal')}</summary>
+        <nav class="sec-body list-grid" aria-label="Legal">
+          {legalLinks.map(l => <a class="link" href={l.href}>{l.label}</a>)}
+        </nav>
+      </details>
+      <details class="sec" open>
+        <summary class="sec-head">{t('footer.integrity')}</summary>
+        <div class="sec-body badges" role="list">
+          {integrityBadges.map(b => (
+            <div class="badge" role="listitem">
+              <BadgeIcon icon={b.icon} />
+              <span>{b.text}</span>
+            </div>
+          ))}
+        </div>
+      </details>
+    </section>
+
+    <section class="partners" aria-label="Withdrawal & payment partners">
+      <h3 class="partners-title">{t('footer.partners')}</h3>
+      <div class="rail" role="list">
+        {paymentPartners.map(p => (
+          <div class="chip" role="listitem">
+            <img src={p.imgSrc} alt={p.alt} decoding="async" loading="lazy" />
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="legal-callouts" aria-label="Responsible gaming and regional availability">
+      <p set:html={t('footer.disclaimer')} />
+      <p set:html={t('footer.responsible')} />
+    </section>
+  </div>
+
+  <div class="subbar">
+    <div class="container subbar-inner">
+      <p>© {year} {brandInfo.name}. {t('footer.copyright')}</p>
+      <a class="to-top" href="#top" aria-label="Back to top">↑</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  /* Styles remain unchanged */
+  .site-footer { background: linear-gradient(180deg, var(--brand-orange), color-mix(in oklab, var(--brand-orange) 85%, #000)); color: #fff; border-top: 1px solid color-mix(in oklab, #000 20%, var(--brand-orange)); } .footer-inner { display: grid; gap: 16px; padding-block: 20px; } .brand-card { display: grid; gap: 14px; background: color-mix(in oklab, var(--brand-orange) 70%, #000); border: 1px solid color-mix(in oklab, #fff 12%, var(--brand-orange)); border-radius: 16px; padding: 14px; } .brand { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; text-decoration: none; color: inherit; } .brand img { border-radius: 10px; display: block; } .brand-name { font-size: 18px; letter-spacing: .2px; } .brand-tag { font-size: 12px; color: color-mix(in oklab, #fff 85%, #000); max-width: 40ch; } .socials { display: flex; gap: 10px; } .social { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: color-mix(in oklab, var(--brand-orange) 55%, #000); border: 1px solid color-mix(in oklab, #fff 18%, var(--brand-orange)); transition: transform .15s ease; } .social:hover { transform: translateY(-2px); } .social img { width: 18px; height: 18px; object-fit: contain; } .sections { display: grid; gap: 10px; } .sec { background: color-mix(in oklab, var(--brand-orange) 70%, #000); border: 1px solid color-mix(in oklab, #fff 12%, var(--brand-orange)); border-radius: 16px; overflow: clip; } .sec-head { list-style: none; padding: 14px 16px; margin: 0; font-weight: 800; font-size: 14px; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: space-between; } .sec-head::-webkit-details-marker { display: none; } .sec[open] .sec-head { background: color-mix(in oklab, var(--brand-orange) 80%, #000); } .sec-body { padding: 12px 16px 16px; } .list-grid { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); } .link { color: #fff; text-decoration: none; font-weight: 600; background: color-mix(in oklab, var(--brand-orange) 55%, #000); border: 1px solid color-mix(in oklab, #fff 12%, var(--brand-orange)); border-radius: 12px; padding: 10px 12px; } .badges { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); } .badge { display: flex; align-items: center; gap: 8px; font-size: 12px; background: color-mix(in oklab, var(--brand-orange) 55%, #000); border: 1px solid color-mix(in oklab, #fff 12%, var(--brand-orange)); border-radius: 12px; padding: 10px 12px; } .badge :global(.icon-wrapper) { color: var(--brand-gold); } .badge :global(svg) { width: 18px; height: 18px; } .partners { background: color-mix(in oklab, var(--brand-orange) 70%, #000); border: 1px solid color-mix(in oklab, #fff 12%, var(--brand-orange)); border-radius: 16px; padding: 12px 14px; } .partners-title { margin: 6px 0 8px; font-size: 13px; color: color-mix(in oklab, #fff 92%, #000); letter-spacing: .2px; } .rail { display: grid; grid-auto-flow: column; grid-auto-columns: max-content; gap: 10px; overflow-x: auto; scrollbar-width: none; } .rail::-webkit-scrollbar { display: none; } .chip { background: color-mix(in oklab, var(--brand-orange) 50%, #000); border: 1px solid color-mix(in oklab, #fff 12%, var(--brand-orange)); border-radius: 12px; padding: 8px 10px; display: grid; place-items: center; min-width: 72px; height: 36px; } .chip img { max-height: 18px; max-width: 84px; object-fit: contain; } .legal-callouts { background: color-mix(in oklab, var(--brand-orange) 65%, #000); border: 1px dashed color-mix(in oklab, #fff 30%, var(--brand-orange)); border-radius: 14px; padding: 12px 14px; font-size: 13px; line-height: 1.7; } .legal-callouts p { margin: 0 0 8px; color: #fff; } .legal-callouts p:last-child { margin: 0; } .legal-callouts strong { font-weight: 800; text-decoration: underline 0.08em rgba(255,255,255,.35); text-underline-offset: 2px; } .subbar { background: color-mix(in oklab, var(--brand-orange) 85%, #000); border-top: 1px solid color-mix(in oklab, #fff 16%, var(--brand-orange)); padding-bottom: max(10px, env(safe-area-inset-bottom)); } .subbar-inner { display: flex; align-items: center; justify-content: space-between; padding-block: 12px; } .subbar p { margin: 0; font-size: 12px; color: color-mix(in oklab, #fff 90%, #000); } .to-top { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; text-decoration: none; color: #0b0b0f; background: var(--brand-gold); font-weight: 800; border: 1px solid color-mix(in oklab, #000 15%, var(--brand-gold)); } @media (min-width: 900px) { .footer-inner { grid-template-columns: 1.5fr 1fr 1fr 1.2fr; grid-template-areas: "brand quicklinks legal integrity" "partners partners partners partners" "disclaimer disclaimer disclaimer disclaimer"; gap: 32px 24px; align-items: start; } .brand-card { grid-area: brand; } .sections { display: contents; } .sections > .sec:nth-of-type(1) { grid-area: quicklinks; } .sections > .sec:nth-of-type(2) { grid-area: legal; } .sections > .sec:nth-of-type(3) { grid-area: integrity; } .partners { grid-area: partners; } .legal-callouts { grid-area: disclaimer; } .sec { background: none; border: none; padding: 0; } .sec-head { cursor: default; pointer-events: none; padding: 0 0 16px 0; background: none !important; color: var(--brand-gold); text-transform: uppercase; font-size: 14px; letter-spacing: .5px; } .sec-body { display: grid; padding: 0; } .list-grid, .badges { grid-template-columns: 1fr; gap: 12px; } .link, .badge { background: none; border: none; padding: 0; color: #fff; opacity: 0.85; font-size: 14px; font-weight: 600; text-decoration: none; } .link:hover { text-decoration: underline; opacity: 1; } .badge { display: flex; align-items: center; gap: 10px; } }
+</style>

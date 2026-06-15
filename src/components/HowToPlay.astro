@@ -1,0 +1,173 @@
+---
+// src/components/HowToPlay.astro
+// --- REFACTORED: Now uses the centralized 'useTranslations' utility ---
+// --- FIXED: Correctly injects JSON-LD to prevent parsing errors ---
+
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
+
+interface Props {
+  lang?: Locale;
+}
+const { lang = 'en' } = Astro.props as Props;
+const t = useTranslations(lang);
+
+// --- UPDATED: Fetch all content dynamically from the locale file ---
+const title = t('howToPlay.title');
+const description = t('howToPlay.description');
+const viewAllText = t('howToPlay.viewAll');
+
+// Type-safe check for the steps array
+const stepsResult = t('howToPlay.steps');
+const steps: { title: string; body: string }[] = Array.isArray(stepsResult) ? stepsResult : [];
+
+// Build HowTo JSON-LD from the translated steps
+const howToJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": title, // Use translated title
+  "description": description, // Use translated description
+  "step": steps.map((s, idx) => ({
+    "@type": "HowToStep",
+    "position": idx + 1,
+    "name": s.title,
+    "url": `#how-step-${idx + 1}`,
+    "itemListElement": [
+      {
+        "@type": "HowToDirection",
+        "text": s.body
+      }
+    ]
+  }))
+};
+---
+
+<section id="how" class="how-to-play-section" aria-labelledby="howto-title">
+  <div class="container">
+    <header class="section-head">
+      {/* UPDATED: Dynamic text */}
+      <h2 id="howto-title">{title}</h2>
+      <p class="muted">{description}</p>
+    </header>
+
+    {/* --- THE FIX --- 
+        Use the `set:html` directive to correctly inject the stringified JSON.
+    */}
+    <script type="application/ld+json" set:html={JSON.stringify(howToJsonLd)}></script>
+
+    <div class="grid">
+      {/* UPDATED: Map over dynamic steps and add 'num' property */}
+      {steps.map((step, index) => (
+        <div class="step-card" id={`how-step-${index + 1}`}>
+          <div class="number" aria-hidden="true">{index + 1}</div>
+          <h3 class="title">{step.title}</h3>
+          <p class="body">{step.body}</p>
+        </div>
+      ))}
+    </div>
+
+    <div class="more-link-container">
+      {/* UPDATED: Dynamic button text */}
+      <a href="/blog/" class="btn-view-all">
+        {viewAllText}
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  /* Styles remain unchanged */
+  .how-to-play-section { 
+    padding-block: 48px; 
+    background-color: var(--surface);
+    border-top: 1px solid var(--ring);
+    border-bottom: 1px solid var(--ring);
+  }
+  .section-head { 
+    text-align: center; 
+    max-width: 640px; 
+    margin-inline: auto; 
+    margin-bottom: 32px; 
+  }
+  .section-head h2 { 
+    font-size: clamp(24px, 4vw, 36px); 
+    margin-bottom: 8px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    position: relative;
+  }
+
+  @media(min-width: 920px) {
+    .grid::before {
+      content: '';
+      position: absolute;
+      top: 24px;
+      left: 15%;
+      right: 15%;
+      height: 2px;
+      background: repeating-linear-gradient(90deg, var(--ring), var(--ring) 4px, transparent 4px, transparent 10px);
+      z-index: 0;
+    }
+  }
+
+  .step-card {
+    background: var(--surface-2);
+    border: 1px solid var(--ring);
+    border-radius: 18px;
+    padding: 24px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+  .number {
+    display: inline-flex;
+    width: 48px;
+    height: 48px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 99px;
+    background: var(--brand-orange);
+    color: var(--ink);
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    border: 3px solid var(--surface);
+    box-shadow: var(--shadow-md);
+  }
+  .title { 
+    margin: 0 0 8px; 
+    font-size: 18px;
+    color: var(--text-primary);
+  }
+  .body { 
+    margin: 0; 
+    color: var(--text-secondary); 
+    font-size: 15px;
+  }
+
+  .more-link-container {
+    margin-top: 32px;
+    text-align: center;
+  }
+  .btn-view-all {
+    display: inline-flex;
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: var(--surface-2);
+    border: 1px dashed var(--ring);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  .btn-view-all:hover {
+    border-style: solid;
+    color: var(--brand-orange);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+</style>

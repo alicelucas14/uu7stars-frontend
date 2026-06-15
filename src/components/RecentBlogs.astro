@@ -1,0 +1,175 @@
+---
+// ===== src/components/RecentBlogs.astro =====
+// --- REFACTORED: Now uses the centralized 'useTranslations' utility ---
+
+import { getBlogPosts } from '../services/api';
+import type { BlogPostListItem } from '../services/api';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
+
+interface Props {
+  lang?: Locale;
+}
+const { lang = 'en' } = Astro.props as Props;
+const t = useTranslations(lang);
+
+// --- UPDATED: Fetch localized blog posts based on the 'lang' prop ---
+const allPosts = await getBlogPosts(lang);
+const recentPosts = allPosts.filter(post => post.image).slice(0, 3);
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+---
+{/* Only render the section if there are posts to display */}
+{recentPosts.length > 0 && (
+  <section class="recent-blogs-section">
+    <div class="container">
+      <header class="section-head">
+        <div>
+          {/* UPDATED: Dynamic text */}
+          <h2>{t('recentBlogs.title')}</h2>
+          <p class="muted">{t('recentBlogs.description')}</p>
+        </div>
+        {/* UPDATED: Dynamic text */}
+        <a href="/blog/" class="btn-view-all">{t('recentBlogs.viewAll')}</a>
+      </header>
+
+      <div class="post-grid">
+        {recentPosts.map((post: BlogPostListItem) => {
+          const postUrl = `/blog/${post.slug}`;
+          const imageUrl = post.image.startsWith('http') ? post.image : `${API_BASE_URL}${post.image}`;
+          const formattedDate = new Date(post.publishedAt).toLocaleDateString('en-IN', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+
+          return (
+            <article class="post-card">
+              <a href={postUrl} class="card-image-link" aria-label={`Read more about ${post.title}`}>
+                <img src={imageUrl} alt="" loading="lazy" width="400" height="250" class="card-image" />
+              </a>
+              <div class="card-content">
+                <p class="card-meta">
+                  <time datetime={post.publishedAt}>{formattedDate}</time>
+                </p>
+                <h3 class="card-title">
+                  <a href={postUrl}>{post.title}</a>
+                </h3>
+                <p class="card-excerpt">{post.excerpt}</p>
+                {/* UPDATED: Dynamic text */}
+                <a href={postUrl} class="read-more-link" aria-label={`Read more about ${post.title}`}>{t('recentBlogs.readMore')}</a>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  /* Styles remain unchanged */
+  .recent-blogs-section {
+    padding-block: 48px;
+    background-color: var(--surface-2);
+    border-top: 1px solid var(--ring);
+  }
+
+  .section-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .section-head h2 {
+    font-size: clamp(24px, 4vw, 36px);
+    margin-bottom: 4px;
+  }
+  .btn-view-all {
+    display: inline-block;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    background-color: var(--surface);
+    border: 1px solid var(--ring);
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+  }
+  .btn-view-all:hover {
+    background-color: var(--surface-2);
+  }
+
+  .post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .post-card {
+    background-color: var(--surface);
+    border: 1px solid var(--ring);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    display: flex;
+    flex-direction: column;
+  }
+  .post-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .card-image-link { display: block; }
+  .card-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .card-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .card-meta {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .card-title a {
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+  .card-title a:hover {
+    color: var(--brand-orange);
+  }
+  .card-excerpt {
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+    flex-grow: 1;
+    color: var(--text-secondary);
+  }
+  .read-more-link {
+    margin-top: 16px;
+    font-weight: 600;
+    color: var(--brand-orange);
+    text-decoration: none;
+    align-self: flex-start;
+  }
+  .read-more-link:hover {
+    text-decoration: underline;
+  }
+</style>

@@ -1,0 +1,82 @@
+---
+// ===== src/components/Header.astro =====
+// --- REFACTORED: Now uses the `createPath` utility for language-aware links ---
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
+import { createPath } from '../lib/paths'; // <-- IMPORT the new utility
+
+interface Props {
+  lang?: Locale;
+}
+const { lang = 'en' } = Astro.props as Props;
+const t = useTranslations(lang);
+
+// --- UPDATED: All hrefs are now built dynamically using createPath ---
+const nav = [
+  { href: createPath("/#how", lang), label: t('header.nav.how'), analytics: "nav_how" },
+  { href: createPath("/#promos", lang), label: t('header.nav.promos'), analytics: "nav_promotions" },
+  { href: createPath("/reviews/", lang), label: t('header.nav.reviews'), analytics: "nav_reviews" },
+  { href: createPath("/#about", lang), label: t('header.nav.about'), analytics: "nav_about" },
+  { href: createPath("/faq/", lang), label: t('header.nav.faq'), analytics: "nav_faq" },
+  { href: createPath("/blog/", lang), label: t('header.nav.blog'), analytics: "nav_blog" }
+];
+
+const ctaText = t('header.cta');
+const homePath = createPath('/', lang);
+const downloadPath = createPath('/#download', lang);
+---
+
+<header class="site-header" role="banner">
+  <div class="container bar">
+    {/* UPDATED: Language-aware home link */}
+    <a href={homePath} class="brand" aria-label="Starsuu7 — Home">
+      <img src="/logo.webp" alt="Starsuu7 logo" width="80" height="80" class="logo" decoding="async" loading="eager" />
+    </a>
+
+    {/* Desktop nav */}
+    <nav class="nav" aria-label="Primary">
+      {nav.map((n) => (
+        <a href={n.href} class="link" data-analytics={n.analytics}>{n.label}</a>
+      ))}
+      {/* UPDATED: Language-aware download link */}
+      <a
+        href={downloadPath}
+        class="btn-header-download"
+        data-analytics="nav_download_cta"
+        aria-label={ctaText}
+      >
+        {ctaText}
+      </a>
+    </nav>
+
+    {/* Tablet hamburger */}
+    <details class="mobile" data-mobile-menu>
+      <summary aria-label="Open menu" class="hamburger" role="button" tabindex="0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="4" x2="20" y1="12" y2="12"></line>
+          <line x1="4" x2="20" y1="6" y2="6"></line>
+          <line x1="4" x2="20" y1="18" y2="18"></line>
+        </svg>
+      </summary>
+      <div class="sheet" role="menu" aria-label="Mobile menu">
+        {nav.map((n) => (
+          <a href={n.href} class="mlink" role="menuitem" data-analytics={`${n.analytics}_mobile`}>{n.label}</a>
+        ))}
+        {/* UPDATED: Language-aware download link */}
+        <a href={downloadPath} class="mbtn" role="menuitem" data-analytics="nav_download_cta_mobile">{ctaText}</a>
+      </div>
+    </details>
+  </div>
+</header>
+
+<style>
+  /* Styles remain unchanged */
+  .site-header { position: sticky; top: 0; z-index: 4000; background: var(--brand-orange); border-bottom: 1px solid rgba(0,0,0,0.1); box-shadow: var(--shadow-md); } .bar { display:flex; align-items:center; justify-content:space-between; height:64px; } .brand { display:flex; align-items:center; text-decoration:none; } .logo { display:block; } .nav { display:flex; align-items:center; gap:24px; } .link { color:#fff; opacity:.9; text-decoration:none; font-size:14px; font-weight:600; transition:opacity .2s; } .link:hover { opacity:1; } .btn-header-download{ display:inline-flex; align-items:center; justify-content:center; padding:10px 24px; border-radius:999px; font-weight:700; font-size:14px; text-decoration:none; border:none; cursor:pointer; background: linear-gradient(180deg, var(--brand-gold), color-mix(in oklab, var(--brand-orange) 80%, var(--brand-gold))); color: var(--ink); box-shadow: 0 4px 10px rgba(0,0,0,.25); transition: transform .2s ease-out, box-shadow .2s ease-out; white-space: nowrap; } .btn-header-download:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,.3); } .mobile { display:none; position:relative; z-index: 10050; } .hamburger { list-style:none; cursor:pointer; padding:8px; border-radius:10px; color:#fff; display:grid; place-content:center; -webkit-tap-highlight-color: transparent; } .hamburger:hover { background-color: rgba(255,255,255,.15); } .sheet { display:none; position: fixed; top: calc(64px + env(safe-area-inset-top)); right: 12px; width: 280px; max-height: min(70vh, 520px); overflow: auto; background: var(--surface); border:1px solid var(--ring); border-radius:14px; padding:10px; box-shadow: var(--shadow-lg); z-index: 11000; } .mobile[open] .sheet { display:flex; flex-direction:column; gap:6px; } .mlink { color: var(--text-primary); text-decoration:none; padding:10px 12px; border-radius:10px; } .mlink:hover { background: var(--surface-2); } .mbtn { display:flex; justify-content:center; align-items:center; padding:12px; border-radius:12px; background: linear-gradient(180deg, var(--brand-gold), var(--brand-orange)); color: var(--ink); font-weight:800; text-decoration:none; margin-top:6px; } @media (max-width: 920px){ .nav { display:none; } .mobile { display:block; } } @media (max-width: 767px){ .site-header { display:none; } }
+</style>
+
+<script is:inline>
+  // Script remains unchanged
+  (function(){ const menu = document.querySelector('details[data-mobile-menu]'); const summary = menu?.querySelector('summary.hamburger'); const sheet = menu?.querySelector('.sheet'); if (!menu || !summary || !sheet) return; function openMenu() { menu.setAttribute('open', ''); } function closeMenu() { menu.removeAttribute('open'); } summary.addEventListener('click', (e) => { e.preventDefault(); menu.hasAttribute('open') ? closeMenu() : openMenu(); }, { passive: false }); summary.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); menu.hasAttribute('open') ? closeMenu() : openMenu(); } }); document.addEventListener('click', (e) => { if (!menu.hasAttribute('open')) return; const t = e.target; if (!(t instanceof Element)) return; if (!t.closest('details[data-mobile-menu]')) closeMenu(); }); sheet.addEventListener('click', (e) => { const t = e.target; if (t instanceof Element && t.closest('a')) closeMenu(); }); function haptic(){ try { navigator.vibrate && navigator.vibrate(12); } catch(_) {} } document.addEventListener('click', (e) => { const el = e.target; const a = el && el.closest && el.closest('[data-analytics]'); if (!a) return; const name = a.getAttribute('data-analytics') || 'nav_click'; try { if (window.gtag) window.gtag('event', name, { label: name }); } catch(_){} haptic(); }, { passive: true }); })();
+</script>

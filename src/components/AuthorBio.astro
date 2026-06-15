@@ -1,0 +1,62 @@
+---
+// ===== src/components/AuthorBio.astro =====
+// --- CORRECTED: Now uses the centralized, Unicode-aware slugify function ---
+import type { Locale } from '../i18n';
+import { createPath, slugify } from '../lib/paths'; // <-- IMPORT central slugify
+
+interface Props {
+  authorName: string;
+  lang?: Locale;
+}
+const { authorName, lang = 'en' } = Astro.props;
+
+// Use the robust, imported slugify function to handle Unicode names correctly
+const authorUrl = createPath(`/blog/author/${slugify(authorName)}/`, lang);
+---
+
+<div class="sidebar-widget author-bio">
+  <h3 class="widget-title">About the Author</h3>
+  <div class="author-content">
+    <p class="author-name">{authorName}</p>
+    <p class="author-description">
+      {authorName} is a content contributor for Starsuu7, focusing on game strategies, news, and updates for Teen Patti and Rummy enthusiasts.
+    </p>
+    <a href={authorUrl} class="author-link">More from this author &rarr;</a>
+  </div>
+</div>
+
+<style>
+.sidebar-widget {
+  background: var(--surface);
+  border: 1px solid var(--ring);
+  border-radius: 16px;
+  padding: 20px;
+}
+.widget-title {
+  margin: 0 0 16px;
+  font-size: 18px;
+  border-bottom: 1px solid var(--ring);
+  padding-bottom: 12px;
+}
+.author-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.author-description {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.author-link {
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--brand-orange);
+}
+.author-link:hover {
+  text-decoration: underline;
+}
+</style>

@@ -1,0 +1,117 @@
+---
+// frontend/src/components/BlogCommentsSection.astro
+// --- NEW FILE ---
+
+
+import { getCommentsForBlogPost, type BlogComment } from '../services/api';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
+
+interface Props {
+  postId: string;
+  lang?: Locale;
+}
+const { postId, lang = 'en' } = Astro.props;
+const t = useTranslations(lang);
+
+const comments = await getCommentsForBlogPost(postId);
+const totalComments = comments.length;
+
+const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+};
+---
+{totalComments > 0 && (
+  <section class="comments-section" aria-labelledby="comments-title">
+    <div class="comments-header">
+      <h2 id="comments-title">{t('blogPost.commentsTitle')} ({totalComments})</h2>
+    </div>
+    <div class="comments-list">
+      {comments.map((comment: BlogComment) => (
+        <article class="comment-card">
+          <header class="comment-card-header">
+            <div class="author-info">
+              <div class="avatar">{comment.username.charAt(0)}</div>
+              <span class="username">{comment.username}</span>
+            </div>
+            <time datetime={comment.createdAt} class="comment-date">{formatDate(comment.createdAt)}</time>
+          </header>
+          <p class="comment-text">{comment.text}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+/* Styles are adapted from the review comments section for consistency */
+.comments-section {
+  margin-top: 48px;
+  background-color: var(--surface-2);
+  border: 1px solid var(--ring);
+  border-radius: 16px;
+  padding: clamp(20px, 4vw, 32px);
+}
+.comments-header {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ring);
+  margin-bottom: 24px;
+}
+#comments-title {
+  font-size: clamp(20px, 3vw, 24px);
+  margin: 0;
+}
+.comments-list {
+  display: grid;
+  gap: 20px;
+}
+.comment-card {
+  background-color: var(--surface);
+  border: 1px solid var(--ring);
+  border-radius: 12px;
+  padding: 16px;
+}
+.comment-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background-color: var(--brand-orange);
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+.username {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.comment-date {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.comment-text {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin: 0;
+}
+</style>

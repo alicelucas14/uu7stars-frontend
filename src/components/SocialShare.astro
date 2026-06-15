@@ -1,0 +1,91 @@
+---
+// ===== src/components/SocialShare.astro =====
+// --- UPDATED: Now uses static image files for icons instead of SVGs ---
+
+export interface Props {
+  url: string;
+  title: string;
+  text: string;
+}
+const { url, title } = Astro.props;
+const encodedUrl = encodeURIComponent(url);
+const encodedTitle = encodeURIComponent(title);
+
+const links = [
+  {
+    name: "Facebook",
+    imgSrc: "/wordpress/facebook.png",
+    href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+  },
+  {
+    name: "X (Twitter)",
+    imgSrc: "/wordpress/x.webp",
+    href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
+  },
+  {
+    name: "WhatsApp",
+    imgSrc: "/wordpress/whatsapp.png",
+    href: `https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`,
+  },
+  {
+    name: "Telegram",
+    imgSrc: "/wordpress/telegram.png",
+    href: `https://telegram.me/share/url?url=${encodedUrl}&text=${encodedTitle}`,
+  },
+] as const;
+---
+<div class="social-share" role="region" aria-label="Share this article">
+  <p class="share-label">Share this post</p>
+  <div class="share-links">
+    {links.map(link => (
+      <a 
+        href={link.href} 
+        class="share-btn"
+        target="_blank" 
+        rel="noopener noreferrer" 
+        aria-label={`Share on ${link.name}`}
+      >
+        <img src={link.imgSrc} alt={`Share on ${link.name}`} width="24" height="24" loading="lazy" />
+      </a>
+    ))}
+  </div>
+</div>
+<style>
+.social-share {
+  text-align: center;
+  margin-top: 32px;
+  padding: 24px;
+  background-color: var(--surface-2);
+  border-radius: 16px;
+  border: 1px solid var(--ring);
+}
+.share-label {
+  margin: 0 0 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.share-links {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+.share-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--surface);
+  border: 1px solid var(--ring);
+  transition: transform .2s, box-shadow .2s;
+}
+.share-btn:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+}
+.share-btn img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+</style>

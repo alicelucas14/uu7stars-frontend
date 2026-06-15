@@ -1,0 +1,82 @@
+---
+export interface Alternate {
+  href: string;
+  hreflang: string;
+}
+
+export interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+
+  // OpenGraph / Twitter
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article'; // <- narrowed union
+  locale?: string;              // e.g., 'en_IN'
+  twitter?: string;             // handle like '@starsuu7'
+  modifiedTime?: string;        // ISO 8601
+
+  // SEO
+  keywords?: string[];          // we still output <meta name="keywords"> (for your workflow)
+  alternates?: Alternate[];
+  noindex?: boolean;
+
+  // Structured data (raw blocks)
+  schemas?: any[];
+}
+
+const {
+  title,
+  description,
+  canonical,
+  image = '/wordpress/STARSUU7-Game.webp',
+  imageAlt = 'Starsuu7 — Teen Patti & Rummy',
+  type = 'website',                 // <- default safe literal
+  locale = 'en_IN',
+  twitter = '@starsuu7',
+  modifiedTime,
+  keywords = ['starsuu7', 'starsuu7 apk', 'starsuu7 download', 'teen patti app', 'rummy app', 'uu7', '777'],
+  alternates = [{ href: canonical, hreflang: 'en-IN' }, { href: canonical, hreflang: 'x-default' }],
+  noindex = false,
+  schemas = []
+} = Astro.props as Props;
+
+const robots = noindex
+  ? 'noindex,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1'
+  : 'index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1';
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta name="robots" content={robots} />
+<meta name="googlebot" content={noindex ? 'noindex,follow' : 'index,follow'} />
+
+<link rel="canonical" href={canonical} />
+{alternates.map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
+
+<meta name="keywords" content={keywords.join(', ')} />
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="Starsuu7" />
+<meta property="og:type" content={type} />
+<meta property="og:locale" content={locale} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={image} />
+<meta property="og:image:alt" content={imageAlt} />
+{modifiedTime && <meta property="og:updated_time" content={modifiedTime} />}
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={image} />
+<meta name="twitter:site" content={twitter} />
+
+<meta name="theme-color" content="#100F14" />
+
+{schemas.map((block) => (
+  <script type="application/ld+json">{JSON.stringify(block)}</script>
+))}

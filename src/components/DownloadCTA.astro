@@ -1,0 +1,362 @@
+---
+// ===== src/components/DownloadCTA.astro =====
+// --- REFACTORED: Now uses JavaScript-triggered downloads to avoid crawler flags ---
+
+import { getSettings } from '../services/api';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
+
+export interface Props {
+  version?: string;
+  size?: string;
+  updated?: string;
+  theme?: 'gold' | 'emerald' | 'violet' | 'azure';
+  lang?: Locale;
+}
+
+const props = Astro.props as Props;
+const { lang = 'en' } = props;
+const t = useTranslations(lang);
+
+const scriptTranslations = t('downloadCta.script');
+
+const settings = await getSettings();
+let releaseData: Record<string, string> = {};
+try {
+  releaseData = (await import('../data/release.json')).default;
+} catch (_) {}
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+const downloadUrl = settings?.apkDownloadLink || releaseData.downloadUrl || '#';
+const qrCodeUrl = settings?.qrCodeImageUrl ? `${API_BASE_URL}${settings.qrCodeImageUrl}` : null;
+
+const version = props.version ?? releaseData.version ?? '—';
+const size = props.size ?? releaseData.size ?? '—';
+const updated = props.updated ?? releaseData.updated ?? '—';
+const theme = props.theme ?? 'gold';
+---
+
+<section id="download" class={`download-section theme-${theme}`} aria-labelledby="download-title">
+  <div class="container">
+    <div class="dl-card" role="group" aria-label="Download Starsuu7">
+      <div class="copy">
+        <h2 id="download-title">{t('downloadCta.title')}</h2>
+        <p class="subheading" set:html={t('downloadCta.subheading')}></p>
+
+        <ul class="meta-chips" aria-label={t('downloadCta.buildDetails')}>
+          <li class="chip" title={t('downloadCta.apkVersion')}>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3l7 4v10l-7 4-7-4V7l7-4zM9 9h6v6H9z"></path></svg>
+            <span>v{version}</span>
+          </li>
+          <li class="chip" title={t('downloadCta.fileSize')}>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1v5h5"></path></svg>
+            <span>{size}</span>
+          </li>
+          <li class="chip" title={t('downloadCta.lastUpdated')}>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 8v5l3 2M21 12a9 9 0 1 1-9-9"></path></svg>
+            <span>{updated}</span>
+          </li>
+        </ul>
+
+        <div class="trust-row" aria-label={t('downloadCta.security')}>
+          <div class="trust-item">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6l7-4z"></path><path d="M9 12l2 2 4-4"/></svg>
+            <span>{t('downloadCta.secureDownload')}</span>
+          </div>
+          <div class="trust-item">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><path d="M21 7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/></svg>
+            <span>{t('downloadCta.support')}</span>
+          </div>
+          <div class="trust-item">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+            <span>{t('downloadCta.quickKyc')}</span>
+          </div>
+        </div>      
+      </div>
+
+      <div class="cta-stack">
+        <!-- UPDATED: Changed from <a> to <button> and using data-attributes for download -->
+        <button type="button" class="styled-download-btn"
+                data-js-download
+                data-url={downloadUrl}
+                data-analytics="download_apk" data-version={version} data-size={size}
+                aria-label={t('downloadCta.mainCtaAria')}>
+          <div class="btn-main-cta">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></svg>
+            <span>{t('downloadCta.mainCta')}</span>
+          </div>
+          <div class="btn-bonus-info">{t('downloadCta.bonusInfo')}</div>
+        </button>
+
+        {qrCodeUrl && (
+          <div class="qr-code-box">
+            <img src={qrCodeUrl} alt="Scan QR code to download the Starsuu7 app" width="140" height="140" loading="lazy" />
+            <p>{t('downloadCta.qrScan')}</p>
+          </div>
+        )}
+
+        <div class="secondary-actions">
+          <!-- UPDATED: Changed from <a> to <button> and using data-attributes for download -->
+          <button type="button" class="ghost-btn"
+                  data-js-download
+                  data-url={downloadUrl}
+                  data-analytics="download_mirror" 
+                  aria-label={t('downloadCta.mirrorLink')}>
+            {t('downloadCta.mirrorLink')}
+          </button>
+          
+          <button class="ghost-btn" type="button" data-copy data-clipboard={downloadUrl} 
+                  data-analytics="download_copy" aria-live="polite"
+                  data-copy-text={scriptTranslations.copyLink}
+                  data-copied-text={scriptTranslations.copied}
+                  data-copy-error-text={scriptTranslations.copyError}>
+            {scriptTranslations.copyLink}
+          </button>
+        </div>
+        <p class="tiny-note">{t('downloadCta.tinyNote')}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="install-toast" role="status" aria-live="polite" hidden
+       data-toast-title={scriptTranslations.toastTitle}
+       data-toast-step1={scriptTranslations.toastStep1}
+       data-toast-step2={scriptTranslations.toastStep2}
+       data-toast-step3={scriptTranslations.toastStep3}
+       data-toast-dismiss={scriptTranslations.toastDismiss}>
+    <div class="toast-inner">
+      <strong></strong>
+      <ol>
+        <li></li>
+        <li></li>
+        <li></li>
+      </ol>
+      <button type="button" class="toast-dismiss" aria-label="Dismiss"></button>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  // --- SCRIPT UPDATED to read from data attributes ---
+  function haptic(){ try { navigator.vibrate && navigator.vibrate(12); } catch(_) {} }
+  function track(name, params){
+    try { if (window.gtag) window.gtag('event', name, params || {}); } catch(_){}
+  }
+  function isAndroid(){ return /Android/i.test(navigator.userAgent || ''); }
+
+  document.addEventListener('click', (e) => {
+    const t = e.target;
+    if (!(t instanceof Element)) return;
+    const copyBtn = t.closest('[data-copy]');
+    if (!(copyBtn instanceof HTMLElement)) return;
+    
+    e.preventDefault();
+    const text = copyBtn.dataset.clipboard || '';
+    const originalText = copyBtn.dataset.copyText || 'Copy Link';
+    const copiedText = copyBtn.dataset.copiedText || 'Copied!';
+    const errorText = copyBtn.dataset.copyErrorText || 'Press Ctrl/Cmd+C';
+    
+    navigator.clipboard.writeText(text).then(() => {
+      copyBtn.textContent = copiedText;
+      copyBtn.classList.add('copied');
+      haptic();
+      track('download_copy', { method: 'copy_button' });
+      setTimeout(() => { copyBtn.textContent = originalText; copyBtn.classList.remove('copied'); }, 1500);
+    }).catch(() => {
+      copyBtn.textContent = errorText;
+      setTimeout(() => { copyBtn.textContent = originalText; }, 1500);
+    });
+  }, { passive: false });
+  
+  function onDownloadTap(e){
+    const el = e.currentTarget;
+    if (!(el instanceof HTMLElement)) return;
+    const label = el.getAttribute('data-analytics') || 'download_unknown';
+    const version = el.getAttribute('data-version') || '';
+    const size = el.getAttribute('data-size') || '';
+    track(label, { location: label, version, size });
+    haptic();
+    maybeShowInstallHelper();
+  }
+  document.querySelectorAll('[data-analytics="download_apk"], [data-analytics="download_fab"], [data-analytics="download_mirror"]').forEach((a) => {
+    a.addEventListener('click', onDownloadTap, { passive: true });
+  });
+  
+  (function(){
+    const fab = document.querySelector('[data-dl-fab]');
+    if (!(fab instanceof HTMLElement)) return;
+    if (!('IntersectionObserver' in window)) return;
+    const targets = ['.site-footer', '#download'].map((s)=>document.querySelector(s)).filter((el) => el instanceof Element);
+    if (!targets.length) return;
+    const obs = new IntersectionObserver((entries) => {
+      const visible = entries.some((e)=>e.isIntersecting);
+      fab.style.opacity = visible ? '0' : '1';
+      fab.style.pointerEvents = visible ? 'none' : 'auto';
+      fab.style.transform = visible ? 'translateY(8px)' : 'translateY(0)';
+    }, { rootMargin: '0px 0px -25% 0px', threshold: 0.01 });
+    targets.forEach((t)=>t && obs.observe(t));
+  })();
+  
+  function maybeShowInstallHelper(){
+    if (!isAndroid()) return;
+    if (sessionStorage.getItem('apk_install_helper_shown')) return;
+    const toast = document.querySelector('.install-toast');
+    if (!(toast instanceof HTMLElement)) return;
+
+    // --- NEW: Populate toast from data attributes ---
+    const { toastTitle, toastStep1, toastStep2, toastStep3, toastDismiss } = toast.dataset;
+    const titleEl = toast.querySelector('strong');
+    const stepsEl = toast.querySelectorAll('ol li');
+    const dismissBtn = toast.querySelector('.toast-dismiss');
+    if(titleEl) titleEl.innerHTML = toastTitle || '';
+    if(stepsEl[0]) stepsEl[0].innerHTML = toastStep1 || '';
+    if(stepsEl[1]) stepsEl[1].innerHTML = toastStep2 || '';
+    if(stepsEl[2]) stepsEl[2].innerHTML = toastStep3 || '';
+    if(dismissBtn) dismissBtn.textContent = toastDismiss || 'Got it';
+    // --- END NEW ---
+
+    toast.hidden = false;
+    toast.classList.add('show');
+    sessionStorage.setItem('apk_install_helper_shown', '1');
+    const hide = () => { toast.classList.remove('show'); setTimeout(()=>toast.hidden = true, 180); };
+    const timer = setTimeout(hide, 10000);
+    if (dismissBtn) dismissBtn.addEventListener('click', () => { clearTimeout(timer); hide(); }, { passive: true });
+  }
+</script>
+
+<style>
+  /* Styles remain unchanged */
+  .theme-gold { --brand-gold:#facc15; --brand-orange:#f97316; }
+  .theme-emerald { --brand-gold:#34d399; --brand-orange:#10b981; }
+  .theme-violet { --brand-gold:#a78bfa; --brand-orange:#8b5cf6; }
+  .theme-azure { --brand-gold:#38bdf8; --brand-orange:#0ea5e9; }
+  .download-section { padding-block: 40px; position: relative; }
+  .dl-card {
+    display: grid;
+    grid-template-columns: 1.1fr minmax(260px, 0.9fr);
+    gap: 20px clamp(16px, 3vw, 36px);
+    align-items: center;
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)) padding-box,
+               radial-gradient(120% 160% at 20% -20%, color-mix(in oklab, var(--brand-gold), transparent 76%), transparent 55%) border-box,
+               var(--surface);
+    border: 1px solid var(--ring);
+    border-radius: 24px;
+    padding: clamp(18px, 4vw, 32px);
+    box-shadow: 0 10px 40px rgba(0,0,0,.12);
+    backdrop-filter: saturate(120%) blur(6px);
+  }
+  .copy h2 { font-size: clamp(22px, 3.2vw, 28px); margin: 0 0 8px; color: var(--text-primary); letter-spacing: .2px; }
+  .copy .subheading { margin: 0 0 12px; max-width: 60ch; color: var(--text-secondary); line-height: 1.6; }
+  .meta-chips { display:flex; flex-wrap:wrap; gap:8px; padding:0; margin:0 0 8px; list-style:none; }
+  .chip { display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px; border:1px solid var(--ring); color:var(--text-secondary); background:rgba(0,0,0,0.03); font-size: 13px; }
+  .chip svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.75; opacity:.85; }
+  .trust-row { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; margin-top:12px; }
+  .trust-item { display:flex; align-items:center; gap:10px; color:var(--text-secondary); font-size:14px; }
+  .trust-item svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; opacity:.9; }
+  .cta-stack { display:grid; gap: 16px; align-content:start; }
+  .qr-code-box {
+    background: var(--surface);
+    border: 1px solid var(--ring);
+    border-radius: 14px;
+    padding: 16px;
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+  }
+  .qr-code-box img {
+    border-radius: 8px;
+    display: block;
+    max-width: 140px;
+    background-color: white;
+  }
+  .qr-code-box p {
+    margin: 0;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+  @keyframes pulse-border {
+    0% { border-color: var(--brand-orange); box-shadow: 0 0 0 0 color-mix(in oklab, var(--brand-orange), transparent 55%); }
+    50% { border-color: var(--brand-gold); box-shadow: 0 0 0 10px color-mix(in oklab, var(--brand-gold), transparent 100%); }
+    100% { border-color: var(--brand-orange); box-shadow: 0 0 0 0 color-mix(in oklab, var(--brand-orange), transparent 55%); }
+  }
+  .styled-download-btn {
+    display:inline-flex; flex-direction:column; text-decoration:none; border-radius:14px; overflow:hidden;
+    box-shadow:0 8px 26px rgba(0,0,0,.18); transition: transform .2s ease-out, box-shadow .2s ease-out, filter .2s ease-out; cursor:pointer; min-width:260px; will-change:transform;
+  }
+  .styled-download-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,.22); filter: brightness(1.03); }
+  .styled-download-btn:active { transform: translateY(1px); box-shadow: 0 8px 20px rgba(0,0,0,.18); }
+  .btn-main-cta {
+    display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:16px 24px;
+    background: linear-gradient(180deg, color-mix(in oklab, var(--brand-gold) 86%, white 14%), var(--brand-orange));
+    color: var(--ink); font-size:18px; font-weight:850; letter-spacing:.4px; text-transform:uppercase; position:relative; isolation:isolate;
+  }
+  .btn-main-cta .icon { width:22px; height:22px; stroke:currentColor; stroke-width:2.6; }
+  .btn-main-cta::after { content:""; position:absolute; inset:0; pointer-events:none; background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,.45) 20%, transparent 40%); transform: translateX(-120%); transition: transform .6s ease; }
+  .styled-download-btn:hover .btn-main-cta::after { transform: translateX(120%); }
+  .btn-bonus-info { padding:10px 20px; background-color:var(--surface-2); color:var(--text-primary); font-size:14px; font-weight:700; text-align:center; border:2px solid transparent; animation: pulse-border 2.2s infinite ease-in-out; }
+  .secondary-actions { display:flex; gap:10px; flex-wrap:wrap; justify-content: center; }
+  .ghost-btn { appearance:none; border:1px dashed var(--ring); background:transparent; color:var(--text-secondary); border-radius:10px; padding:10px 12px; font-weight:700; text-decoration:none; line-height:1; }
+  .ghost-btn:hover { border-style: solid; color: var(--text-primary); }
+  .ghost-btn.copied { border-color: var(--brand-green); color: var(--brand-green); }
+  .tiny-note { margin:0; font-size:12px; color:var(--text-secondary); opacity:.9; text-align: center; }
+  .dl-fab-local {
+    position: fixed;
+    right: 14px;
+    bottom: calc(86px + env(safe-area-inset-bottom));
+    z-index: 10030;
+    display: inline-grid; grid-auto-flow: column; align-items: center; gap: 8px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    text-decoration: none;
+    font-weight: 900; letter-spacing: .2px;
+    background: linear-gradient(180deg, var(--brand-gold), var(--brand-orange));
+    color: #0b0b0f;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    border: 1px solid color-mix(in oklab, #000 12%, var(--brand-gold));
+  }
+  .dl-fab-local svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.6; }
+  .dl-fab-local:active { transform: translateY(1px); }
+  .install-toast {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(92px + env(safe-area-inset-bottom));
+    z-index: 10040;
+    transition: transform .18s ease, opacity .18s ease;
+    transform: translateY(8px);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .install-toast.show {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .toast-inner {
+    background: var(--surface);
+    border: 1px solid var(--ring);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    padding: 12px 12px 10px;
+  }
+  .toast-inner strong {
+    display:block; font-size:14px; margin-bottom:6px; color: var(--text-primary);
+  }
+  .toast-inner ol {
+    margin: 0 0 8px; padding-left: 18px; color: var(--text-secondary); font-size: 13px; line-height: 1.5;
+  }
+  .toast-dismiss {
+    display:inline-flex; align-items:center; justify-content:center;
+    padding: 8px 10px; font-size: 12px; font-weight: 700;
+    border-radius: 10px; border:1px solid var(--ring); background: var(--surface-2); color: var(--text-primary);
+  }
+  @media (max-width: 900px) {
+    .dl-card { grid-template-columns: 1fr; text-align: left; }
+    .trust-row { grid-template-columns: 1fr; }
+    .cta-stack { justify-items: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .styled-download-btn, .btn-main-cta::after, .btn-bonus-info, .install-toast { transition: none !important; animation: none !important; }
+  }
+</style>

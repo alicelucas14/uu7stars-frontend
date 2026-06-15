@@ -1,0 +1,150 @@
+---
+// ===== src/pages/promotions/index.astro =====
+// --- UPDATED for Server-Side Rendering (SSR) ---
+
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import CrossLinkStrip from '../../components/CrossLinkStrip.astro';
+import MobileAppShell from '../../components/MobileAppShell.astro';
+import { getPromotions } from '../../services/api';
+import type { Promotion } from '../../services/api';
+import { useTranslations } from '../../lib/i18n';
+import type { Locale } from '../../i18n';
+
+const locale: Locale = 'en';
+const t = useTranslations(locale);
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+const abs = (p?: string) => (!p ? '' : (p.startsWith('http') ? p : `${API_BASE_URL}${p}`));
+
+// --- DYNAMIC DATA FETCHING ---
+// This now runs on every server request to this page.
+const allPromos = await getPromotions(locale);
+const promos = allPromos.filter(p => p.imageUrl);
+
+const pageTitle = t('promotionsIndex.title');
+const pageDesc = t('promotionsIndex.description');
+const h1 = t('promotionsIndex.h1');
+const subheading = t('promotionsIndex.subheading');
+const canonical = new URL('/promotions/', Astro.site).toString();
+
+const itemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: h1,
+  itemListOrder: 'http://schema.org/ItemListOrderAscending',
+  numberOfItems: promos.length,
+  itemListElement: promos.map((p: Promotion, i: number) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: new URL(`/promotions/${p.slug}`, Astro.site).toString(),
+    name: p.title
+  }))
+};
+---
+<Base title={pageTitle} description={pageDesc} canonical={canonical} jsonLd={itemList}>
+
+  <div class="desktop-layout">
+    <Header lang={locale} />
+    <main>
+      <section class="promos-index">
+        <div class="container">
+          <header class="page-head">
+            <h1>{h1}</h1>
+            <p class="muted" set:html={subheading}></p>
+          </header>
+
+          {promos.length > 0 ? (
+            <div class="grid">
+              {promos.map((p: Promotion) => {
+                const href = `/promotions/${p.slug}/`;
+                const img = abs(p.imageUrl);
+                const badge = p.badgeText || '';
+                return (
+                  <article class="card">
+                    <a href={href} class="artlink" aria-label={`Open promotion ${p.title}`}>
+                      {img && <img src={img} alt="" width="480" height="300" loading="lazy" class="cover" />}
+                      {badge && <span class="badge">{badge}</span>}
+                    </a>
+                    <div class="content">
+                      <h2 class="title"><a href={href}>{p.title}</a></h2>
+                      {p.subtitle && <p class="subtitle">{p.subtitle}</p>}
+                      {p.description && <p class="excerpt">{p.description}</p>}
+                      <a class="cta" href={href} aria-label={`Learn more: ${p.title}`}>Learn more</a>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <p class="muted">{t('promotionsIndex.noPromos')}</p>
+          )}
+        </div>
+      </section>
+
+      <CrossLinkStrip
+        lang={locale}
+        showReviews
+        limitReviews={6}
+        titleReviews="Related Reviews — Starsuu7 (UU7 • 777)"
+        matchTerms={['starsuu7','uu7','777','teen patti','rummy','bonus','offer']}
+      />
+    </main>
+    <Footer lang={locale} />
+  </div>
+
+  <div class="mobile-layout">
+    <MobileAppShell title={h1} active="promos" lang={locale}>
+      <main>
+        <section class="promos-index">
+          <div class="container">
+            <header class="page-head">
+              <h1>{h1}</h1>
+              <p class="muted" set:html={subheading}></p>
+            </header>
+
+            {promos.length > 0 ? (
+              <div class="grid">
+                {promos.map((p: Promotion) => {
+                  const href = `/promotions/${p.slug}/`;
+                  const img = abs(p.imageUrl);
+                  const badge = p.badgeText || '';
+                  return (
+                    <article class="card">
+                      <a href={href} class="artlink" aria-label={`Open promotion ${p.title}`}>
+                        {img && <img src={img} alt="" width="480" height="300" loading="lazy" class="cover" />}
+                        {badge && <span class="badge">{badge}</span>}
+                      </a>
+                      <div class="content">
+                        <h2 class="title"><a href={href}>{p.title}</a></h2>
+                        {p.subtitle && <p class="subtitle">{p.subtitle}</p>}
+                        {p.description && <p class="excerpt">{p.description}</p>}
+                        <a class="cta" href={href} aria-label={`Learn more: ${p.title}`}>Learn more</a>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <p class="muted">{t('promotionsIndex.noPromos')}</p>
+            )}
+          </div>
+        </section>
+
+        <CrossLinkStrip
+          lang={locale}
+          showReviews
+          limitReviews={3}
+          titleReviews="Related Reviews"
+          matchTerms={['starsuu7','bonus']}
+        />
+      </main>
+    </MobileAppShell>
+    <Footer lang={locale} />
+  </div>
+</Base>
+
+<style>
+  .desktop-layout { display: none; } .mobile-layout { display: block; } @media (min-width: 768px) { .desktop-layout { display: block; } .mobile-layout { display: none; } } .promos-index { padding-block: 32px 40px; background: var(--surface); border-top: 1px solid var(--ring); } @media (max-width: 767px) { .promos-index { padding-block: 24px; border-top: none; } } .page-head { max-width: 760px; margin: 0 auto 20px; text-align: center; } .page-head h1 { margin: 0 0 8px; font-size: clamp(26px, 4.2vw, 38px); } .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; } .card { background: var(--surface-2); border: 1px solid var(--ring); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow-md); transition: transform .2s ease-out, box-shadow .2s ease-out; } .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); } .artlink { position: relative; display: block; } .cover { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; } .badge { position: absolute; left: 10px; top: 10px; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 900; background: var(--brand-gold); color: #0b0b0f; border: 1px solid color-mix(in oklab, #000 15%, var(--brand-gold)); } .content { padding: 14px; display: flex; flex-direction: column; gap: 6px; flex-grow: 1; } .title { margin: 0; font-size: 18px; } .title a { color: var(--text-primary); text-decoration: none; font-weight: 800; } .title a:hover { color: var(--brand-orange); } .subtitle { margin: 0; color: var(--text-primary); font-weight: 600; font-size: 13px; } .excerpt { margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.55; flex-grow: 1; } .cta { align-self: flex-start; color: var(--brand-orange); font-weight: 700; text-decoration: none; } .cta:hover { text-decoration: underline; }
+</style>

@@ -1,0 +1,183 @@
+---
+// ===== src/pages/hi/reviews/index.astro =====
+// --- CORRECTED: Now parses Markdown in excerpts ---
+import { marked } from 'marked';
+import Base from '../../../layouts/Base.astro';
+import Header from '../../../components/Header.astro';
+import Footer from '../../../components/Footer.astro';
+import CrossLinkStrip from '../../../components/CrossLinkStrip.astro';
+import MobileAppShell from '../../../components/MobileAppShell.astro';
+import { getReviews } from '../../../services/api';
+import type { ReviewListItem } from '../../../services/api';
+import { useTranslations } from '../../../lib/i18n';
+import type { Locale } from '../../../i18n';
+
+const locale: Locale = 'hi';
+const t = useTranslations(locale);
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+const abs = (p?: string) => (!p ? '' : (p.startsWith('http') ? p : `${API_BASE_URL}${p}`));
+
+const allReviews = await getReviews(locale);
+const reviewsWithImages = allReviews.filter(r => r.image);
+
+const heroReview = reviewsWithImages.length > 0 ? reviewsWithImages[0] : null;
+const otherReviews = reviewsWithImages.slice(1);
+
+const pageTitle = t('reviewsIndex.title');
+const pageDesc = t('reviewsIndex.description');
+const h1 = t('reviewsIndex.h1');
+const subheading = t('reviewsIndex.subheading');
+const canonical = new URL('/hi/reviews/', Astro.site).toString();
+
+const stars = (rating: number) => {
+  const full = Math.max(0, Math.min(5, Math.round(rating)));
+  return '★★★★★☆☆☆☆☆'.slice(5 - full, 10 - full);
+};
+---
+<Base title={pageTitle} description={pageDesc} canonical={canonical}>
+  
+  <div class="desktop-layout">
+    <Header lang={locale} />
+    <main>
+      <section class="reviews-index-page">
+        <div class="container">
+          <header class="page-head">
+            <h1>{h1}</h1>
+            <p class="muted" set:html={subheading}></p>
+          </header>
+
+          {heroReview && (
+            <section class="hero-review-section" aria-labelledby="hero-review-title">
+              <article class="hero-card">
+                <div class="hero-image-wrapper">
+                  <a href={`/hi/reviews/${heroReview.slug}/`} aria-label={`Read review for ${heroReview.title}`}>
+                    <img src={abs(heroReview.image)} alt={`Featured image for ${heroReview.title}`} width="1200" height="600" loading="eager" />
+                  </a>
+                </div>
+                <div class="hero-content">
+                  <div class="hero-meta">
+                    <span class="pill">{heroReview.gameName}</span>
+                    <span class="stars" aria-label={`Rating ${Math.round(heroReview.rating)}/5`}>{stars(heroReview.rating ?? 0)}</span>
+                  </div>
+                  <h2 id="hero-review-title" class="hero-title"><a href={`/hi/reviews/${heroReview.slug}/`}>{heroReview.title}</a></h2>
+                  <div class="hero-excerpt prose-excerpt" set:html={await marked.parse(heroReview.excerpt || '')} />
+                  <a href={`/hi/reviews/${heroReview.slug}/`} class="hero-cta">{t('reviewsIndex.readMore')} &rarr;</a>
+                </div>
+              </article>
+            </section>
+          )}
+
+          {otherReviews.length > 0 ? (
+            <div class="grid">
+              {otherReviews.map(async (r: ReviewListItem) => {
+                const href = `/hi/reviews/${r.slug}/`;
+                return (
+                  <article class="card">
+                    <a href={href} class="artlink" aria-label={`Open review ${r.title}`}>
+                      <img src={abs(r.image)} alt={`Image for ${r.title}`} width="480" height="480" loading="lazy" class="cover" />
+                      <span class="pill">{r.gameName}</span>
+                    </a>
+                    <div class="content">
+                      <h3 class="title"><a href={href}>{r.title}</a></h3>
+                      <div class="meta">
+                        <span class="stars" aria-label={`Rating ${Math.round(r.rating)}/5`}>{stars(r.rating ?? 0)}</span>
+                      </div>
+                      <div class="card-excerpt prose-excerpt" set:html={await marked.parse(r.excerpt || '')} />
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : !heroReview ? (
+            <p class="muted">{t('reviewsIndex.noReviews')}</p>
+          ) : null}
+        </div>
+      </section>
+
+      <CrossLinkStrip
+        lang={locale}
+        showPromotions
+        limitPromotions={6}
+        matchTerms={['starsuu7','uu7','777','तीन पत्ती','रम्मी','बोनस','ऑफर']}
+      />
+    </main>
+    <Footer lang={locale} />
+  </div>
+
+  <div class="mobile-layout">
+    <MobileAppShell title={h1} active="faq" lang={locale}>
+       <main>
+        <section class="reviews-index-page">
+          <div class="container">
+            <div class="grid">
+              {reviewsWithImages.map(async (r: ReviewListItem) => {
+                const href = `/hi/reviews/${r.slug}/`;
+                return (
+                  <article class="card">
+                    <a href={href} class="artlink" aria-label={`Open review ${r.title}`}>
+                      <img src={abs(r.image)} alt="" width="480" height="480" loading="lazy" class="cover" />
+                      <span class="pill">{r.gameName}</span>
+                    </a>
+                    <div class="content">
+                      <h3 class="title"><a href={href}>{r.title}</a></h3>
+                      <div class="meta">
+                        <span class="stars" aria-label={`Rating ${Math.round(r.rating)}/5`}>{stars(r.rating ?? 0)}</span>
+                      </div>
+                      <div class="card-excerpt prose-excerpt" set:html={await marked.parse(r.excerpt || '')} />
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+            {reviewsWithImages.length === 0 && <p class="muted">{t('reviewsIndex.noReviews')}</p>}
+          </div>
+        </section>
+      </main>
+    </MobileAppShell>
+    <Footer lang={locale} />
+  </div>
+</Base>
+<style>
+  /* Styles are identical to English version */
+  .desktop-layout { display: none; } .mobile-layout { display: block; } @media (min-width: 768px) { .desktop-layout { display: block; } .mobile-layout { display: none; } }
+  .reviews-index-page { padding-block: 32px 40px; background: var(--surface); border-top: 1px solid var(--ring); }
+  @media (max-width: 767px) { .reviews-index-page { padding-block: 20px; border-top: none; } }
+  .page-head { max-width: 760px; margin: 0 auto 20px; text-align: center; }
+  .page-head h1 { margin: 0 0 8px; font-size: clamp(26px, 4.2vw, 38px); }
+  .hero-review-section { margin-bottom: 48px; }
+  .hero-card { display: grid; grid-template-columns: 1fr; gap: 0; background: var(--surface); border-radius: 20px; overflow: hidden; border: 1px solid var(--ring); box-shadow: var(--shadow-lg); }
+  @media (min-width: 900px) { .hero-card { grid-template-columns: 1.5fr 1fr; } }
+  .hero-image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+  .hero-content { padding: clamp(24px, 5vw, 48px); display: flex; flex-direction: column; justify-content: center; }
+  .hero-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .hero-meta .pill { position: static; }
+  .hero-title { font-size: clamp(24px, 3vw, 32px); margin-bottom: 16px; }
+  .hero-title a { color: var(--text-primary); text-decoration: none; }
+  .hero-title a:hover { color: var(--brand-orange); }
+  .hero-excerpt { margin-bottom: 24px; flex-grow: 1; color: var(--text-secondary); line-height: 1.7; }
+  .hero-cta { align-self: flex-start; font-weight: 700; color: var(--brand-orange); text-decoration: none; }
+  .hero-cta:hover { text-decoration: underline; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @media (min-width: 768px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 1024px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+  .card { background: var(--surface-2); border: 1px solid var(--ring); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow-md); transition: transform .2s ease-out, box-shadow .2s ease-out; }
+  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .artlink { position: relative; display: block; }
+  .cover { width: 100%; height: auto; display: block; }
+  .pill { position: absolute; left: 10px; top: 10px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 900; background: var(--brand-orange); color: var(--ink); border: 1px solid color-mix(in oklab, #000 15%, var(--brand-orange)); }
+  .content { padding: 14px; display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+  .title { margin: 0; font-size: 18px; }
+  .title a { color: var(--text-primary); text-decoration: none; font-weight: 800; }
+  .title a:hover { color: var(--brand-orange); }
+  .meta { display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--text-secondary); }
+  .stars { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; letter-spacing: 1px; color: var(--brand-gold); }
+
+  /* STYLES FOR PARSED EXCERPT */
+  .card-excerpt { flex-grow: 1; }
+  .prose-excerpt { font-size: 14px; line-height: 1.6; }
+  .prose-excerpt :global(p) { margin: 0 0 1em; color: var(--text-secondary); }
+  .prose-excerpt :global(p:last-child) { margin-bottom: 0; }
+  .prose-excerpt :global(h1), .prose-excerpt :global(h2), .prose-excerpt :global(h3), .prose-excerpt :global(h4) { font-size: 1em; font-weight: 600; color: var(--text-primary); margin: 0; }
+  .prose-excerpt :global(strong) { font-weight: 700; color: var(--text-primary); }
+</style>

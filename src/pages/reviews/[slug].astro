@@ -1,0 +1,180 @@
+---
+// ===== src/pages/reviews/[slug].astro =====
+// --- REFACTORED: Now uses the modern two-column layout with a sidebar AND includes the new CommentsSection ---
+import { marked } from 'marked';
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import MobileAppShell from '../../components/MobileAppShell.astro';
+import RecentPosts from '../../components/RecentPosts.astro';
+import SidebarPromos from '../../components/SidebarPromos.astro';
+import SidebarCta from '../../components/SidebarCta.astro';
+import CommentsSection from '../../components/CommentsSection.astro'; // <-- IMPORT the new component
+import { getReviewBySlug } from '../../services/api';
+import { useTranslations } from '../../lib/i18n';
+import type { Locale } from '../../i18n';
+
+const locale: Locale = 'en';
+const t = useTranslations(locale);
+
+const { slug } = Astro.params;
+const review = await getReviewBySlug(slug as string, locale);
+
+if (!review) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+const ratingPercent = (review.rating / 5) * 100;
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+const imageUrl = review.image.startsWith('http') ? review.image : `${API_BASE_URL}${review.image}`;
+const contentHtml = await marked.parse(review.body.en);
+
+const pageTitle = t('reviewPost.title').replace('{reviewTitle}', review.title.en);
+const pageDescription = t('reviewPost.description').replace('{gameName}', review.gameName);
+const canonical = new URL(`/reviews/${slug}/`, Astro.site).toString();
+---
+<Base title={pageTitle} description={pageDescription} canonical={canonical}>
+
+  <div class="desktop-layout">
+    <Header lang={locale} />
+    <main class="review-page">
+      <div class="container">
+        <div class="layout-grid">
+          
+          <article class="main-content">
+            <header class="review-header">
+              <h1>{review.title.en}</h1>
+              <p class="review-game-name" set:html={t('reviewPost.reviewOf').replace('{gameName}', review.gameName)}></p>
+            </header>
+            <div class="prose" set:html={contentHtml} />
+            
+            <!-- ADDED Comments Section for Desktop -->
+            <CommentsSection reviewId={review._id} />
+
+          </article>
+          
+          <aside class="sidebar">
+            <div class="sidebar-inner">
+              <div class="summary-card">
+                <img src={imageUrl} alt={`Cover art for ${review.gameName}`} class="summary-image" />
+                <div class="summary-content">
+                  <div class="rating-box">
+                    <div class="rating-score">{review.rating.toFixed(1)}</div>
+                    <div class="rating-stars" aria-label={`Rating: ${review.rating} out of 5 stars`} style={`--rating-percent: ${ratingPercent}%`}></div>
+                    <div class="rating-label">{t('reviewPost.ourRating')}</div>
+                  </div>
+                  <dl class="summary-meta">
+                    <div><dt>{t('reviewPost.game')}</dt><dd>{review.gameName}</dd></div>
+                    <div><dt>{t('reviewPost.developer')}</dt><dd>{review.developer}</dd></div>
+                  </dl>
+                  
+                  {review.pros?.en && review.pros.en.length > 0 && (
+                    <div class="pros-cons">
+                      <h4>{t('reviewPost.pros')}</h4>
+                      <ul>{review.pros.en.map(pro => <li>{pro}</li>)}</ul>
+                    </div>
+                  )}
+                   {review.cons?.en && review.cons.en.length > 0 && (
+                    <div class="pros-cons">
+                      <h4>{t('reviewPost.cons')}</h4>
+                      <ul>{review.cons.en.map(con => <li>{con}</li>)}</ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <RecentPosts lang={locale} />
+              <SidebarPromos lang={locale} />
+              <SidebarCta lang={locale} />
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+    <Footer lang={locale} />
+  </div>
+
+  <div class="mobile-layout">
+    <MobileAppShell title="Game Review" showBack={true} lang={locale}>
+      <main class="review-page">
+        <div class="container">
+          <article class="main-content">
+            <header class="review-header">
+              <h1>{review.title.en}</h1>
+              <p class="review-game-name" set:html={t('reviewPost.reviewOf').replace('{gameName}', review.gameName)}></p>
+            </header>
+            <aside class="sidebar">
+              <div class="summary-card">
+                <img src={imageUrl} alt={`Cover art for ${review.gameName}`} class="summary-image" />
+                <div class="summary-content">
+                  <div class="rating-box">
+                    <div class="rating-score">{review.rating.toFixed(1)}</div>
+                    <div class="rating-stars" aria-label={`Rating: ${review.rating} out of 5 stars`} style={`--rating-percent: ${ratingPercent}%`}></div>
+                    <div class="rating-label">{t('reviewPost.ourRating')}</div>
+                  </div>
+                  <dl class="summary-meta">
+                    <div><dt>{t('reviewPost.game')}</dt><dd>{review.gameName}</dd></div>
+                    <div><dt>{t('reviewPost.developer')}</dt><dd>{review.developer}</dd></div>
+                  </dl>
+                  {review.pros?.en && review.pros.en.length > 0 && (
+                    <div class="pros-cons">
+                      <h4>{t('reviewPost.pros')}</h4>
+                      <ul>{review.pros.en.map(pro => <li>{pro}</li>)}</ul>
+                    </div>
+                  )}
+                  {review.cons?.en && review.cons.en.length > 0 && (
+                    <div class="pros-cons">
+                      <h4>{t('reviewPost.cons')}</h4>
+                      <ul>{review.cons.en.map(con => <li>{con}</li>)}</ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </aside>
+            <div class="prose" set:html={contentHtml} />
+
+            <!-- ADDED Comments Section for Mobile -->
+            <CommentsSection reviewId={review._id} />
+
+          </article>
+        </div>
+      </main>
+    </MobileAppShell>
+    <Footer lang={locale} />
+  </div>
+</Base>
+<style>
+  /* --- Page Layout --- */
+  .desktop-layout { display: none; }
+  .mobile-layout { display: block; }
+  @media (min-width: 768px) {
+    .desktop-layout { display: block; }
+    .mobile-layout { display: none; }
+  }
+  .review-page { padding-block: 48px; }
+  @media (max-width: 767px) {
+    .review-page { padding-block: 24px; }
+  }
+
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  @media (min-width: 900px) {
+    .layout-grid {
+      grid-template-columns: 2fr 1fr;
+    }
+  }
+  @media (max-width: 899px) {
+    .main-content { order: 2; }
+    .sidebar { order: 1; }
+  }
+  
+  /* --- Main Content --- */
+  .review-header { margin-bottom: 24px; }
+  .review-header h1 { font-size: clamp(28px, 4vw, 40px); margin-bottom: 4px; }
+  .review-game-name { color: var(--text-secondary); }
+
+  .prose { font-size: 17px; line-height: 1.8; }
+  @media (max-width: 899px) { .prose { margin-top: 32px; } }
+  .prose > :global(* + *) { margin-t

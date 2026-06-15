@@ -1,0 +1,156 @@
+---
+// ===== src/components/GameGrid.astro =====
+// --- REFACTORED: Now uses the centralized 'useTranslations' utility. ---
+
+import { getReviews } from '../services/api';
+import type { ReviewListItem } from '../services/api';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n'; // <-- IMPORT the new utility
+
+interface Props {
+  lang?: Locale;
+}
+const { lang = 'en' } = Astro.props as Props;
+
+// --- UPDATED: Get the translation function for the current language ---
+const t = useTranslations(lang);
+
+const allReviews = await getReviews(lang);
+const reviews = allReviews.filter(r => r.image).slice(0, 8);
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+
+function stars(rating: number): string {
+  const num = Number.isFinite(rating) ? rating : 0;
+  const full = Math.max(0, Math.min(5, Math.round(num)));
+  return '★★★★★☆☆☆☆☆'.slice(5 - full, 10 - full);
+}
+---
+<section id="games" class="game-grid-section">
+  <div class="container">
+    <header class="section-head">
+      {/* UPDATED: Use the 't' function with a key from our JSON file */}
+      <h2>{t('gameGrid.title')}</h2>
+      <p class="muted">{t('gameGrid.description')}</p>
+    </header>
+    <div class="grid">
+      {reviews.map((review: ReviewListItem) => {
+        const imageUrl = review.image.startsWith('http') ? review.image : `${API_BASE_URL}${review.image}`;
+        const reviewUrl = `/reviews/${review.slug}`;
+        
+        return (
+          <a href={reviewUrl} class="game-card">
+            <img src={imageUrl} alt={review.title} class="art" loading="lazy" width="300" height="400" />
+            <div class="overlay">
+              {/* Note: aria-label for stars is not easily translatable with this setup, keeping it simple */}
+              <div class="rating" aria-label={`Rating: ${review.rating} out of 5 stars`}>
+                {stars(review.rating)}
+              </div>
+              <div class="content">
+                <h3 class="title">{review.title}</h3>
+                <span class="category">{review.gameName}</span>
+                {/* UPDATED: Use the 't' function */}
+                <span class="cta">{t('gameGrid.cta')}</span>
+              </div>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+
+    <div class="more-link-container">
+      {/* UPDATED: Use the 't' function */}
+      <a href="/reviews/" class="btn-view-all">
+        {t('gameGrid.seeAll')}
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .game-grid-section { 
+    padding-block: 48px; 
+    background-color: var(--surface);
+    border-top: 1px solid var(--ring);
+  }
+  .section-head { 
+    text-align: center; 
+    max-width: 640px; 
+    margin-inline: auto; 
+    margin-bottom: 32px; 
+  }
+  .section-head h2 { 
+    font-size: clamp(24px, 4vw, 36px); 
+    margin-bottom: 8px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .game-card {
+    display: block;
+    position: relative;
+    aspect-ratio: 3 / 4;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: transform .3s, box-shadow .3s;
+    text-decoration: none;
+    border: 1px solid var(--ring);
+  }
+  .game-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+  }
+  .art {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    transition: transform .4s ease-out;
+  }
+  .game-card:hover .art {
+    transform: scale(1.05);
+  }
+  .overlay {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: linear-gradient(0deg, #000000D9 0%, #00000080 25%, transparent 100%);
+  }
+  
+  .rating {
+    align-self: flex-start;
+    background: rgba(11, 11, 15, 0.6);
+    backdrop-filter: blur(4px);
+    color: var(--brand-gold);
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .content { text-align: left; }
+  .title { color: #ffffff; margin: 0 0 4px; font-size: 22px; }
+  .category { display: block; color: rgba(255, 255, 255, 0.8); font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+  .cta { color: var(--brand-gold); font-weight: 600

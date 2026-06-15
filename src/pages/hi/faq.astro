@@ -1,0 +1,123 @@
+---
+// ===== src/pages/hi/faq.astro =====
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import MobileAppShell from '../../components/MobileAppShell.astro';
+import { useTranslations } from '../../lib/i18n';
+import type { Locale } from '../../i18n';
+
+// Explicitly set locale and get translation function
+const locale: Locale = 'hi';
+const t = useTranslations(locale);
+
+// Use translation function for page metadata and mobile accordion data
+const pageTitle = t('faqPage.title');
+const pageDescription = t('faqPage.description');
+const h1 = t('faqPage.h1');
+const mobileIntro = t('faqPage.mobileIntro');
+const faqs: {q: string, a: string}[] = t('faqPage.list');
+const canonical = new URL('/hi/faq/', Astro.site).toString();
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(({ q, a }) => ({
+    "@type": "Question",
+    "name": q,
+    "acceptedAnswer": { "@type": "Answer", "text": a }
+  }))
+};
+---
+
+<Base title={pageTitle} description={pageDescription} canonical={canonical} jsonLd={faqJsonLd}>
+  <div class="desktop-only"><Header lang={locale} /></div>
+  <div class="mobile-only"><MobileAppShell title="FAQ" active="faq" lang={locale} /></div>
+
+  <main id="main" class="faq-page">
+    <div class="container">
+      <h1 class="page-title">{h1}</h1>
+
+      {/* --- DESKTOP LAYOUT (Translated long-form content) --- */}
+      <div class="desktop-layout">
+        <div class="content-box">
+          <section>
+            <h2>1. सामान्य प्रश्न</h2>
+            <h3>मैं तीन पत्ती खेलने के लिए Starsuu7 पर खाता कैसे बनाऊं?</h3>
+            <p>खाता बनाने के लिए:</p>
+            <ol>
+              <li>Starsuu7 वेबसाइट पर जाएं और गेम डाउनलोड करें।</li>
+              <li>आवश्यक फ़ील्ड में अपनी व्यक्तिगत जानकारी भरें।</li>
+              <li>पंजीकरण प्रक्रिया को पूरा करने के लिए संकेतों का पालन करें।</li>
+            </ol>
+            <h3>Starsuu7 पर किस प्रकार के खेल उपलब्ध हैं?</h3>
+            <p>Starsuu7 विभिन्न प्रकार के खेल प्रदान करता है, जिनमें शामिल हैं:</p>
+            <ul><li>रम्मी</li><li>तीन पत्ती</li><li>कैसीनो गेम्स</li><li>लॉटरी</li><li>और बहुत कुछ!</li></ul>
+            <p>गेमिंग अनुभव को रोमांचक बनाए रखने के लिए नियमित रूप से नए गेम जोड़े जाते हैं।</p>
+            <h3>तीन पत्ती कैसे खेलें</h3>
+            <p>तीन पत्ती एक रोमांचक भारतीय कार्ड गेम है जिसमें प्रत्येक खिलाड़ी को तीन कार्ड नीचे की ओर बांटे जाते हैं। इसका उद्देश्य सबसे अच्छा हाथ रखना या पॉट जीतने के लिए अपने विरोधियों को धोखा देना है। यदि आप खेल में नए हैं, तो अपनी रणनीति में सुधार करने और मूल बातें सीखने के लिए कार्ड गेम प्रेमियों के लिए हमारी तीन पत्ती टिप्स और ट्रिक्स देखें।</p>
+            <h3>रम्मी कैसे खेलें</h3>
+            <p>रम्मी एक लोकप्रिय कार्ड गेम है जो वैध सेट और अनुक्रम बनाने पर केंद्रित है। खिलाड़ी अपने हाथ को कुशलता से व्यवस्थित करने के लिए कार्ड उठाते और छोड़ते हैं। जीतने की रणनीतियों और गेमप्ले अंतर्दृष्टि के लिए, कार्ड गेम टिप्स पर हमारे ब्लॉग पोस्ट देखें और अपने कौशल में सुधार करें।</p>
+            <h3>क्या Starsuu7 सुरक्षित है?</h3>
+            <p>हाँ! हम उपयोगकर्ता डेटा और लेनदेन की सुरक्षा के लिए उन्नत एन्क्रिप्शन और सुरक्षा उपायों का उपयोग करते हैं। Starsuu7 सभी खिलाड़ियों के लिए एक सुरक्षित, निष्पक्ष और मनोरंजक गेमिंग वातावरण प्रदान करने के लिए प्रतिबद्ध है।</p>
+          </section>
+          <section>
+            <h2>2. खाता प्रबंधन</h2>
+            <h3>मैं अपना पासवर्ड भूल गया। मैं इसे कैसे रीसेट कर सकता हूं?</h3>
+            <p>कोई चिंता नहीं! बस:</p>
+            <ol><li>लॉगिन पेज पर "पासवर्ड भूल गए" लिंक पर क्लिक करें।</li><li>अपना पंजीकृत ईमेल पता दर्ज करें।</li><li>अपना पासवर्ड रीसेट करने के लिए अपने ईमेल पर भेजे गए निर्देशों का पालन करें।</li></ol>
+            <h3>मैं अपनी व्यक्तिगत जानकारी कैसे अपडेट कर सकता हूं?</h3>
+            <ol><li>अपने Starsuu7 खाते में लॉग इन करें।</li><li>"प्रोफ़ाइल" अनुभाग पर जाएं।</li><li>अपने विवरण संपादित करें और परिवर्तनों को सहेजें।</li></ol>
+          </section>
+          <section>
+            <h2>3. जमा और निकासी</h2>
+            <h3>मैं जमा कैसे करूं?</h3>
+            <ol><li>अपने Starsuu7 खाते में लॉग इन करें।</li><li>"बैंकिंग" या "वॉलेट" अनुभाग पर जाएं।</li><li>"जमा करें" चुनें।</li><li>अपनी पसंदीदा भुगतान विधि चुनें, विवरण भरें, और अपने लेनदेन की पुष्टि करें।</li></ol>
+            <h3>Starsuu7 पर निकासी में कितना समय लगता है?</h3>
+            <p>निकासी आमतौर पर 24 घंटे के भीतर संसाधित की जाती है। उपयोग की गई भुगतान विधि के आधार पर प्रसंस्करण समय भिन्न हो सकता है।</p>
+          </section>
+          <section>
+            <h2>4. गेमिंग प्रश्न</h2>
+            <h3>क्या मैं अपने मोबाइल डिवाइस पर गेम खेल सकता हूं?</h3>
+            <p>बिल्कुल! Starsuu7 पूरी तरह से मोबाइल खेलने के लिए अनुकूलित है। आप अपने ब्राउज़र के माध्यम से या मोबाइल ऐप डाउनलोड करके अपने स्मार्टफोन या टैबलेट पर हमारे गेम का आनंद ले सकते हैं।</p>
+            <h3>अगर कोई गेम फ्रीज हो जाए तो मुझे क्या करना चाहिए?</h3>
+            <p>यदि कोई गेम फ्रीज हो जाता है:</p>
+            <ol><li>पेज को रीफ्रेश करने या ऐप को पुनरारंभ करने का प्रयास करें।</li><li>यदि समस्या बनी रहती है, तो "सहायता" अनुभाग के माध्यम से हमारी सहायता टीम से संपर्क करें।</li></ol>
+          </section>
+          <section>
+            <h2>5. प्रमोशन और बोनस</h2>
+            <h3>मैं वर्तमान प्रमोशन के बारे में कैसे पता लगा सकता हूं?</h3>
+            <p>नवीनतम ऑफ़र का पता लगाने के लिए हमारी वेबसाइट या ऐप पर "प्रमोशन" पेज पर जाएं। आप नए बोनस और पुरस्कारों पर नियमित अपडेट के लिए हमारे न्यूज़लेटर की सदस्यता भी ले सकते हैं।</p>
+            <h3>मैं बोनस का दावा कैसे करूं?</h3>
+            <p>"प्रमोशन" पेज या इन-ऐप सूचनाओं में दिए गए निर्देशों का पालन करें। अधिकांश बोनस आवश्यक मानदंडों को पूरा करने के बाद स्वचालित रूप से लागू हो जाते हैं।</p>
+          </section>
+        </div>
+      </div>
+
+      {/* --- MOBILE LAYOUT (accordion from i18n) --- */}
+      <div class="mobile-layout">
+        <div class="content-box">
+          <p class="mobile-intro">{mobileIntro}</p>
+          {faqs.map((faq) => (
+            <details class="faq-item">
+              <summary>
+                <span class="question">{faq.q}</span>
+                <svg class="icon" viewBox="0 0 24 24" width="20" height="20"><path d="m6 9 6 6 6-6"/></svg>
+              </summary>
+              <div class="answer">
+                <p set:html={faq.a.replace(/\n/g, '<br/>')} />
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Footer lang={locale} />
+</Base>
+
+<style>
+  /* Styles remain unchanged */
+  .desktop-layout { display: block; } .mobile-layout { display: none; } .desktop-only { display: block; } .mobile-only { display: none; } @media (max-width: 767px) { .desktop-layout { display: none; } .mobile-layout { display: block; } .desktop-only { display: none; } .mobile-only { display: block; } } .faq-page { padding-block: 48px; } @media (max-width: 767px) { .faq-page { padding-block: 24px; } .mobile-layout .content-box { border-radius: 0; border-inline: none; padding-top: 12px; } .mobile-layout .container { padding-inline: 0; } } .page-title { font-size: clamp(28px, 4vw, 40px); margin-bottom: 32px; text-align: center; color: var(--text-primary); } .content-box { background-color: var(--surface); border: 1px solid var(--ring); border-radius: 24px; padding: clamp(24px, 5vw, 48px); } h2 { font-size: clamp(22px, 3vw, 28px); margin-top: 48px; margin-bottom: 24px; border-bottom: 1px solid var(--ring); padding-bottom: 12px; color: var(--text-primary); } h2:first-of-type { margin-top: 0; } h3 { font-size: 18px; margin-top: 32px; margin-bottom: 16px; color: var(--brand-gold); } p, ul, ol { color: var(--text-secondary); font-size: 16px; line-height: 1.7; margin-bottom: 1em; } ul, ol { padding-left: 24px; } li { margin-bottom: 8px; } .mobile-intro { text-align: center; margin-bottom: 24px; color: var(--text-secondary); } .faq-item { background: var(--surface-2); border: 1px solid var(--ring); border-radius: 12px; transition: background-color .2s; margin-bottom: 12px; } .faq-item[open] { background-color: color-mix(in oklab, var(--surface) 50%, var(--surface-2)); } summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 20px; } summary::-webkit-details-marker { display: none; } .question { font-weight: 600; color: var(--text-primary); } .icon { transition: transform 0.2s; color: var(--brand-orange); stroke: currentColor; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; } .faq-item[open] .icon { transform: rotate(180deg); } .answer { padding: 0 20px 20px; color: var(--text-secondary); font-size: 15px; }
+</style>

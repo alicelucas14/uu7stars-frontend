@@ -1,0 +1,84 @@
+---
+// ===== src/components/CommentsSection.astro =====
+// --- UPDATED: Now supports internationalization (i18n) ---
+import { getCommentsForReview, type Comment } from '../services/api';
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
+
+interface Props {
+  reviewId: string;
+  lang?: Locale;
+}
+const { reviewId, lang = 'en' } = Astro.props;
+const t = useTranslations(lang);
+
+const comments = await getCommentsForReview(reviewId);
+
+const totalComments = comments.length;
+const averageRating = totalComments > 0
+  ? (comments.reduce((sum, comment) => sum + comment.rating, 0) / totalComments)
+  : 0;
+
+const stars = (rating: number) => {
+  const full = Math.max(0, Math.min(5, Math.round(rating)));
+  return '★★★★★☆☆☆☆☆'.slice(5 - full, 10 - full);
+};
+
+const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+};
+---
+{totalComments > 0 && (
+  <section class="comments-section" aria-labelledby="comments-title">
+    <div class="comments-header">
+      <h2 id="comments-title">{t('reviewPost.playerReviews')} ({totalComments})</h2>
+      <div class="average-rating">
+        <span class="avg-score">{averageRating.toFixed(1)}</span>
+        <span class="avg-stars" aria-label={`${t('reviewPost.averageRating')}: ${averageRating.toFixed(1)} / 5`}>
+          {stars(averageRating)}
+        </span>
+      </div>
+    </div>
+    <div class="comments-list">
+      {comments.map((comment: Comment) => (
+        <article class="comment-card">
+          <header class="comment-card-header">
+            <div class="author-info">
+              <div class="avatar">{comment.username.charAt(0)}</div>
+              <span class="username">{comment.username}</span>
+            </div>
+            <div class="rating-info">
+              <span class="comment-stars" aria-label={`${t('reviewPost.rated')} ${comment.rating} / 5`}>{stars(comment.rating)}</span>
+              <time datetime={comment.createdAt} class="comment-date">{formatDate(comment.createdAt)}</time>
+            </div>
+          </header>
+          <p class="comment-text">{comment.text}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+/* Styles remain unchanged */
+.comments-section { margin-top: 48px; background-color: var(--surface-2); border: 1px solid var(--ring); border-radius: 16px; padding: clamp(20px, 4vw, 32px); }
+.comments-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--ring); margin-bottom: 24px; }
+#comments-title { font-size: clamp(20px, 3vw, 24px); margin: 0; }
+.average-rating { display: flex; align-items: center; gap: 8px; background-color: var(--surface); padding: 8px 12px; border-radius: 12px; border: 1px solid var(--ring); }
+.avg-score { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+.avg-stars { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; letter-spacing: 1px; color: var(--brand-gold); }
+.comments-list { display: grid; gap: 20px; }
+.comment-card { background-color: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 16px; }
+.comment-card-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.author-info { display: flex; align-items: center; gap: 10px; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background-color: var(--brand-orange); color: white; font-weight: 700; font-size: 16px; text-transform: uppercase; }
+.username { font-weight: 700; color: var(--text-primary); }
+.rating-info { display: flex; align-items: center; gap: 10px; text-align: right; }
+.comment-stars { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; letter-spacing: 1px; color: var(--brand-gold); font-size: 14px; }
+.comment-date { font-size: 12px; color: var(--text-secondary); }
+.comment-text { font-size: 15px; line-height: 1.7; color: var(--text-secondary); margin: 0; }
+</style>

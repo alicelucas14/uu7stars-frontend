@@ -1,0 +1,58 @@
+---
+// ===== src/components/SidebarCta.astro =====
+
+import type { Locale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
+import { createPath } from '../lib/paths';
+
+interface Props {
+  lang?: Locale;
+}
+const { lang = 'en' } = Astro.props;
+const t = useTranslations(lang);
+const downloadPath = createPath('/#download', lang);
+---
+<div class="sidebar-cta-card">
+  <img src="/logo.webp" alt="Starsuu7 Logo" width="60" height="60" loading="lazy" />
+  <h3>{t('downloadCta.title')}</h3>
+  <p>{t('downloadCta.bonusInfo')}</p>
+  <a href={downloadPath} class="btn-dl">{t('downloadCta.mainCta')}</a>
+</div>
+<style>
+.sidebar-cta-card {
+  text-align: center;
+  background: linear-gradient(170deg, var(--brand-orange), var(--brand-gold));
+  color: white;
+  padding: 24px;
+  border-radius: 16px;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+.sidebar-cta-card img {
+  border-radius: 12px;
+}
+.sidebar-cta-card h3 {
+  color: white;
+  font-size: 20px;
+  margin: 0;
+}
+.sidebar-cta-card p {
+  color: rgba(255,255,255,.9);
+  margin: 0;
+  font-size: 14px;
+}
+.btn-dl {
+  display: inline-block;
+  padding: 10px 20px;
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 99px;
+  text-decoration: none;
+  font-weight: 800;
+  margin-top: 4px;
+}
+.btn-dl:hover {
+  transform: scale(1.05);
+}
+</style>
