@@ -38,12 +38,38 @@ const contentHtml = await marked.parse(post.body.en);
 
 const pageTitle = t('blogPost.title').replace('{postTitle}', postTitle);
 const pageDescription = postExcerpt;
-const canonical = new URL(`/blog/${slug}/`, Astro.site).toString();
+const canonical = post.canonicalUrl || new URL(`/blog/${slug}/`, Astro.site).toString();
+
+// SEO fields from post
+const seoTitle = postTitle;
+const seoDescription = pageDescription;
+const ogImage = post.openGraphImage && post.openGraphImage.startsWith('http')
+  ? post.openGraphImage
+  : post.openGraphImage
+    ? `${API_BASE_URL}${post.openGraphImage}`
+    : imageUrl;
+const ogTitle = post.openGraphTitle?.en || seoTitle;
+const ogDescription = post.openGraphDescription?.en || seoDescription;
+const twitterTitle = post.twitterTitle?.en || ogTitle;
+const twitterDescription = post.twitterDescription?.en || ogDescription;
 
 const articleJsonLd = { /* ... JSON-LD remains unchanged ... */ };
 ---
 
-<Base title={pageTitle} description={pageDescription} canonical={canonical} jsonLd={articleJsonLd}>
+<Base
+  title={pageTitle}
+  description={pageDescription}
+  canonical={canonical}
+  jsonLd={articleJsonLd}
+  focusKeyword={post.focusKeyword}
+  robotsIndex={post.robotsIndex !== false}
+  robotsFollow={post.robotsFollow !== false}
+  ogTitle={ogTitle}
+  ogDescription={ogDescription}
+  ogImage={ogImage}
+  twitterTitle={twitterTitle}
+  twitterDescription={twitterDescription}
+>
   
   <div class="desktop-layout">
     <Header lang={locale} />

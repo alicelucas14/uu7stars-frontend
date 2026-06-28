@@ -19,17 +19,33 @@ export interface Props {
   nextUrl?: string;
   rssUrl?: string;
   lang?: 'en' | 'hi';
+  focusKeyword?: string;
+  robotsIndex?: boolean;
+  robotsFollow?: boolean;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
 }
 
 const {
-  title = 'Starsuu7 — Teen Patti & Rummy Real Cash App | UU7 777',
-  description: pageDescription = 'Play Teen Patti & Rummy on Starsuu7 (UU7 • 777). Secure payments, instant withdrawals, 24/7 support. India’s trusted real-cash gaming app. 18+ only, play responsibly.',
+  title = ‘Starsuu7 — Teen Patti & Rummy Real Cash App | UU7 777’,
+  description: pageDescription = ‘Play Teen Patti & Rummy on Starsuu7 (UU7 • 777). Secure payments, instant withdrawals, 24/7 support. India’s trusted real-cash gaming app. 18+ only, play responsibly.’,
   canonical,
   jsonLd,
   prevUrl,
   nextUrl,
   rssUrl,
-  lang = 'en',
+  lang = ‘en’,
+  focusKeyword = ‘’,
+  robotsIndex = true,
+  robotsFollow = true,
+  ogTitle = ‘’,
+  ogDescription = ‘’,
+  ogImage = ‘’,
+  twitterTitle = ‘’,
+  twitterDescription = ‘’,
 } = Astro.props;
 
 const siteBase = new URL('/', Astro.site).toString();
@@ -147,7 +163,7 @@ if (jsonLd) {
 
     <title>{title}</title>
     <meta name="description" content={pageDescription} />
-    <meta name="keywords" content="Starsuu7, UU7, 777, Starsuu7 app, Starsuu7 APK, Teen Patti app, Rummy app, real cash games India, Teen Patti real money, Rummy real money, Starsuu7 download" />
+    <meta name="keywords" content={focusKeyword ? `${focusKeyword}, Starsuu7, UU7, 777, Starsuu7 app, real cash games` : 'Starsuu7, UU7, 777, Starsuu7 app, Starsuu7 APK, Teen Patti app, Rummy app, real cash games India, Teen Patti real money, Rummy real money, Starsuu7 download'} />
 
     <link rel="canonical" href={url} />
     
@@ -162,7 +178,7 @@ if (jsonLd) {
     {rssUrl && <link rel="alternate" type="application/rss+xml" title="RSS Feed" href={rssUrl} />}
 
     <meta name="theme-color" content="#f97316" />
-    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
+    <meta name="robots" content={`${robotsIndex ? 'index' : 'noindex'},${robotsFollow ? 'follow' : 'nofollow'},max-snippet:-1,max-image-preview:large,max-video-preview:-1`} />
 
     <link rel="icon" href="/logo.webp" type="image/webp" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -177,16 +193,16 @@ if (jsonLd) {
     <meta property="og:site_name" content={brandName} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content={pageLocale} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={pageDescription} />
+    <meta property="og:title" content={ogTitle || title} />
+    <meta property="og:description" content={ogDescription || pageDescription} />
     <meta property="og:url" content={url} />
-    <meta property="og:image" content={ogImage} />
+    <meta property="og:image" content={ogImage || new URL('/wordpress/STARSUU7-Game.webp', Astro.site).toString()} />
     <meta property="og:image:alt" content="Starsuu7 — Teen Patti & Rummy" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={pageDescription} />
-    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:title" content={twitterTitle || ogTitle || title} />
+    <meta name="twitter:description" content={twitterDescription || ogDescription || pageDescription} />
+    <meta name="twitter:image" content={ogImage || new URL('/wordpress/STARSUU7-Game.webp', Astro.site).toString()} />
     <meta name="twitter:site" content="@starsuu7" />
 
     <meta name="ahrefs-site-verification" content="9b4a068be0accae70bb69802a875d1f5d6f987bb64e6f428005d97af07a52f2c" />
