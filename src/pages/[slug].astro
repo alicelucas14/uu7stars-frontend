@@ -1,0 +1,135 @@
+---
+// ===== src/pages/[slug].astro =====
+import { marked } from 'marked';
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileAppShell from '../components/MobileAppShell.astro';
+import { getPageBySlug } from '../services/api';
+import { useTranslations } from '../lib/i18n';
+import type { Locale } from '../i18n';
+
+const locale: Locale = 'en';
+const t = useTranslations(locale);
+
+const { slug } = Astro.params;
+const page = await getPageBySlug(slug as string, locale);
+
+if (!page) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+const pageTitle = page.title.en;
+const contentHtml = await marked.parse(page.body.en);
+
+// SEO setup
+const metaTitle = page.metaTitle?.en || pageTitle;
+const metaDescription = page.metaDescription?.en || '';
+const canonical = page.canonicalUrl || new URL(`/${slug}/`, Astro.site).toString();
+
+const ogTitle = page.openGraphTitle?.en || metaTitle;
+const ogDescription = page.openGraphDescription?.en || metaDescription;
+const ogImage = page.openGraphImage || '';
+const twitterTitle = page.twitterTitle?.en || ogTitle;
+const twitterDescription = page.twitterDescription?.en || ogDescription;
+---
+
+<Base
+  title={metaTitle}
+  description={metaDescription}
+  canonical={canonical}
+  focusKeyword={page.focusKeyword}
+  robotsIndex={page.robotsIndex !== false}
+  robotsFollow={page.robotsFollow !== false}
+  ogTitle={ogTitle}
+  ogDescription={ogDescription}
+  ogImage={ogImage}
+  twitterTitle={twitterTitle}
+  twitterDescription={twitterDescription}
+>
+
+  <div class="desktop-layout">
+    <Header lang={locale} />
+    <main class="custom-page">
+      <div class="container">
+        <div class="content-box">
+          <h1>{pageTitle}</h1>
+          <div class="prose" set:html={contentHtml} />
+        </div>
+      </div>
+    </main>
+    <Footer lang={locale} />
+  </div>
+
+  <div class="mobile-layout">
+    <MobileAppShell title={pageTitle} showBack={true} lang={locale}>
+      <main class="custom-page">
+        <div class="container">
+          <div class="content-box">
+            <h1>{pageTitle}</h1>
+            <div class="prose" set:html={contentHtml} />
+          </div>
+        </div>
+      </main>
+    </MobileAppShell>
+    <Footer lang={locale} />
+  </div>
+</Base>
+
+<style>
+  /* Use :global to style content from set:html */
+  .custom-page :global(p), 
+  .custom-page :global(ul), 
+  .custom-page :global(ol) {
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.8;
+    margin-bottom: 1em;
+  }
+  .custom-page :global(ul), .custom-page :global(ol) { padding-left: 24px; }
+  .custom-page :global(li) { margin-bottom: 8px; }
+  .custom-page :global(strong) { color: var(--text-primary); }
+  .custom-page :global(a) { text-decoration: underline; color: var(--brand-orange); }
+
+  .desktop-layout { display: none; } 
+  .mobile-layout { display: block; } 
+  
+  @media (min-width: 768px) { 
+    .desktop-layout { display: block; } 
+    .mobile-layout { display: none; } 
+  } 
+  
+  .custom-page { padding-block: 48px; } 
+  
+  @media (max-width: 767px) { 
+    .custom-page { padding-block: 24px; } 
+    .mobile-layout .content-box { border-radius: 0; border-inline: none; padding-inline: 16px; } 
+    .mobile-layout .container { padding-inline: 0; } 
+  } 
+  
+  .content-box { 
+    background-color: var(--surface); 
+    border: 1px solid var(--ring); 
+    border-radius: 24px; 
+    padding: clamp(24px, 5vw, 48px); 
+    max-width: 900px; 
+    margin-inline: auto; 
+  } 
+  
+  h1 { 
+    font-size: clamp(28px, 4vw, 40px); 
+    margin-bottom: 32px; 
+    text-align: center; 
+    color: var(--text-primary); 
+  } 
+  
+  .prose { 
+    font-size: 17px; 
+    line-height: 1.8; 
+    color: var(--text-secondary); 
+  } 
+  .prose > :global(* + *) { margin-top: 1.25em; } 
+  .prose :global(h2), .prose :global(h3) { line-height: 1.3; margin-top: 2em; margin-bottom: 1em; color: var(--text-primary); } 
+  .prose :global(h2) { font-size: 1.75em; } 
+  .prose :global(h3) { font-size: 1.4em; }
+</style>

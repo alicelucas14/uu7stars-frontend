@@ -8,6 +8,7 @@ const SITEMAPS = [
   'sitemap-posts.xml',
   'sitemap-reviews.xml',
   'sitemap-promotions.xml',
+  'sitemap-pages.xml',
 ];
 
 export const GET: APIRoute = async ({ site }) => {

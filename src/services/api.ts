@@ -11,6 +11,33 @@ export interface BlogPost { _id: string; slug: string; title: { en: string; hi: 
 export interface SiteSettings { siteName: string; logoUrl: string; apkDownloadLink: string; qrCodeImageUrl: string; telegramUrl: string; whatsappUrl: string; instagramUrl: string; facebookUrl: string; youtubeUrl: string; twitterUrl: string; liveChatUrl: string; }
 export interface Comment { _id: string; reviewId: string; username: string; rating: number; text: string; createdAt: string; }
 
+export interface PageListItem {
+    _id: string;
+    slug: string;
+    title: string;
+    updatedAt: string;
+}
+
+export interface Page {
+    _id: string;
+    slug: string;
+    title: { en: string; hi: string };
+    body: { en: string; hi: string };
+    metaTitle?: { en: string; hi: string };
+    metaDescription?: { en: string; hi: string };
+    focusKeyword?: string;
+    canonicalUrl?: string;
+    robotsIndex?: boolean;
+    robotsFollow?: boolean;
+    openGraphTitle?: { en: string; hi: string };
+    openGraphDescription?: { en: string; hi: string };
+    openGraphImage?: string;
+    twitterTitle?: { en: string; hi: string };
+    twitterDescription?: { en: string; hi: string };
+    createdAt: string;
+    updatedAt: string;
+}
+
 // --- NEW INTERFACE for a single blog comment ---
 export interface BlogComment {
   _id: string;
@@ -73,4 +100,18 @@ export async function getCommentsForBlogPost(postId: string): Promise<BlogCommen
     console.error(`Failed to fetch comments for blog post ${postId}:`, err);
     return []; // Return an empty array on error to prevent the page from crashing.
   }
+}
+
+// --- NEW FUNCTIONS to fetch custom pages ---
+export async function getPagesList(lang: 'en' | 'hi' = 'en'): Promise<PageListItem[]> {
+    return fetchData<PageListItem[]>(`/frontend-api/pages?lang=${lang}`);
+}
+
+export async function getPageBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Promise<Page | null> {
+    try {
+        return await fetchData<Page>(`/frontend-api/pages/${encodeURIComponent(slug)}?lang=${lang}`);
+    } catch (err) {
+        console.warn(`Could not fetch custom page for slug: ${slug}`, err);
+        return null;
+    }
 }
