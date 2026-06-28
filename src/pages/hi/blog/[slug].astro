@@ -61,7 +61,34 @@ const ogDescription = post.openGraphDescription?.hi || seoDescription;
 const twitterTitle = post.twitterTitle?.hi || ogTitle;
 const twitterDescription = post.twitterDescription?.hi || ogDescription;
 
-const articleJsonLd = { /* ... JSON-LD remains unchanged ... */ };
+const brandName = "Starsuu7";
+const logoUrl = new URL('/logo.webp', Astro.site).toString();
+
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": postTitle,
+  "description": postExcerpt,
+  "image": ogImage || imageUrl,
+  "datePublished": post.publishedAt,
+  "dateModified": post.updatedAt || post.publishedAt,
+  "author": {
+    "@type": "Person",
+    "name": post.author || "Starsuu7 Expert"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": brandName,
+    "logo": {
+      "@type": "ImageObject",
+      "url": logoUrl
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": canonical
+  }
+};
 ---
 
 <Base

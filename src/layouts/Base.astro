@@ -30,22 +30,22 @@ export interface Props {
 }
 
 const {
-  title = ‘Starsuu7 — Teen Patti & Rummy Real Cash App | UU7 777’,
-  description: pageDescription = ‘Play Teen Patti & Rummy on Starsuu7 (UU7 • 777). Secure payments, instant withdrawals, 24/7 support. India’s trusted real-cash gaming app. 18+ only, play responsibly.’,
+  title = 'Starsuu7 — Teen Patti & Rummy Real Cash App | UU7 777',
+  description: pageDescription = 'Play Teen Patti & Rummy on Starsuu7 (UU7 • 777). Secure payments, instant withdrawals, 24/7 support. India’s trusted real-cash gaming app. 18+ only, play responsibly.',
   canonical,
   jsonLd,
   prevUrl,
   nextUrl,
   rssUrl,
-  lang = ‘en’,
-  focusKeyword = ‘’,
+  lang = 'en',
+  focusKeyword = '',
   robotsIndex = true,
   robotsFollow = true,
-  ogTitle = ‘’,
-  ogDescription = ‘’,
-  ogImage = ‘’,
-  twitterTitle = ‘’,
-  twitterDescription = ‘’,
+  ogTitle = '',
+  ogDescription = '',
+  ogImage = '',
+  twitterTitle = '',
+  twitterDescription = '',
 } = Astro.props;
 
 const siteBase = new URL('/', Astro.site).toString();
@@ -67,7 +67,13 @@ const downloadLink = createPath('/#download', lang);
 const settings = await getSettings(); 
 const brandName = settings?.siteName || 'Starsuu7';
 const logoUrl = new URL(settings?.logoUrl || '/logo.webp', Astro.site).toString();
-const ogImage = new URL('/wordpress/STARSUU7-Game.webp', Astro.site).toString();
+
+// Technical SEO variables
+const googleAnalyticsId = settings?.googleAnalyticsId || 'G-NSX5MEH182';
+const googleSearchConsoleVerification = settings?.googleSearchConsoleVerification || '';
+const ahrefsVerification = settings?.ahrefsVerification || '9b4a068be0accae70bb69802a875d1f5d6f987bb64e6f428005d97af07a52f2c';
+const customHeaderScripts = settings?.customHeaderScripts || '';
+const customFooterScripts = settings?.customFooterScripts || '';
 const contentRating = '18+';
 
 let release: Record<string, string> = {};
@@ -205,15 +211,22 @@ if (jsonLd) {
     <meta name="twitter:image" content={ogImage || new URL('/wordpress/STARSUU7-Game.webp', Astro.site).toString()} />
     <meta name="twitter:site" content="@starsuu7" />
 
-    <meta name="ahrefs-site-verification" content="9b4a068be0accae70bb69802a875d1f5d6f987bb64e6f428005d97af07a52f2c" />
+    {ahrefsVerification && <meta name="ahrefs-site-verification" content={ahrefsVerification} />}
+    {googleSearchConsoleVerification && <meta name="google-site-verification" content={googleSearchConsoleVerification} />}
 
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NSX5MEH182"></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){ dataLayer.push(arguments); }
-      gtag('js', new Date());
-      gtag('config', 'G-NSX5MEH182', { send_page_view: true });
-    </script>
+    {googleAnalyticsId && (
+      <script async src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}></script>
+    )}
+    {googleAnalyticsId && (
+      <script is:inline define:vars={{ googleAnalyticsId }}>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', googleAnalyticsId, { send_page_view: true });
+      </script>
+    )}
+
+    {customHeaderScripts && <Fragment set:html={customHeaderScripts} />}
 
     <script type="application/ld+json" set:html={JSON.stringify(ldBlocks)} />
   </head>
@@ -346,6 +359,8 @@ if (jsonLd) {
         }
       }, { passive: false });
     </script>
+
+    {customFooterScripts && <Fragment set:html={customFooterScripts} />}
   </body>
 </html>
 

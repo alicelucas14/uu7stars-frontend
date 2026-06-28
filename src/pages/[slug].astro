@@ -32,12 +32,32 @@ const ogDescription = page.openGraphDescription?.en || metaDescription;
 const ogImage = page.openGraphImage || '';
 const twitterTitle = page.twitterTitle?.en || ogTitle;
 const twitterDescription = page.twitterDescription?.en || ogDescription;
+
+const brandName = "Starsuu7";
+const siteBase = new URL('/', Astro.site).toString();
+
+const pageJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": pageTitle,
+  "description": metaDescription,
+  "url": canonical,
+  "inLanguage": "en-IN",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": brandName,
+    "url": siteBase
+  },
+  "datePublished": page.createdAt,
+  "dateModified": page.updatedAt
+};
 ---
 
 <Base
   title={metaTitle}
   description={metaDescription}
   canonical={canonical}
+  jsonLd={pageJsonLd}
   focusKeyword={page.focusKeyword}
   robotsIndex={page.robotsIndex !== false}
   robotsFollow={page.robotsFollow !== false}
