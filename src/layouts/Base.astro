@@ -46,6 +46,7 @@ const {
   ogImage = '',
   twitterTitle = '',
   twitterDescription = '',
+  schemaMarkup,
 } = Astro.props;
 
 const siteBase = new URL('/', Astro.site).toString();
@@ -229,6 +230,13 @@ if (jsonLd) {
     {customHeaderScripts && <Fragment set:html={customHeaderScripts} />}
 
     <script type="application/ld+json" set:html={JSON.stringify(ldBlocks)} />
+    {schemaMarkup && (
+      schemaMarkup.trim().startsWith('<script') ? (
+        <Fragment set:html={schemaMarkup} />
+      ) : (
+        <script type="application/ld+json" set:html={schemaMarkup} />
+      )
+    )}
   </head>
 
   <body>

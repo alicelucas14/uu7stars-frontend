@@ -2,12 +2,12 @@
 // --- UPDATED: Added an interface and fetch function for blog comments ---
 
 // --- Interfaces ---
-export interface Game { _id: string; gameId: string; name: string; category: string; provider: string; image: string; isNew: boolean; isHot: boolean; }
+export interface Game { _id: string; gameId: string; name: string; category: string; provider: string; image: string; isNew: boolean; isHot: boolean; schemaMarkup?: string; }
 export interface Promotion { _id: string; slug: string; title: string; subtitle?: string; description: string; details?: string[]; imageUrl: string; ctaLink?: string; ctaText?: string; badgeText?: string; badgeColor?: string; }
 export interface ReviewListItem { _id: string; slug: string; title: string; excerpt: string; gameName: string; rating: number; image: string; }
-export interface Review { _id: string; slug: string; title: { en: string; hi: string }; excerpt: { en: string; hi: string }; body: { en: string; hi: string }; gameName: string; developer: string; rating: number; image: string; pros: { en: string[]; hi: string[] }; cons: { en: string[]; hi: string[] }; isPublished: boolean; metaTitle?: string; metaDescription?: string; }
+export interface Review { _id: string; slug: string; title: { en: string; hi: string }; excerpt: { en: string; hi: string }; body: { en: string; hi: string }; gameName: string; developer: string; rating: number; image: string; pros: { en: string[]; hi: string[] }; cons: { en: string[]; hi: string[] }; isPublished: boolean; metaTitle?: string; metaDescription?: string; schemaMarkup?: string; }
 export interface BlogPostListItem { _id: string; slug: string; title: string; excerpt: string; author: string; image: string; tags: string[]; publishedAt: string; focusKeyword?: string; canonicalUrl?: string; robotsIndex?: boolean; robotsFollow?: boolean; openGraphTitle?: { en: string; hi: string }; openGraphDescription?: { en: string; hi: string }; openGraphImage?: string; twitterTitle?: { en: string; hi: string }; twitterDescription?: { en: string; hi: string }; }
-export interface BlogPost { _id: string; slug: string; title: { en: string; hi: string }; excerpt: { en: string; hi: string }; body: { en: string; hi: string }; author: string; image: string; tags: string[]; publishedAt: string; focusKeyword?: string; canonicalUrl?: string; robotsIndex?: boolean; robotsFollow?: boolean; openGraphTitle?: { en: string; hi: string }; openGraphDescription?: { en: string; hi: string }; openGraphImage?: string; twitterTitle?: { en: string; hi: string }; twitterDescription?: { en: string; hi: string }; }
+export interface BlogPost { _id: string; slug: string; title: { en: string; hi: string }; excerpt: { en: string; hi: string }; body: { en: string; hi: string }; author: string; image: string; tags: string[]; publishedAt: string; focusKeyword?: string; canonicalUrl?: string; robotsIndex?: boolean; robotsFollow?: boolean; openGraphTitle?: { en: string; hi: string }; openGraphDescription?: { en: string; hi: string }; openGraphImage?: string; twitterTitle?: { en: string; hi: string }; twitterDescription?: { en: string; hi: string }; schemaMarkup?: string; }
 export interface SiteSettings { siteName: string; logoUrl: string; apkDownloadLink: string; qrCodeImageUrl: string; telegramUrl: string; whatsappUrl: string; instagramUrl: string; facebookUrl: string; youtubeUrl: string; twitterUrl: string; liveChatUrl: string; googleAnalyticsId?: string; googleSearchConsoleVerification?: string; ahrefsVerification?: string; customHeaderScripts?: string; customFooterScripts?: string; }
 export interface Comment { _id: string; reviewId: string; username: string; rating: number; text: string; createdAt: string; }
 
@@ -36,6 +36,7 @@ export interface Page {
     twitterDescription?: { en: string; hi: string };
     createdAt: string;
     updatedAt: string;
+    schemaMarkup?: string;
 }
 
 // --- NEW INTERFACE for a single blog comment ---
