@@ -10,6 +10,7 @@ export interface BlogPostListItem { _id: string; slug: string; title: string; ex
 export interface BlogPost { _id: string; slug: string; title: { en: string; hi: string }; excerpt: { en: string; hi: string }; body: { en: string; hi: string }; author: string; image: string; tags: string[]; publishedAt: string; focusKeyword?: string; canonicalUrl?: string; robotsIndex?: boolean; robotsFollow?: boolean; openGraphTitle?: { en: string; hi: string }; openGraphDescription?: { en: string; hi: string }; openGraphImage?: string; twitterTitle?: { en: string; hi: string }; twitterDescription?: { en: string; hi: string }; schemaMarkup?: string; }
 export interface SiteSettings { siteName: string; logoUrl: string; apkDownloadLink: string; qrCodeImageUrl: string; telegramUrl: string; whatsappUrl: string; instagramUrl: string; facebookUrl: string; youtubeUrl: string; twitterUrl: string; liveChatUrl: string; googleAnalyticsId?: string; googleSearchConsoleVerification?: string; ahrefsVerification?: string; customHeaderScripts?: string; customFooterScripts?: string; showPopupBanner?: boolean; popupBannerImageUrl?: string; popupBannerLink?: string; }
 export interface Comment { _id: string; reviewId: string; username: string; rating: number; text: string; createdAt: string; }
+export interface PopupBanner { _id: string; title: string; imageUrl: string; linkUrl?: string; }
 
 export interface PageListItem {
     _id: string;
@@ -114,5 +115,14 @@ export async function getPageBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Pro
     } catch (err) {
         console.warn(`Could not fetch custom page for slug: ${slug}`, err);
         return null;
+    }
+}
+
+export async function getPopupBanners(lang: 'en' | 'hi' = 'en'): Promise<PopupBanner[]> {
+    try {
+        return await fetchData<PopupBanner[]>(`/frontend-api/popup-banners?lang=${lang}`);
+    } catch (err) {
+        console.warn('Could not fetch popup banners', err);
+        return [];
     }
 }
