@@ -72,9 +72,23 @@ export async function getSettings(): Promise<SiteSettings | null> { try { return
 export async function getGames(lang: 'en' | 'hi' = 'en'): Promise<Game[]> { return fetchData<Game[]>(`/frontend-api/games?lang=${lang}`); }
 export async function getPromotions(lang: 'en' | 'hi' = 'en'): Promise<Promotion[]> { return fetchData<Promotion[]>(`/frontend-api/promotions?lang=${lang}`); }
 export async function getBlogPosts(lang: 'en' | 'hi' = 'en'): Promise<BlogPostListItem[]> { return fetchData<BlogPostListItem[]>(`/frontend-api/blog?lang=${lang}`); }
-export async function getBlogPostBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Promise<BlogPost | null> { return fetchData<BlogPost>(`/frontend-api/blog/${encodeURIComponent(slug)}?lang=${lang}`); }
+export async function getBlogPostBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Promise<BlogPost | null> {
+    try {
+        return await fetchData<BlogPost>(`/frontend-api/blog/${encodeURIComponent(slug)}?lang=${lang}`);
+    } catch (err) {
+        console.warn(`Could not fetch blog post for slug: ${slug}`, err);
+        return null;
+    }
+}
 export async function getReviews(lang: 'en' | 'hi' = 'en'): Promise<ReviewListItem[]> { return fetchData<ReviewListItem[]>(`/frontend-api/reviews?lang=${lang}`); }
-export async function getReviewBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Promise<Review | null> { return fetchData<Review>(`/frontend-api/reviews/${encodeURIComponent(slug)}?lang=${lang}`); }
+export async function getReviewBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Promise<Review | null> {
+    try {
+        return await fetchData<Review>(`/frontend-api/reviews/${encodeURIComponent(slug)}?lang=${lang}`);
+    } catch (err) {
+        console.warn(`Could not fetch review for slug: ${slug}`, err);
+        return null;
+    }
+}
 
 export async function getCommentsForReview(reviewId: string): Promise<Comment[]> {
   if (!reviewId) return [];
