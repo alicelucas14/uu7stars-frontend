@@ -8,7 +8,7 @@
 import '../styles/global.css';
 import { getSettings } from '../services/api';
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
-import PopupBannerModal from '../components/PopupBannerModal.astro';
+import PopupBanner from '../components/PopupBanner.astro';
 import { useI18n, locales, createPath, getPathWithoutLocale } from '../i18n';
 
 export interface Props {
@@ -270,7 +270,7 @@ if (jsonLd) {
 
     <LanguageSwitcher />
 
-    <PopupBannerModal lang={lang} />
+    <PopupBanner lang={lang} />
 
     <script is:inline>
       (function () {
@@ -370,6 +370,8 @@ if (jsonLd) {
         }
       }, { passive: false });
     </script>
+
+    <PopupBanner lang={lang} />
 
     {customFooterScripts && <Fragment set:html={customFooterScripts} />}
   </body>

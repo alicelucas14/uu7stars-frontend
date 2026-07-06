@@ -1,0 +1,280 @@
+---
+// ===== src/components/PopupBanner.astro =====
+import { getPopupBanners } from '../services/api';
+
+export interface Props {
+  lang?: 'en' | 'hi';
+}
+
+const { lang = 'en' } = Astro.props;
+
+const banners = await getPopupBanners(lang);
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+const showPopup = banners && banners.length > 0;
+---
+
+{showPopup && (
+  <div id="popup-banner-modal" class="popup-modal" aria-hidden="true" style="display: none;">
+    <div class="popup-backdrop"></div>
+    <div class="popup-container">
+      <div class="popup-content">
+        <!-- Close Button -->
+        <button id="popup-close-btn" class="popup-close-btn" aria-label="Close promotion modal">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <!-- Slider Container -->
+        <div class="popup-slider-container">
+          <div class="popup-slider-track" id="popup-slider-track">
+            {banners.map((banner, index) => {
+              const rawImage = banner.imageUrl;
+              const imageUrl = rawImage ? (rawImage.startsWith('http') ? rawImage : `${API_BASE_URL}${rawImage}`) : '';
+              
+              return (
+                <div class="popup-slide" data-index={index}>
+                  {banner.linkUrl ? (
+                    <a href={banner.linkUrl} target="_blank" rel="noopener noreferrer" class="popup-banner-link">
+                      <img src={imageUrl} alt={banner.title} class="popup-banner-img" />
+                    </a>
+                  ) : (
+                    <img src={imageUrl} alt={banner.title} class="popup-banner-img" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <!-- Slider Navigation Dots (only if more than 1 banner) -->
+        {banners.length > 1 && (
+          <div class="popup-slider-dots" id="popup-slider-dots">
+            {banners.map((_, index) => (
+              <button class={`popup-dot ${index === 0 ? 'is-active' : ''}`} data-index={index} aria-label={`Go to slide ${index + 1}`}></button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function() {
+      const modal = document.getElementById('popup-banner-modal');
+      if (!modal) return;
+
+      // Check sessionStorage to only show once per visit
+      if (!sessionStorage.getItem('popupBannerDismissed')) {
+        setTimeout(() => {
+          modal.style.display = 'flex';
+          modal.offsetHeight; // layout reflow
+          modal.classList.add('is-active');
+          modal.setAttribute('aria-hidden', 'false');
+          startAutoplay();
+        }, 1000);
+      }
+
+      function closeModal() {
+        stopAutoplay();
+        modal.classList.remove('is-active');
+        modal.setAttribute('aria-hidden', 'true');
+        sessionStorage.setItem('popupBannerDismissed', 'true');
+        setTimeout(() => {
+          modal.style.display = 'none';
+        }, 300);
+      }
+
+      const closeBtn = document.getElementById('popup-close-btn');
+      const backdrop = modal.querySelector('.popup-backdrop');
+
+      closeBtn?.addEventListener('click', closeModal);
+      backdrop?.addEventListener('click', closeModal);
+
+      // --- Slider Logic ---
+      const track = document.getElementById('popup-slider-track');
+      const dots = document.querySelectorAll('.popup-dot');
+      const slidesCount = dots.length;
+      let currentIndex = 0;
+      let autoplayTimer = null;
+
+      function goToSlide(index) {
+        if (!track || slidesCount <= 1) return;
+        currentIndex = (index + slidesCount) % slidesCount;
+        
+        // Move track
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        
+        // Update dots
+        dots.forEach((dot, idx) => {
+          if (idx === currentIndex) {
+            dot.classList.add('is-active');
+          } else {
+            dot.classList.remove('is-active');
+          }
+        });
+      }
+
+      function startAutoplay() {
+        if (slidesCount <= 1) return;
+        stopAutoplay();
+        autoplayTimer = setInterval(() => {
+          goToSlide(currentIndex + 1);
+        }, 5000); // 5 seconds display duration
+      }
+
+      function stopAutoplay() {
+        if (autoplayTimer) {
+          clearInterval(autoplayTimer);
+          autoplayTimer = null;
+        }
+      }
+
+      // Add click events to dots
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          stopAutoplay();
+          goToSlide(index);
+          startAutoplay(); // resume autoplay
+        });
+      });
+    })();
+  </script>
+
+  <style>
+    .popup-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .popup-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .popup-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 480px;
+      transform: scale(0.9) translateY(20px);
+      opacity: 0;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    }
+    
+    .popup-modal.is-active .popup-backdrop {
+      opacity: 1;
+    }
+    
+    .popup-modal.is-active .popup-container {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+    
+    .popup-content {
+      position: relative;
+      background: #141419; /* sleek dark dashboard background */
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.75);
+    }
+    
+    .popup-close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 30;
+      background: rgba(0, 0, 0, 0.7);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.2s;
+    }
+    
+    .popup-close-btn:hover {
+      background: rgba(239, 68, 68, 0.95);
+      transform: scale(1.05);
+    }
+
+    /* Slider Layout */
+    .popup-slider-container {
+      overflow: hidden;
+      width: 100%;
+      border-radius: 18px;
+    }
+
+    .popup-slider-track {
+      display: flex;
+      transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+      width: 100%;
+    }
+
+    .popup-slide {
+      flex: 0 0 100%;
+      width: 100%;
+      position: relative;
+    }
+    
+    .popup-banner-link {
+      display: block;
+      cursor: pointer;
+    }
+    
+    .popup-banner-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      max-height: 65vh;
+      object-fit: contain;
+    }
+
+    /* Slider Dots */
+    .popup-slider-dots {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 20;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 6px 12px;
+      border-radius: 20px;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .popup-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .popup-dot.is-active {
+      background: #f97316; /* brand-orange active dot */
+      transform: scale(1.2);
+    }
+  </style>
+)}
