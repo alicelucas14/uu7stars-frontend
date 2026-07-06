@@ -8,6 +8,7 @@
 import '../styles/global.css';
 import { getSettings } from '../services/api';
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
+import PopupBannerModal from '../components/PopupBannerModal.astro';
 import { useI18n, locales, createPath, getPathWithoutLocale } from '../i18n';
 
 export interface Props {
@@ -268,6 +269,8 @@ if (jsonLd) {
     </div>
 
     <LanguageSwitcher />
+
+    <PopupBannerModal lang={lang} />
 
     <script is:inline>
       (function () {

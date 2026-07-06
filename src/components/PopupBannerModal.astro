@@ -1,0 +1,352 @@
+---
+// src/components/PopupBannerModal.astro
+import { getPopupBanners } from '../services/api';
+import type { Locale } from '../i18n';
+
+interface Props {
+  lang?: Locale;
+}
+
+const { lang = 'en' } = Astro.props as Props;
+
+// Fetch active banners on the server-side
+const banners = await getPopupBanners(lang);
+const hasBanners = banners && banners.length > 0;
+---
+
+{hasBanners && (
+  <div id="popup-banner-modal" class="popup-modal" aria-hidden="true" role="dialog" aria-labelledby="popup-modal-title">
+    <div class="popup-modal-backdrop" data-close-popup></div>
+    <div class="popup-modal-container">
+      {/* Close Button */}
+      <button class="popup-modal-close" aria-label="Close popup" data-close-popup>
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.5" fill="none">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      {/* Slider & Content */}
+      <div class="popup-modal-content">
+        <h2 id="popup-modal-title" class="sr-only">Promotions</h2>
+        
+        <div class="popup-slider-wrapper">
+          <div class="popup-slider-track" id="popup-slider-track">
+            {banners.map((banner, index) => (
+              <div class="popup-slide" data-index={index}>
+                {banner.linkUrl ? (
+                  <a href={banner.linkUrl} class="popup-banner-link">
+                    <img src={banner.imageUrl} alt={banner.title} class="popup-banner-img" />
+                  </a>
+                ) : (
+                  <img src={banner.imageUrl} alt={banner.title} class="popup-banner-img" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Navigation Controls (only if multiple banners exist) */}
+        {banners.length > 1 && (
+          <>
+            <button class="popup-slider-nav prev" id="popup-slider-prev" aria-label="Previous slide">
+              <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <button class="popup-slider-nav next" id="popup-slider-next" aria-label="Next slide">
+              <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+            
+            <div class="popup-slider-dots">
+              {banners.map((_, index) => (
+                <button class={`popup-slider-dot ${index === 0 ? 'active' : ''}`} data-index={index} aria-label={`Go to slide ${index + 1}`}></button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
+<style>
+  .popup-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .popup-modal.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .popup-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .popup-modal-container {
+    position: relative;
+    width: 90%;
+    max-width: 400px;
+    background: rgba(20, 20, 20, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    transform: scale(0.92);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 12001;
+  }
+
+  .popup-modal.show .popup-modal-container {
+    transform: scale(1);
+  }
+
+  .popup-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    z-index: 12003;
+  }
+
+  .popup-modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+  }
+
+  .popup-modal-content {
+    position: relative;
+    padding: 0;
+  }
+
+  /* Slider Aspect Ratio for Portrait/Gaming Popups */
+  .popup-slider-wrapper {
+    overflow: hidden;
+    width: 100%;
+    border-radius: 20px;
+    aspect-ratio: 4 / 5;
+  }
+
+  .popup-slider-track {
+    display: flex;
+    transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+    height: 100%;
+    width: 100%;
+  }
+
+  .popup-slide {
+    min-width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .popup-banner-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .popup-banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Navigation Chevron Buttons */
+  .popup-slider-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    z-index: 12002;
+  }
+
+  .popup-slider-nav:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .popup-slider-nav:active {
+    transform: translateY(-50%) scale(0.92);
+  }
+
+  .popup-slider-nav.prev {
+    left: 10px;
+  }
+
+  .popup-slider-nav.next {
+    right: 10px;
+  }
+
+  /* Navigation Dots */
+  .popup-slider-dots {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 12002;
+    background: rgba(0, 0, 0, 0.45);
+    padding: 5px 10px;
+    border-radius: 20px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .popup-slider-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.3s, width 0.3s;
+  }
+
+  .popup-slider-dot.active {
+    background: #f59e0b; /* Golden Orange Accent */
+    width: 14px;
+    border-radius: 3px;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('popup-banner-modal');
+    if (!modal) return;
+
+    // Read dismissal state from sessionStorage to show only once per session
+    if (sessionStorage.getItem('popup-banner-dismissed') === 'true') {
+      return;
+    }
+
+    // Delay modal entry slightly for smooth UX
+    setTimeout(() => {
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+    }, 600);
+
+    // Dismissal Handler
+    const closeElements = modal.querySelectorAll('[data-close-popup]');
+    closeElements.forEach(el => {
+      el.addEventListener('click', () => {
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+        sessionStorage.setItem('popup-banner-dismissed', 'true');
+      });
+    });
+
+    // Slider Script
+    const track = document.getElementById('popup-slider-track') as HTMLDivElement | null;
+    const slides = modal.querySelectorAll('.popup-slide');
+    const totalSlides = slides.length;
+
+    if (totalSlides > 1 && track) {
+      let currentIndex = 0;
+      let autoplayTimer: number;
+
+      const prevBtn = document.getElementById('popup-slider-prev');
+      const nextBtn = document.getElementById('popup-slider-next');
+      const dots = modal.querySelectorAll('.popup-slider-dot');
+
+      const updateSlider = (index: number) => {
+        currentIndex = (index + totalSlides) % totalSlides;
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        
+        dots.forEach((dot, idx) => {
+          if (idx === currentIndex) {
+            dot.classList.add('active');
+          } else {
+            dot.classList.remove('active');
+          }
+        });
+      };
+
+      const startAutoplay = () => {
+        stopAutoplay();
+        autoplayTimer = window.setInterval(() => {
+          updateSlider(currentIndex + 1);
+        }, 5000);
+      };
+
+      const stopAutoplay = () => {
+        if (autoplayTimer) {
+          clearInterval(autoplayTimer);
+        }
+      };
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          updateSlider(currentIndex - 1);
+          startAutoplay();
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          updateSlider(currentIndex + 1);
+          startAutoplay();
+        });
+      }
+
+      dots.forEach((dot) => {
+        dot.addEventListener('click', () => {
+          const index = parseInt(dot.getAttribute('data-index') || '0', 10);
+          updateSlider(index);
+          startAutoplay();
+        });
+      });
+
+      // Pause on hover
+      const wrapper = modal.querySelector('.popup-slider-wrapper');
+      if (wrapper) {
+        wrapper.addEventListener('mouseenter', stopAutoplay);
+        wrapper.addEventListener('mouseleave', startAutoplay);
+      }
+
+      startAutoplay();
+    }
+  });
+</script>

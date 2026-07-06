@@ -48,6 +48,14 @@ export interface BlogComment {
   createdAt: string;
 }
 
+// --- NEW INTERFACE for a popup banner ---
+export interface PopupBanner {
+    _id: string;
+    title: string;
+    imageUrl: string;
+    linkUrl?: string;
+}
+
 // --- Base API Configuration ---
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 const BACKEND_API_KEY = import.meta.env.BACKEND_API_KEY;
@@ -128,5 +136,15 @@ export async function getPageBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Pro
     } catch (err) {
         console.warn(`Could not fetch custom page for slug: ${slug}`, err);
         return null;
+    }
+}
+
+// --- NEW FUNCTION to fetch popup banners ---
+export async function getPopupBanners(lang: 'en' | 'hi' = 'en'): Promise<PopupBanner[]> {
+    try {
+        return await fetchData<PopupBanner[]>(`/frontend-api/popup-banners?lang=${lang}`);
+    } catch (err) {
+        console.warn('Could not fetch popup banners, using empty fallback.', err);
+        return [];
     }
 }
