@@ -12,6 +12,10 @@ const { lang = 'en' } = Astro.props as Props;
 // Fetch active banners on the server-side
 const banners = await getPopupBanners(lang);
 const hasBanners = banners && banners.length > 0;
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || '';
+const toAbsoluteUrl = (p?: string) =>
+  !p ? '' : (p.startsWith('http') ? p : `${API_BASE_URL}${p.startsWith('/') ? '' : '/'}${p}`);
 ---
 
 {hasBanners && (
@@ -36,10 +40,10 @@ const hasBanners = banners && banners.length > 0;
               <div class="popup-slide" data-index={index}>
                 {banner.linkUrl ? (
                   <a href={banner.linkUrl} class="popup-banner-link">
-                    <img src={banner.imageUrl} alt={banner.title} class="popup-banner-img" />
+                    <img src={toAbsoluteUrl(banner.imageUrl)} alt={banner.title} class="popup-banner-img" />
                   </a>
                 ) : (
-                  <img src={banner.imageUrl} alt={banner.title} class="popup-banner-img" />
+                  <img src={toAbsoluteUrl(banner.imageUrl)} alt={banner.title} class="popup-banner-img" />
                 )}
               </div>
             ))}
