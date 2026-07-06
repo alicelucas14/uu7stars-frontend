@@ -28,7 +28,21 @@ try {
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 const downloadUrl = settings?.apkDownloadLink || releaseData.downloadUrl || '#';
-const qrCodeUrl = settings?.qrCodeImageUrl ? `${API_BASE_URL}${settings.qrCodeImageUrl}` : null;
+
+const getQrCodeUrl = () => {
+  if (settings?.qrCodeImageUrl && settings.qrCodeImageUrl.trim()) {
+    const rawUrl = settings.qrCodeImageUrl.trim();
+    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+      return rawUrl;
+    }
+    return `${API_BASE_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`;
+  }
+  if (downloadUrl && downloadUrl !== '#') {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(downloadUrl)}`;
+  }
+  return null;
+};
+const qrCodeUrl = getQrCodeUrl();
 
 const version = props.version ?? releaseData.version ?? '—';
 const size = props.size ?? releaseData.size ?? '—';
