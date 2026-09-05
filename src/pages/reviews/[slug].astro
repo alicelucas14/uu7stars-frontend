@@ -201,4 +201,29 @@ const reviewJsonLd = {
 
   .prose { font-size: 17px; line-height: 1.8; }
   @media (max-width: 899px) { .prose { margin-top: 32px; } }
-  .prose > :global(* + *) { margin-t
+  .prose > :global(* + *) { margin-top: 1.25em; }
+  .prose :global(h2), .prose :global(h3) { margin-top: 2em; margin-bottom: 1em; }
+
+  /* --- Sidebar / Summary Card --- */
+  .sidebar-inner { position: sticky; top: 88px; display: grid; gap: 24px; }
+  .summary-card { background: var(--surface); border: 1px solid var(--ring); border-radius: 18px; overflow: hidden; }
+  .summary-image { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+  .summary-content { padding: 20px; }
+  .rating-box { text-align: center; background: var(--brand-orange); color: var(--ink); border-radius: 12px; padding: 12px; margin-bottom: 16px; }
+  .rating-score { font-size: 2.5rem; font-weight: 800; line-height: 1; }
+  .rating-stars { position: relative; display: inline-block; font-size: 1.5rem; letter-spacing: 2px; color: rgba(255, 255, 255, 0.3); margin-block: -4px 4px; }
+  .rating-stars::before { content: '★★★★★'; }
+  .rating-stars::after { content: '★★★★★'; position: absolute; top: 0; left: 0; color: white; width: var(--rating-percent, 0%); overflow: hidden; white-space: nowrap; }
+  .rating-label { font-weight: 600; font-size: 0.9rem; }
+  .summary-meta { font-size: 0.9rem; }
+  .summary-meta > div { display: flex; justify-content: space-between; padding-block: 8px; border-bottom: 1px solid var(--ring); }
+  .summary-meta > div:last-child { border-bottom: none; }
+  .summary-meta dt { color: var(--text-secondary); }
+  .summary-meta dd { font-weight: 600; color: var(--text-primary); }
+  .pros-cons { margin-top: 16px; }
+  .pros-cons h4 { font-weight: 700; margin-bottom: 8px; font-size: 1rem; }
+  .pros-cons ul { list-style: none; padding: 0; font-size: 0.9rem; color: var(--text-secondary); }
+  .pros-cons li { position: relative; padding-left: 20px; margin-bottom: 4px; }
+  .pros-cons h4:first-of-type + ul li::before { content: '✓'; position: absolute; left: 0; color: var(--brand-green); font-weight: 700; }
+  .pros-cons h4:not(:first-of-type) + ul li::before { content: '✕'; position: absolute; left: 0; color: #ef4444; }
+</style>

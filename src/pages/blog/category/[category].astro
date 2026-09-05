@@ -10,14 +10,8 @@ import { getBlogPosts } from '../../../services/api';
 import type { BlogPostListItem } from '../../../services/api';
 import { slugify } from '../../../lib/paths';
 
-export async function getStaticPaths() {
-  const posts = await getBlogPosts('en');
-  const uniqueCategories = [...new Set(posts.map(post => post.tags[0]).filter(Boolean))];
-  
-  return uniqueCategories.map(category => ({
-    params: { category: slugify(category) },
-  }));
-}
+// This is an SSR page, getStaticPaths is removed.
+
 
 const locale: 'en' = 'en';
 const { category } = Astro.params;
