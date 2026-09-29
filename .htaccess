@@ -3,7 +3,7 @@ PassengerAppRoot "/home/channe16/starsuu7s"
 PassengerBaseURI "/"
 PassengerNodejs "/home/channe16/nodevenv/starsuu7s/22/bin/node"
 PassengerAppType node
-PassengerStartupFile dist/server/entry.mjs
+PassengerStartupFile server.js
 # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
 # ===================================================================
 #   CORRECT .HTACCESS FOR ASTRO SSR ON CPANEL (NODE.JS + PASSENGER)
