@@ -2,7 +2,7 @@
 // ===== src/pages/blog/[slug].astro =====
 // --- UPDATED: Integrated the new BlogCommentsSection component ---
 
-import { marked } from 'marked';
+import { renderMarkdown } from '@lib/renderMarkdown';
 import Base from '../../layouts/Base.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
@@ -34,7 +34,7 @@ const postExcerpt = post.excerpt.en;
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 const imageUrl = post.image.startsWith('http') ? post.image : `${API_BASE_URL}${post.image}`;
-const contentHtml = await marked.parse(post.body.en);
+const contentHtml = await renderMarkdown(post.body.en);
 
 const pageTitle = t('blogPost.title').replace('{postTitle}', postTitle);
 const pageDescription = postExcerpt;

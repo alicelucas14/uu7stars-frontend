@@ -1,7 +1,7 @@
 ---
 // ===== src/pages/hi/blog/index.astro =====
 // --- REFACTORED: Now matches the modern hero+grid layout ---
-import { marked } from 'marked';
+import { renderMarkdown } from '@lib/renderMarkdown';
 import Base from '../../../layouts/Base.astro';
 import Header from '../../../components/Header.astro';
 import Footer from '../../../components/Footer.astro';
@@ -64,7 +64,7 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('hi-IN', 
             <div class="hero-content">
               <p class="hero-meta"><time datetime={heroPost.publishedAt}>{formatDate(heroPost.publishedAt)}</time></p>
               <h2 id="hero-post-title" class="hero-title"><a href={`/hi/blog/${heroPost.slug}/`}>{heroPost.title}</a></h2>
-              <div class="hero-excerpt prose-excerpt" set:html={await marked.parse(heroPost.excerpt || '')} />
+              <div class="hero-excerpt prose-excerpt" set:html={await renderMarkdown(heroPost.excerpt || '')} />
               <a href={`/hi/blog/${heroPost.slug}/`} class="hero-cta">{t('recentBlogs.readMore')} &rarr;</a>
             </div>
           </article>
@@ -84,7 +84,7 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('hi-IN', 
                   <div class="card-content">
                     <p class="card-meta"><time datetime={post.publishedAt}>{formatDate(post.publishedAt)}</time></p>
                     <h3 class="card-title"><a href={postUrl}>{post.title}</a></h3>
-                    <div class="card-excerpt prose-excerpt" set:html={await marked.parse(post.excerpt || '')} />
+                    <div class="card-excerpt prose-excerpt" set:html={await renderMarkdown(post.excerpt || '')} />
                   </div>
                 </article>
               );

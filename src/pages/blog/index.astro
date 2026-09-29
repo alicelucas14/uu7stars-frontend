@@ -1,7 +1,7 @@
 ---
 // ===== src/pages/blog/index.astro =====
 // --- CORRECTED: Parses Markdown in excerpts & restores excerpt in grid view ---
-import { marked } from 'marked';
+import { renderMarkdown } from '@lib/renderMarkdown';
 import Base from '../../layouts/Base.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
@@ -66,7 +66,7 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('en-IN', 
               <h2 id="hero-post-title" class="hero-title"><a href={`/blog/${heroPost.slug}/`}>{heroPost.title}</a></h2>
               
               <!-- UPDATED: Use set:html to render parsed Markdown -->
-              <div class="hero-excerpt prose-excerpt" set:html={await marked.parse(heroPost.excerpt || '')} />
+              <div class="hero-excerpt prose-excerpt" set:html={await renderMarkdown(heroPost.excerpt || '')} />
 
               <a href={`/blog/${heroPost.slug}/`} class="hero-cta">{t('recentBlogs.readMore')} &rarr;</a>
             </div>
@@ -89,7 +89,7 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('en-IN', 
                     <h3 class="card-title"><a href={postUrl}>{post.title}</a></h3>
                     
                     <!-- UPDATED: Use set:html to render parsed Markdown -->
-                    <div class="card-excerpt prose-excerpt" set:html={await marked.parse(post.excerpt || '')} />
+                    <div class="card-excerpt prose-excerpt" set:html={await renderMarkdown(post.excerpt || '')} />
                   </div>
                 </article>
               );

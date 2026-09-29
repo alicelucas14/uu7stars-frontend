@@ -1,6 +1,6 @@
 ---
 // ===== src/pages/hi/[slug].astro =====
-import { marked } from 'marked';
+import { renderMarkdown } from '@lib/renderMarkdown';
 import Base from '../../layouts/Base.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
@@ -20,7 +20,7 @@ if (!page) {
 }
 
 const pageTitle = page.title.hi;
-const contentHtml = await marked.parse(page.body.hi);
+const contentHtml = await renderMarkdown(page.body.hi);
 
 // SEO setup
 const metaTitle = page.metaTitle?.hi || pageTitle;

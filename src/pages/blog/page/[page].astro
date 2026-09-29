@@ -1,7 +1,7 @@
 ---
 // ===== src/pages/blog/page/[page].astro =====
 // --- CORRECTED: Parses Markdown in excerpts ---
-import { marked } from 'marked';
+import { renderMarkdown } from '@lib/renderMarkdown';
 import Base from '../../../layouts/Base.astro';
 import Header from '../../../components/Header.astro';
 import Footer from '../../../components/Footer.astro';
@@ -77,7 +77,7 @@ const toAbsolute = (p?: string) => !p ? '' : (p.startsWith('http') ? p : new URL
                   <h2 class="card-title"><a href={postUrl}>{post.title}</a></h2>
                   
                   <!-- UPDATED: Use set:html to render parsed Markdown -->
-                  <div class="card-excerpt prose-excerpt" set:html={await marked.parse(post.excerpt || '')} />
+                  <div class="card-excerpt prose-excerpt" set:html={await renderMarkdown(post.excerpt || '')} />
                 </div>
               </article>
             );

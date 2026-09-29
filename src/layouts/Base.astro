@@ -76,6 +76,18 @@ const googleSearchConsoleVerification = settings?.googleSearchConsoleVerificatio
 const ahrefsVerification = settings?.ahrefsVerification || '9b4a068be0accae70bb69802a875d1f5d6f987bb64e6f428005d97af07a52f2c';
 const customHeaderScripts = settings?.customHeaderScripts || '';
 const customFooterScripts = settings?.customFooterScripts || '';
+
+// schemaMarkup is CMS-supplied JSON-LD. It must never be trusted as raw HTML/script —
+// only accept it if it parses as JSON, then re-serialize and escape "<" so it can't
+// break out of the <script> tag it's rendered into.
+let safeSchemaMarkup: string | null = null;
+if (schemaMarkup) {
+  try {
+    safeSchemaMarkup = JSON.stringify(JSON.parse(schemaMarkup)).replace(/</g, '\\u003c');
+  } catch {
+    safeSchemaMarkup = null;
+  }
+}
 const contentRating = '18+';
 
 let release: Record<string, string> = {};
@@ -231,12 +243,8 @@ if (jsonLd) {
     {customHeaderScripts && <Fragment set:html={customHeaderScripts} />}
 
     <script type="application/ld+json" set:html={JSON.stringify(ldBlocks)} />
-    {schemaMarkup && (
-      schemaMarkup.trim().startsWith('<script') ? (
-        <Fragment set:html={schemaMarkup} />
-      ) : (
-        <script type="application/ld+json" set:html={schemaMarkup} />
-      )
+    {safeSchemaMarkup && (
+      <script type="application/ld+json" set:html={safeSchemaMarkup} />
     )}
   </head>
 

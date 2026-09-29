@@ -1,7 +1,7 @@
 ---
 // ===== src/pages/reviews/[slug].astro =====
 // --- REFACTORED: Now uses the modern two-column layout with a sidebar AND includes the new CommentsSection ---
-import { marked } from 'marked';
+import { renderMarkdown } from '@lib/renderMarkdown';
 import Base from '../../layouts/Base.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
@@ -27,7 +27,7 @@ if (!review) {
 const ratingPercent = (review.rating / 5) * 100;
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 const imageUrl = review.image.startsWith('http') ? review.image : `${API_BASE_URL}${review.image}`;
-const contentHtml = await marked.parse(review.body.en);
+const contentHtml = await renderMarkdown(review.body.en);
 
 const pageTitle = t('reviewPost.title').replace('{reviewTitle}', review.title.en);
 const pageDescription = t('reviewPost.description').replace('{gameName}', review.gameName);

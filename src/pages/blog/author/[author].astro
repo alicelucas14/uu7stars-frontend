@@ -1,7 +1,7 @@
 ---
 // ===== src/pages/blog/author/[author].astro =====
 // --- CORRECTED: Now parses Markdown in excerpts ---
-import { marked } from 'marked';
+import { renderMarkdown } from '@lib/renderMarkdown';
 import Base from '../../../layouts/Base.astro';
 import Header from '../../../components/Header.astro';
 import Footer from '../../../components/Footer.astro';
@@ -54,7 +54,7 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('en-US', 
                 <div class="card-content">
                   <p class="card-meta"><time datetime={post.publishedAt}>{formatDate(post.publishedAt)}</time></p>
                   <h2 class="card-title"><a href={postUrl}>{post.title}</a></h2>
-                  <div class="card-excerpt prose-excerpt" set:html={await marked.parse(post.excerpt || '')} />
+                  <div class="card-excerpt prose-excerpt" set:html={await renderMarkdown(post.excerpt || '')} />
                 </div>
               </article>
             );

@@ -1,7 +1,7 @@
 ---
 // ===== src/pages/reviews/index.astro =====
 // --- CORRECTED: Now parses Markdown in excerpts ---
-import { marked } from 'marked';
+import { renderMarkdown } from '@lib/renderMarkdown';
 import Base from '../../layouts/Base.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
@@ -61,7 +61,7 @@ const stars = (rating: number) => {
                     <span class="stars" aria-label={`Rating ${Math.round(heroReview.rating)}/5`}>{stars(heroReview.rating ?? 0)}</span>
                   </div>
                   <h2 id="hero-review-title" class="hero-title"><a href={`/reviews/${heroReview.slug}/`}>{heroReview.title}</a></h2>
-                  <div class="hero-excerpt prose-excerpt" set:html={await marked.parse(heroReview.excerpt || '')} />
+                  <div class="hero-excerpt prose-excerpt" set:html={await renderMarkdown(heroReview.excerpt || '')} />
                   <a href={`/reviews/${heroReview.slug}/`} class="hero-cta">{t('reviewsIndex.readMore')} &rarr;</a>
                 </div>
               </article>
@@ -84,7 +84,7 @@ const stars = (rating: number) => {
                         <span class="stars" aria-label={`Rating ${Math.round(r.rating)}/5`}>{stars(r.rating ?? 0)}</span>
                       </div>
                        {/* This was missing before, causing the mobile layout to not have excerpts */}
-                      <div class="card-excerpt prose-excerpt" set:html={await marked.parse(r.excerpt || '')} />
+                      <div class="card-excerpt prose-excerpt" set:html={await renderMarkdown(r.excerpt || '')} />
                     </div>
                   </article>
                 );
@@ -125,7 +125,7 @@ const stars = (rating: number) => {
                       <div class="meta">
                         <span class="stars" aria-label={`Rating ${Math.round(r.rating)}/5`}>{stars(r.rating ?? 0)}</span>
                       </div>
-                      <div class="card-excerpt prose-excerpt" set:html={await marked.parse(r.excerpt || '')} />
+                      <div class="card-excerpt prose-excerpt" set:html={await renderMarkdown(r.excerpt || '')} />
                     </div>
                   </article>
                 );

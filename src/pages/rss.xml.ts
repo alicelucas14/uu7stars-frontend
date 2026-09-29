@@ -7,14 +7,17 @@ export const GET: APIRoute = async ({ site }) => {
   const siteUrl = site?.toString().replace(/\/$/, '') ?? '';
   const feedUrl = `${siteUrl}/rss.xml`;
 
+  // Escape so content can never terminate its own CDATA section early (`]]>`)
+  const escapeCdata = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
   const items = posts.map((p) => {
     const url = `${siteUrl}/blog/${p.slug}`;
     const pub = new Date(p.publishedAt).toUTCString();
-    // Basic HTML escape for description
-    const desc = (p.excerpt || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const title = escapeCdata(p.title || '');
+    const desc = escapeCdata(p.excerpt || '');
     return `
       <item>
-        <title><![CDATA[${p.title}]]></title>
+        <title><![CDATA[${title}]]></title>
         <link>${url}</link>
         <guid>${url}</guid>
         <pubDate>${pub}</pubDate>
