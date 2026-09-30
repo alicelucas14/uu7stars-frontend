@@ -25,7 +25,11 @@ const contentHtml = await renderMarkdown(page.body.hi);
 // SEO setup
 const metaTitle = page.metaTitle?.hi || pageTitle;
 const metaDescription = page.metaDescription?.hi || '';
-const canonical = page.canonicalUrl || new URL(`/hi/${slug}/`, Astro.site).toString();
+// CMS canonicalUrl is one shared field for both languages; a Hindi page must never
+// canonicalize to its English counterpart, so only honour it if it is a /hi/ URL.
+const canonical = page.canonicalUrl && /\/hi\//.test(page.canonicalUrl)
+  ? page.canonicalUrl
+  : new URL(`/hi/${slug}/`, Astro.site).toString();
 
 const ogTitle = page.openGraphTitle?.hi || metaTitle;
 const ogDescription = page.openGraphDescription?.hi || metaDescription;

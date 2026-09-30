@@ -38,7 +38,7 @@ const {
   prevUrl,
   nextUrl,
   rssUrl,
-  lang = 'en',
+  lang: langProp,
   focusKeyword = '',
   robotsIndex = true,
   robotsFollow = true,
@@ -53,7 +53,9 @@ const {
 const siteBase = new URL('/', Astro.site).toString();
 const pathname = Astro.url.pathname;
 const url = canonical ?? new URL(pathname, Astro.site).toString();
-const pageLocale = 'en_IN';
+// Pages under /hi/ are Hindi even if they forget to pass `lang`.
+const lang: 'en' | 'hi' = langProp ?? (/^\/hi(\/|$)/.test(pathname) ? 'hi' : 'en');
+const pageLocale = lang === 'hi' ? 'hi_IN' : 'en_IN';
 
 const pathWithoutLocale = getPathWithoutLocale(pathname);
 

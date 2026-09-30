@@ -40,7 +40,11 @@ const contentHtml = await renderMarkdown(post.body.hi);
 
 const pageTitle = t('blogPost.title').replace('{postTitle}', postTitle);
 const pageDescription = postExcerpt;
-const canonical = post.canonicalUrl || new URL(`/hi/blog/${slug}/`, Astro.site).toString();
+// CMS canonicalUrl is one shared field for both languages; a Hindi page must never
+// canonicalize to its English counterpart, so only honour it if it is a /hi/ URL.
+const canonical = post.canonicalUrl && /\/hi\//.test(post.canonicalUrl)
+  ? post.canonicalUrl
+  : new URL(`/hi/blog/${slug}/`, Astro.site).toString();
 
 // SEO fields from post
 const seoTitle = postTitle;
