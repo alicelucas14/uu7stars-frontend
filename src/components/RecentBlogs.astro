@@ -14,7 +14,7 @@ const { lang = 'en' } = Astro.props as Props;
 const t = useTranslations(lang);
 
 // --- UPDATED: Fetch localized blog posts based on the 'lang' prop ---
-const allPosts = await getBlogPosts(lang);
+const allPosts = await getBlogPosts(lang).catch(() => []);
 const recentPosts = allPosts.filter(post => post.image).slice(0, 3);
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;

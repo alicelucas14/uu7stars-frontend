@@ -10,7 +10,7 @@ interface Props {
 }
 const { lang = 'en' } = Astro.props;
 
-const allPosts = await getBlogPosts(lang);
+const allPosts = await getBlogPosts(lang).catch(() => []);
 const allTags = allPosts.flatMap(post => post.tags);
 
 const tagCounts = allTags.reduce((acc, tag) => {

@@ -10,7 +10,7 @@ interface Props {
 }
 const { lang = 'en' } = Astro.props;
 
-const allPosts = await getBlogPosts(lang);
+const allPosts = await getBlogPosts(lang).catch(() => []);
 const categories = [...new Set(allPosts.map(post => post.tags[0]).filter(Boolean))];
 ---
 

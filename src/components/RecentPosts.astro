@@ -13,7 +13,7 @@ interface Props {
 }
 const { excludeSlug, limit = 4, lang = 'en' } = Astro.props;
 
-const posts = await getBlogPosts(lang);
+const posts = await getBlogPosts(lang).catch(() => []);
 const recent = posts.filter(p => p.slug !== excludeSlug).slice(0, limit);
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;

@@ -11,7 +11,7 @@ export const GET: APIRoute = async ({ site }) => {
   const escapeCdata = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
   const items = posts.map((p) => {
-    const url = `${siteUrl}/blog/${p.slug}`;
+    const url = `${siteUrl}/blog/${encodeURIComponent(p.slug)}/`;
     const pub = new Date(p.publishedAt).toUTCString();
     const title = escapeCdata(p.title || '');
     const desc = escapeCdata(p.excerpt || '');
@@ -30,7 +30,7 @@ export const GET: APIRoute = async ({ site }) => {
 <rss version="2.0">
   <channel>
     <title>Starsuu7 Blog</title>
-    <link>${siteUrl}/blog</link>
+    <link>${siteUrl}/blog/</link>
     <description>Teen Patti & Rummy tips, news, and updates from Starsuu7.</description>
     <language>en-IN</language>
     <atom:link xmlns:atom="http://www.w3.org/2005/Atom" href="${feedUrl}" rel="self" type="application/rss+xml"/>

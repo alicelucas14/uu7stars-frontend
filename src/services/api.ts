@@ -62,14 +62,20 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 const BACKEND_API_KEY = import.meta.env.BACKEND_API_KEY;
 
 // --- Generic Fetch Function ---
+export class ApiError extends Error {
+    status: number;
+    constructor(message: string, status: number) { super(message); this.name = 'ApiError'; this.status = status; }
+}
+const FETCH_TIMEOUT_MS = 8000;
 async function fetchData<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     if (!API_BASE_URL) { throw new Error('API connection failed: The PUBLIC_API_BASE_URL environment variable is not set.'); }
     const url = `${API_BASE_URL}${endpoint}`;
     try {
-        const res = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', 'x-api-key': BACKEND_API_KEY || '', ...(options.headers || {}), }, cache: 'no-cache', });
-        if (!res.ok) { const text = await res.text().catch(() => ''); throw new Error(`[API ${res.status}] ${url}${text ? ` → ${text}` : ''}`); }
+        const res = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', 'x-api-key': BACKEND_API_KEY || '', ...(options.headers || {}), }, cache: 'no-cache', signal: options.signal ?? AbortSignal.timeout(FETCH_TIMEOUT_MS), });
+        if (!res.ok) { const text = await res.text().catch(() => ''); throw new ApiError(`[API ${res.status}] ${url}${text ? ` → ${text}` : ''}`, res.status); }
         return res.json() as Promise<T>;
     } catch (error) {
+        if (error instanceof ApiError) { throw error; }
         let errorMessage = 'An unknown network error occurred.';
         if (error instanceof Error) { errorMessage = error.message; if (error.cause) { console.error('Network Error Cause:', (error.cause as Error).message); } }
         throw new Error(`Network request failed for ${url}. Is the API server running and accessible? Original error: ${errorMessage}`);
@@ -85,8 +91,9 @@ export async function getBlogPostBySlug(slug: string, lang: 'en' | 'hi' = 'en'):
     try {
         return await fetchData<BlogPost>(`/frontend-api/blog/${encodeURIComponent(slug)}?lang=${lang}`);
     } catch (err) {
+        if (err instanceof ApiError && err.status === 404) { return null; }
         console.warn(`Could not fetch blog post for slug: ${slug}`, err);
-        return null;
+        throw err;
     }
 }
 export async function getReviews(lang: 'en' | 'hi' = 'en'): Promise<ReviewListItem[]> { return fetchData<ReviewListItem[]>(`/frontend-api/reviews?lang=${lang}`); }
@@ -94,8 +101,9 @@ export async function getReviewBySlug(slug: string, lang: 'en' | 'hi' = 'en'): P
     try {
         return await fetchData<Review>(`/frontend-api/reviews/${encodeURIComponent(slug)}?lang=${lang}`);
     } catch (err) {
+        if (err instanceof ApiError && err.status === 404) { return null; }
         console.warn(`Could not fetch review for slug: ${slug}`, err);
-        return null;
+        throw err;
     }
 }
 
@@ -135,8 +143,9 @@ export async function getPageBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Pro
     try {
         return await fetchData<Page>(`/frontend-api/pages/${encodeURIComponent(slug)}?lang=${lang}`);
     } catch (err) {
+        if (err instanceof ApiError && err.status === 404) { return null; }
         console.warn(`Could not fetch custom page for slug: ${slug}`, err);
-        return null;
+        throw err;
     }
 }
 

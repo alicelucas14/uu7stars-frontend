@@ -12,7 +12,7 @@ interface Props {
 }
 const { limit = 3, lang = 'en' } = Astro.props;
 
-const promos = await getPromotions(lang);
+const promos = await getPromotions(lang).catch(() => []);
 const recent = promos.filter(p => p.imageUrl).slice(0, limit);
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
