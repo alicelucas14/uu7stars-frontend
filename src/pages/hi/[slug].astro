@@ -15,7 +15,8 @@ const t = useTranslations(locale);
 const { slug } = Astro.params;
 const page = await getPageBySlug(slug as string, locale);
 
-if (!page) {
+// No Hindi text yet -> no Hindi page (avoids empty/thin pages being indexed)
+if (!page || !page.title?.hi?.trim() || !page.body?.hi?.trim()) {
   return new Response(null, { status: 404, statusText: 'Not Found' });
 }
 

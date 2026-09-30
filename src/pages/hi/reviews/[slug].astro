@@ -20,7 +20,8 @@ const t = useTranslations(locale);
 const { slug } = Astro.params;
 const review = await getReviewBySlug(slug as string, locale);
 
-if (!review) {
+// No Hindi text yet -> no Hindi page (avoids empty/thin pages being indexed)
+if (!review || !review.title?.hi?.trim() || !review.body?.hi?.trim()) {
   return new Response(null, { status: 404, statusText: 'Not Found' });
 }
 
