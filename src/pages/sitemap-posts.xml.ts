@@ -1,51 +1,43 @@
 // ===== frontend/src/pages/sitemap-posts.xml.ts =====
-// Encode slugs so all <loc> and alternate href URLs are RFC-compliant.
+// EN + HI entries, reciprocal hreflang (+ x-default). Excludes noindex posts,
+// posts whose canonical points elsewhere, and empty Hindi translations.
 
 import type { APIRoute } from 'astro';
 import { getBlogPosts } from '../services/api';
-import { createPath } from '../lib/paths';
-import { locales } from '../i18n';
+import { buildUrlset, mergeLocales, tryList, xmlResponse, type SitemapItem } from '../lib/sitemap';
+
+function isSelfCanonical(canonical: string, siteUrl: string, path: string): boolean {
+  try {
+    const u = new URL(canonical, siteUrl);
+    const s = new URL(siteUrl);
+    return u.host === s.host && u.pathname.replace(/\/+$/, '') === path.replace(/\/+$/, '');
+  } catch {
+    return true; // unparsable value: don't drop the URL because of it
+  }
+}
 
 export const GET: APIRoute = async ({ site }) => {
   const siteUrl = site?.toString().replace(/\/$/, '') ?? '';
-  const posts = await getBlogPosts('en');
 
-  const urlEntries = posts
-    .map((post) => {
-      const encodedSlug = encodeURIComponent((post.slug ?? '').trim());
-      const path = `/blog/${encodedSlug}/`;
-      const loc = `${siteUrl}${createPath(path, 'en')}`;
+  const [en, hi] = await Promise.all([
+    tryList(() => getBlogPosts('en')),
+    tryList(() => getBlogPosts('hi')),
+  ]);
 
-      const alternates = locales
-        .map(
-          (lang) =>
-            `<xhtml:link rel="alternate" hreflang="${lang}" href="${siteUrl}${createPath(
-              path,
-              lang
-            )}" />`
-        )
-        .join('\n    ');
+  const items: SitemapItem[] = [];
+  for (const m of mergeLocales(en, hi)) {
+    const src = m.enItem ?? m.hiItem;
+    if (!src) continue;
+    if (src.robotsIndex === false) continue; // noindex
 
-      const lastmod = new Date(post.publishedAt).toISOString();
+    const path = `/blog/${encodeURIComponent(m.slug.trim())}/`;
+    // A CMS canonical pointing elsewhere makes the English page a non-canonical duplicate.
+    // (The Hindi page ignores non-/hi/ canonicals and stays self-canonical.)
+    const enOk = m.en && (!src.canonicalUrl || isSelfCanonical(src.canonicalUrl, siteUrl, path));
 
-      return `
-  <url>
-    <loc>${loc}</loc>
-    <lastmod>${lastmod}</lastmod>
-    ${alternates}
-  </url>`;
-    })
-    .join('');
+    if (!enOk && !m.hi) continue;
+    items.push({ path, lastmod: src.publishedAt, en: enOk, hi: m.hi });
+  }
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urlEntries}
-</urlset>`.trim();
-
-  return new Response(xml, {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=3600, s-maxage=3600',
-    },
-  });
+  return xmlResponse(buildUrlset(siteUrl, items));
 };

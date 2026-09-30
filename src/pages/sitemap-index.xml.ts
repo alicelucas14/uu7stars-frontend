@@ -15,15 +15,13 @@ export const GET: APIRoute = async ({ site }) => {
   // Ensure a clean base URL with no trailing slash
   const siteUrl = (site?.toString() ?? '').replace(/\/$/, '');
 
-  const nowIso = new Date().toISOString();
-
+  // No <lastmod>: it would change on every request, which is not a meaningful update signal.
   const body = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${SITEMAPS
   .map(
     (name) => `  <sitemap>
     <loc>${siteUrl}/${name}</loc>
-    <lastmod>${nowIso}</lastmod>
   </sitemap>`
   )
   .join('\n')}
