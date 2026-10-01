@@ -16,6 +16,7 @@ import TagCloud from '../../components/TagCloud.astro';
 import CategoriesList from '../../components/CategoriesList.astro';
 import BlogCommentsSection from '../../components/BlogCommentsSection.astro'; // <-- IMPORT new component
 import { getBlogPostBySlug } from '../../services/api';
+import { redirectForRetiredSlug } from '../../lib/slugRedirect';
 import { useTranslations } from '../../lib/i18n';
 import type { Locale } from '../../i18n';
 
@@ -26,6 +27,12 @@ const { slug } = Astro.params;
 const post = await getBlogPostBySlug(slug as string, locale);
 
 if (!post) {
+  const moved = await redirectForRetiredSlug('blog', slug, (s) => `/blog/${s}/`);
+  if (moved) return moved;
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+// No English text -> no English page
+if (post.availableLangs && !post.availableLangs.includes(locale)) {
   return new Response(null, { status: 404, statusText: 'Not Found' });
 }
 
@@ -84,6 +91,7 @@ const articleJsonLd = {
 ---
 
 <Base
+  alternateLangs={post.availableLangs}
   title={pageTitle}
   description={pageDescription}
   canonical={canonical}

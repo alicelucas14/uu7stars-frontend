@@ -2,12 +2,13 @@
 // --- UPDATED: Added an interface and fetch function for blog comments ---
 
 // --- Interfaces ---
+export type Lang = 'en' | 'hi';
 export interface Game { _id: string; gameId: string; name: string; category: string; provider: string; image: string; isNew: boolean; isHot: boolean; schemaMarkup?: string; }
-export interface Promotion { _id: string; slug: string; title: string; subtitle?: string; description: string; details?: string[]; imageUrl: string; ctaLink?: string; ctaText?: string; badgeText?: string; badgeColor?: string; }
-export interface ReviewListItem { _id: string; slug: string; title: string; excerpt: string; gameName: string; rating: number; image: string; }
-export interface Review { _id: string; slug: string; title: { en: string; hi: string }; excerpt: { en: string; hi: string }; body: { en: string; hi: string }; gameName: string; developer: string; rating: number; image: string; pros: { en: string[]; hi: string[] }; cons: { en: string[]; hi: string[] }; isPublished: boolean; metaTitle?: string; metaDescription?: string; schemaMarkup?: string; }
-export interface BlogPostListItem { _id: string; slug: string; title: string; excerpt: string; author: string; image: string; tags: string[]; publishedAt: string; focusKeyword?: string; canonicalUrl?: string; robotsIndex?: boolean; robotsFollow?: boolean; openGraphTitle?: { en: string; hi: string }; openGraphDescription?: { en: string; hi: string }; openGraphImage?: string; twitterTitle?: { en: string; hi: string }; twitterDescription?: { en: string; hi: string }; }
-export interface BlogPost { _id: string; slug: string; title: { en: string; hi: string }; excerpt: { en: string; hi: string }; body: { en: string; hi: string }; author: string; image: string; tags: string[]; publishedAt: string; focusKeyword?: string; canonicalUrl?: string; robotsIndex?: boolean; robotsFollow?: boolean; openGraphTitle?: { en: string; hi: string }; openGraphDescription?: { en: string; hi: string }; openGraphImage?: string; twitterTitle?: { en: string; hi: string }; twitterDescription?: { en: string; hi: string }; schemaMarkup?: string; }
+export interface Promotion { _id: string; slug: string; updatedAt?: string; translated?: boolean; title: string; subtitle?: string; description: string; details?: string[]; imageUrl: string; ctaLink?: string; ctaText?: string; badgeText?: string; badgeColor?: string; }
+export interface ReviewListItem { _id: string; slug: string; updatedAt?: string; translated?: boolean; title: string; excerpt: string; gameName: string; rating: number; image: string; }
+export interface Review { _id: string; slug: string; updatedAt?: string; availableLangs?: Lang[]; title: { en: string; hi: string }; excerpt: { en: string; hi: string }; body: { en: string; hi: string }; gameName: string; developer: string; rating: number; image: string; pros: { en: string[]; hi: string[] }; cons: { en: string[]; hi: string[] }; isPublished: boolean; metaTitle?: string; metaDescription?: string; schemaMarkup?: string; }
+export interface BlogPostListItem { _id: string; slug: string; updatedAt?: string; translated?: boolean; title: string; excerpt: string; author: string; image: string; tags: string[]; publishedAt: string; focusKeyword?: string; canonicalUrl?: string; robotsIndex?: boolean; robotsFollow?: boolean; openGraphTitle?: { en: string; hi: string }; openGraphDescription?: { en: string; hi: string }; openGraphImage?: string; twitterTitle?: { en: string; hi: string }; twitterDescription?: { en: string; hi: string }; }
+export interface BlogPost { _id: string; slug: string; updatedAt?: string; availableLangs?: Lang[]; title: { en: string; hi: string }; excerpt: { en: string; hi: string }; body: { en: string; hi: string }; author: string; image: string; tags: string[]; publishedAt: string; focusKeyword?: string; canonicalUrl?: string; robotsIndex?: boolean; robotsFollow?: boolean; openGraphTitle?: { en: string; hi: string }; openGraphDescription?: { en: string; hi: string }; openGraphImage?: string; twitterTitle?: { en: string; hi: string }; twitterDescription?: { en: string; hi: string }; schemaMarkup?: string; }
 export interface SiteSettings { siteName: string; logoUrl: string; apkDownloadLink: string; qrCodeImageUrl: string; telegramUrl: string; whatsappUrl: string; instagramUrl: string; facebookUrl: string; youtubeUrl: string; twitterUrl: string; liveChatUrl: string; googleAnalyticsId?: string; googleSearchConsoleVerification?: string; ahrefsVerification?: string; customHeaderScripts?: string; customFooterScripts?: string; showPopupBanner?: boolean; popupBannerImageUrl?: string; popupBannerLink?: string; }
 export interface Comment { _id: string; reviewId: string; username: string; rating: number; text: string; createdAt: string; }
 export interface PopupBanner { _id: string; title: string; imageUrl: string; linkUrl?: string; }
@@ -17,6 +18,8 @@ export interface PageListItem {
     slug: string;
     title: string;
     updatedAt: string;
+    robotsIndex?: boolean;
+    translated?: boolean;
 }
 
 export interface Page {
@@ -38,6 +41,7 @@ export interface Page {
     createdAt: string;
     updatedAt: string;
     schemaMarkup?: string;
+    availableLangs?: Lang[];
 }
 
 // --- NEW INTERFACE for a single blog comment ---
@@ -145,6 +149,18 @@ export async function getPageBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Pro
     } catch (err) {
         if (err instanceof ApiError && err.status === 404) { return null; }
         console.warn(`Could not fetch custom page for slug: ${slug}`, err);
+        throw err;
+    }
+}
+
+// --- Retired-slug lookup (for 301 redirects). Returns the current slug, or null if the slug was never used. ---
+export type SlugRedirectType = 'blog' | 'reviews' | 'promotions' | 'pages';
+export async function resolveSlugRedirect(type: SlugRedirectType, slug: string): Promise<string | null> {
+    try {
+        const res = await fetchData<{ slug?: string }>(`/frontend-api/slug-redirect/${type}/${encodeURIComponent(slug)}`);
+        return res.slug || null;
+    } catch (err) {
+        if (err instanceof ApiError && err.status === 404) { return null; }
         throw err;
     }
 }

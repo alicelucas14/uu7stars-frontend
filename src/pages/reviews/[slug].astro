@@ -10,6 +10,7 @@ import RecentPosts from '../../components/RecentPosts.astro';
 import SidebarPromos from '../../components/SidebarPromos.astro';
 import SidebarCta from '../../components/SidebarCta.astro';
 import CommentsSection from '../../components/CommentsSection.astro'; // <-- IMPORT the new component
+import { redirectForRetiredSlug } from '../../lib/slugRedirect';
 import { getReviewBySlug } from '../../services/api';
 import { useTranslations } from '../../lib/i18n';
 import type { Locale } from '../../i18n';
@@ -21,6 +22,12 @@ const { slug } = Astro.params;
 const review = await getReviewBySlug(slug as string, locale);
 
 if (!review) {
+  const moved = await redirectForRetiredSlug('reviews', slug, (s) => `/reviews/${s}/`);
+  if (moved) return moved;
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+// No English text -> no English page
+if (review.availableLangs && !review.availableLangs.includes(locale)) {
   return new Response(null, { status: 404, statusText: 'Not Found' });
 }
 
@@ -57,7 +64,7 @@ const reviewJsonLd = {
   }
 };
 ---
-<Base title={pageTitle} description={pageDescription} canonical={canonical} jsonLd={reviewJsonLd} schemaMarkup={review.schemaMarkup}>
+<Base alternateLangs={review.availableLangs} title={pageTitle} description={pageDescription} canonical={canonical} jsonLd={reviewJsonLd} schemaMarkup={review.schemaMarkup}>
 
   <div class="desktop-layout">
     <Header lang={locale} />

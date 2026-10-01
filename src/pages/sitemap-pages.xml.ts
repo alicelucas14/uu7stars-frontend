@@ -3,18 +3,17 @@
 
 import type { APIRoute } from 'astro';
 import { getPagesList } from '../services/api';
-import { buildUrlset, mergeLocales, tryList, xmlResponse, type SitemapItem } from '../lib/sitemap';
+import { buildUrlset, bothLists, mergeLocales, unavailableResponse, xmlResponse, type SitemapItem } from '../lib/sitemap';
 
 export const GET: APIRoute = async ({ site }) => {
   const siteUrl = site?.toString().replace(/\/$/, '') ?? '';
 
-  const [en, hi] = await Promise.all([
-    tryList(() => getPagesList('en')),
-    tryList(() => getPagesList('hi')),
-  ]);
+  const lists = await bothLists(() => getPagesList('en'), () => getPagesList('hi'));
+  if (!lists) return unavailableResponse();
+  const { en, hi } = lists;
 
   const items: SitemapItem[] = mergeLocales(en, hi)
-    .filter((m) => m.en || m.hi)
+    .filter((m) => (m.en || m.hi) && (m.enItem ?? m.hiItem)?.robotsIndex !== false) // noindex pages stay out
     .map((m) => ({
       path: `/${encodeURIComponent(m.slug.trim())}/`,
       lastmod: (m.enItem ?? m.hiItem)?.updatedAt,

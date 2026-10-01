@@ -5,6 +5,7 @@
 import Footer from '../../../components/Footer.astro';
 import Header from '../../../components/Header.astro';
 import Base from '../../../layouts/Base.astro';
+import { redirectForRetiredSlug } from '../../../lib/slugRedirect';
 import { getPromotions, getReviews } from '../../../services/api';
 import MobileAppShell from '../../../components/MobileAppShell.astro';
 import { useTranslations } from '../../../lib/i18n';
@@ -19,9 +20,25 @@ const t = useTranslations(locale);
 const { slug } = Astro.params;
 
 // Fetch data on every request to this page.
-const promo = (await getPromotions(locale)).find(p => p.slug === slug);
+const otherLocale = locale === 'en' ? 'hi' : 'en';
+const [promoList, otherPromoList] = await Promise.all([
+  getPromotions(locale),
+  getPromotions(otherLocale).catch(() => null), // only used for hreflang; an outage here must not break the page
+]);
+const promo = promoList.find(p => p.slug === slug);
 
-if (!promo) return new Response(null, { status: 404 });
+if (!promo) {
+  const moved = await redirectForRetiredSlug('promotions', slug, (s) => `/hi/promotions/${s}/`);
+  if (moved) return moved;
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+// Empty translation -> no page in this language
+if (promo.translated === false) return new Response(null, { status: 404, statusText: 'Not Found' });
+
+const otherPromo = otherPromoList?.find(p => p.slug === slug);
+const alternateLangs: ('en' | 'hi')[] | undefined = otherPromoList
+  ? ([locale, ...(otherPromo && otherPromo.translated !== false ? [otherLocale] : [])] as ('en' | 'hi')[])
+  : undefined;
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 const img = (u: string) => u?.startsWith('http') ? u : `${API_BASE_URL}${u}`;
@@ -60,7 +77,7 @@ const ldPromotion = {
   seller: { '@type': 'Organization', name: 'Starsuu7' }
 };
 ---
-<Base title={title} description={description} canonical={canonical} jsonLd={ldPromotion}>
+<Base alternateLangs={alternateLangs} title={title} description={description} canonical={canonical} jsonLd={ldPromotion}>
   
   <div class="desktop-layout">
     <Header lang={locale} />

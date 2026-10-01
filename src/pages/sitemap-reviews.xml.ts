@@ -1,23 +1,23 @@
 // ===== frontend/src/pages/sitemap-reviews.xml.ts =====
 // EN + HI entries, reciprocal hreflang (+ x-default). Never 500s on API hiccups.
-// No <lastmod>: the list API exposes no real update date, and "now" is not meaningful.
+// lastmod = the review's real updatedAt (omitted if the API doesn't provide it).
 
 import type { APIRoute } from 'astro';
 import { getReviews } from '../services/api';
-import { buildUrlset, mergeLocales, tryList, xmlResponse, type SitemapItem } from '../lib/sitemap';
+import { buildUrlset, bothLists, mergeLocales, unavailableResponse, xmlResponse, type SitemapItem } from '../lib/sitemap';
 
 export const GET: APIRoute = async ({ site }) => {
   const siteUrl = site?.toString().replace(/\/$/, '') ?? '';
 
-  const [en, hi] = await Promise.all([
-    tryList(() => getReviews('en')),
-    tryList(() => getReviews('hi')),
-  ]);
+  const lists = await bothLists(() => getReviews('en'), () => getReviews('hi'));
+  if (!lists) return unavailableResponse();
+  const { en, hi } = lists;
 
   const items: SitemapItem[] = mergeLocales(en, hi)
     .filter((m) => m.en || m.hi)
     .map((m) => ({
       path: `/reviews/${encodeURIComponent(m.slug.trim())}/`,
+      lastmod: (m.enItem ?? m.hiItem)?.updatedAt,
       en: m.en,
       hi: m.hi,
     }));

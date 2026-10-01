@@ -4,7 +4,7 @@
 
 import type { APIRoute } from 'astro';
 import { getBlogPosts } from '../services/api';
-import { buildUrlset, mergeLocales, tryList, xmlResponse, type SitemapItem } from '../lib/sitemap';
+import { buildUrlset, bothLists, mergeLocales, unavailableResponse, xmlResponse, type SitemapItem } from '../lib/sitemap';
 
 function isSelfCanonical(canonical: string, siteUrl: string, path: string): boolean {
   try {
@@ -19,10 +19,9 @@ function isSelfCanonical(canonical: string, siteUrl: string, path: string): bool
 export const GET: APIRoute = async ({ site }) => {
   const siteUrl = site?.toString().replace(/\/$/, '') ?? '';
 
-  const [en, hi] = await Promise.all([
-    tryList(() => getBlogPosts('en')),
-    tryList(() => getBlogPosts('hi')),
-  ]);
+  const lists = await bothLists(() => getBlogPosts('en'), () => getBlogPosts('hi'));
+  if (!lists) return unavailableResponse();
+  const { en, hi } = lists;
 
   const items: SitemapItem[] = [];
   for (const m of mergeLocales(en, hi)) {
@@ -36,7 +35,7 @@ export const GET: APIRoute = async ({ site }) => {
     const enOk = m.en && (!src.canonicalUrl || isSelfCanonical(src.canonicalUrl, siteUrl, path));
 
     if (!enOk && !m.hi) continue;
-    items.push({ path, lastmod: src.publishedAt, en: enOk, hi: m.hi });
+    items.push({ path, lastmod: src.updatedAt ?? src.publishedAt, en: enOk, hi: m.hi });
   }
 
   return xmlResponse(buildUrlset(siteUrl, items));

@@ -17,6 +17,7 @@ import AuthorBio from '../../../components/AuthorBio.astro';
 import CategoriesList from '../../../components/CategoriesList.astro';
 import BlogCommentsSection from '../../../components/BlogCommentsSection.astro'; // <-- IMPORT new component
 import { getBlogPosts, getBlogPostBySlug } from '../../../services/api';
+import { redirectForRetiredSlug } from '../../../lib/slugRedirect';
 import { useTranslations } from '../../../lib/i18n';
 import type { Locale } from '../../../i18n';
 
@@ -28,7 +29,12 @@ const { slug } = Astro.params;
 const post = await getBlogPostBySlug(slug as string, locale);
 
 // No Hindi text yet -> no Hindi page (avoids empty/thin pages being indexed)
-if (!post || !post.title?.hi?.trim() || !post.body?.hi?.trim()) {
+if (!post) {
+  const moved = await redirectForRetiredSlug('blog', slug, (s) => `/hi/blog/${s}/`);
+  if (moved) return moved;
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+if (!post.title?.hi?.trim() || !post.body?.hi?.trim()) {
   return new Response(null, { status: 404, statusText: 'Not Found' });
 }
 
@@ -91,6 +97,7 @@ const articleJsonLd = {
 ---
 
 <Base
+  alternateLangs={post.availableLangs}
   title={pageTitle}
   description={pageDescription}
   canonical={canonical}

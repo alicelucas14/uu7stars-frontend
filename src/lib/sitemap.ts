@@ -68,6 +68,26 @@ export async function tryList<T>(get: () => Promise<T[]>): Promise<T[] | null> {
   }
 }
 
+/**
+ * Fetch both language lists. If EITHER fails we cannot tell which URLs really exist, so return null
+ * and let the caller answer 503 (search engines keep the previous sitemap and retry) instead of
+ * publishing a guessed list.
+ */
+export async function bothLists<T>(
+  getEn: () => Promise<T[]>,
+  getHi: () => Promise<T[]>
+): Promise<{ en: T[]; hi: T[] } | null> {
+  const [en, hi] = await Promise.all([tryList(getEn), tryList(getHi)]);
+  return en && hi ? { en, hi } : null;
+}
+
+export function unavailableResponse(): Response {
+  return new Response('Sitemap temporarily unavailable.', {
+    status: 503,
+    headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Retry-After': '300', 'Cache-Control': 'no-store' },
+  });
+}
+
 export interface MergedItem<T> {
   slug: string;
   enItem?: T;
@@ -77,19 +97,20 @@ export interface MergedItem<T> {
 }
 
 /**
- * Merge EN and HI lists by slug.
- * - A language version is eligible only if it appears in that language's list
- *   and (for Hindi) has a non-empty title, so empty/placeholder translations are excluded.
- * - If one language's fetch FAILED (null), assume its versions exist for the other
- *   language's items instead of silently dropping them (fail-open).
+ * Merge EN and HI lists by slug. A language version is eligible only if it appears in that
+ * language's list AND has real content: the API's `translated` flag (title + body present) when
+ * available, otherwise a non-empty title. Empty placeholder translations are therefore excluded.
  */
-export function mergeLocales<T extends { slug?: string; title?: unknown }>(
-  en: T[] | null,
-  hi: T[] | null
+export function mergeLocales<T extends { slug?: string; title?: unknown; translated?: boolean }>(
+  en: T[],
+  hi: T[]
 ): MergedItem<T>[] {
+  const ready = (i?: T) =>
+    !!i && (typeof i.translated === 'boolean' ? i.translated : String(i.title ?? '').trim().length > 0);
+
   const map = new Map<string, { slug: string; enItem?: T; hiItem?: T }>();
-  for (const i of en ?? []) if (i?.slug) map.set(i.slug, { slug: i.slug, enItem: i });
-  for (const i of hi ?? []) {
+  for (const i of en) if (i?.slug) map.set(i.slug, { slug: i.slug, enItem: i });
+  for (const i of hi) {
     if (!i?.slug) continue;
     const e = map.get(i.slug) ?? { slug: i.slug };
     e.hiItem = i;
@@ -97,7 +118,7 @@ export function mergeLocales<T extends { slug?: string; title?: unknown }>(
   }
   return Array.from(map.values()).map((e) => ({
     ...e,
-    en: en === null ? true : !!e.enItem,
-    hi: hi === null ? true : !!e.hiItem && String(e.hiItem.title ?? '').trim().length > 0,
+    en: !!e.enItem && (typeof e.enItem.translated === 'boolean' ? e.enItem.translated : true),
+    hi: ready(e.hiItem),
   }));
 }
