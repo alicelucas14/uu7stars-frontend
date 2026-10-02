@@ -2,6 +2,7 @@
 // ===== src/pages/hi/reviews/[slug].astro =====
 // --- UPDATED: Now includes the CommentsSection component ---
 import { renderMarkdown } from '@lib/renderMarkdown';
+import { hreflangLangs, langIsIndexable } from '@lib/hreflang';
 import Base from '../../../layouts/Base.astro';
 import Header from '../../../components/Header.astro';
 import Footer from '../../../components/Footer.astro';
@@ -64,7 +65,7 @@ const reviewJsonLd = {
   }
 };
 ---
-<Base alternateLangs={review.availableLangs} title={pageTitle} description={pageDescription} canonical={canonical} jsonLd={reviewJsonLd} schemaMarkup={review.schemaMarkup}>
+<Base alternateLangs={hreflangLangs(review, Astro.site)} title={pageTitle} description={pageDescription} canonical={canonical} jsonLd={reviewJsonLd} schemaMarkup={review.schemaMarkup} robotsIndex={langIsIndexable(review, locale)}>
 
   <div class="desktop-layout">
     <Header lang={locale} />

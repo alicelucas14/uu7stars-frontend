@@ -6,9 +6,9 @@ export type Lang = 'en' | 'hi';
 export interface Game { _id: string; gameId: string; name: string; category: string; provider: string; image: string; isNew: boolean; isHot: boolean; schemaMarkup?: string; }
 export interface Promotion { _id: string; slug: string; updatedAt?: string; translated?: boolean; title: string; subtitle?: string; description: string; details?: string[]; imageUrl: string; ctaLink?: string; ctaText?: string; badgeText?: string; badgeColor?: string; }
 export interface ReviewListItem { _id: string; slug: string; updatedAt?: string; translated?: boolean; title: string; excerpt: string; gameName: string; rating: number; image: string; }
-export interface Review { _id: string; slug: string; updatedAt?: string; availableLangs?: Lang[]; title: { en: string; hi: string }; excerpt: { en: string; hi: string }; body: { en: string; hi: string }; gameName: string; developer: string; rating: number; image: string; pros: { en: string[]; hi: string[] }; cons: { en: string[]; hi: string[] }; isPublished: boolean; metaTitle?: string; metaDescription?: string; schemaMarkup?: string; }
+export interface Review { _id: string; slug: string; updatedAt?: string; availableLangs?: Lang[]; indexableLangs?: Lang[]; title: { en: string; hi: string }; excerpt: { en: string; hi: string }; body: { en: string; hi: string }; gameName: string; developer: string; rating: number; image: string; pros: { en: string[]; hi: string[] }; cons: { en: string[]; hi: string[] }; isPublished: boolean; metaTitle?: string; metaDescription?: string; schemaMarkup?: string; }
 export interface BlogPostListItem { _id: string; slug: string; updatedAt?: string; translated?: boolean; title: string; excerpt: string; author: string; image: string; tags: string[]; publishedAt: string; focusKeyword?: string; canonicalUrl?: string; robotsIndex?: boolean; robotsFollow?: boolean; openGraphTitle?: { en: string; hi: string }; openGraphDescription?: { en: string; hi: string }; openGraphImage?: string; twitterTitle?: { en: string; hi: string }; twitterDescription?: { en: string; hi: string }; }
-export interface BlogPost { _id: string; slug: string; updatedAt?: string; availableLangs?: Lang[]; title: { en: string; hi: string }; excerpt: { en: string; hi: string }; body: { en: string; hi: string }; author: string; image: string; tags: string[]; publishedAt: string; focusKeyword?: string; canonicalUrl?: string; robotsIndex?: boolean; robotsFollow?: boolean; openGraphTitle?: { en: string; hi: string }; openGraphDescription?: { en: string; hi: string }; openGraphImage?: string; twitterTitle?: { en: string; hi: string }; twitterDescription?: { en: string; hi: string }; schemaMarkup?: string; }
+export interface BlogPost { _id: string; slug: string; updatedAt?: string; availableLangs?: Lang[]; indexableLangs?: Lang[]; title: { en: string; hi: string }; excerpt: { en: string; hi: string }; body: { en: string; hi: string }; author: string; image: string; tags: string[]; publishedAt: string; focusKeyword?: string; canonicalUrl?: string; robotsIndex?: boolean; robotsFollow?: boolean; openGraphTitle?: { en: string; hi: string }; openGraphDescription?: { en: string; hi: string }; openGraphImage?: string; twitterTitle?: { en: string; hi: string }; twitterDescription?: { en: string; hi: string }; schemaMarkup?: string; }
 export interface SiteSettings { siteName: string; logoUrl: string; apkDownloadLink: string; qrCodeImageUrl: string; telegramUrl: string; whatsappUrl: string; instagramUrl: string; facebookUrl: string; youtubeUrl: string; twitterUrl: string; liveChatUrl: string; googleAnalyticsId?: string; googleSearchConsoleVerification?: string; ahrefsVerification?: string; customHeaderScripts?: string; customFooterScripts?: string; showPopupBanner?: boolean; popupBannerImageUrl?: string; popupBannerLink?: string; }
 export interface Comment { _id: string; reviewId: string; username: string; rating: number; text: string; createdAt: string; }
 export interface PopupBanner { _id: string; title: string; imageUrl: string; linkUrl?: string; }
@@ -42,6 +42,7 @@ export interface Page {
     updatedAt: string;
     schemaMarkup?: string;
     availableLangs?: Lang[];
+    indexableLangs?: Lang[];
 }
 
 // --- NEW INTERFACE for a single blog comment ---
@@ -86,6 +87,13 @@ async function fetchData<T>(endpoint: string, options: RequestInit = {}): Promis
     }
 }
 
+// Astro decodes route params with decodeURI, which leaves "%26" (&), "%3F" (?) etc. encoded.
+// Decode once more so encodeURIComponent below doesn't double-encode them ("%2526" -> 404).
+export function decodeSlug(slug: string): string {
+    try { return decodeURIComponent(slug); } catch { return slug; }
+}
+const slugPath = (slug: string) => encodeURIComponent(decodeSlug(slug));
+
 // --- API Service Functions ---
 export async function getSettings(): Promise<SiteSettings | null> { try { return await fetchData<SiteSettings>('/frontend-api/settings'); } catch (err) { console.warn('Could not fetch site settings, using fallback values.', err); return null; } }
 export async function getGames(lang: 'en' | 'hi' = 'en'): Promise<Game[]> { return fetchData<Game[]>(`/frontend-api/games?lang=${lang}`); }
@@ -93,7 +101,7 @@ export async function getPromotions(lang: 'en' | 'hi' = 'en'): Promise<Promotion
 export async function getBlogPosts(lang: 'en' | 'hi' = 'en'): Promise<BlogPostListItem[]> { return fetchData<BlogPostListItem[]>(`/frontend-api/blog?lang=${lang}`); }
 export async function getBlogPostBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Promise<BlogPost | null> {
     try {
-        return await fetchData<BlogPost>(`/frontend-api/blog/${encodeURIComponent(slug)}?lang=${lang}`);
+        return await fetchData<BlogPost>(`/frontend-api/blog/${slugPath(slug)}?lang=${lang}`);
     } catch (err) {
         if (err instanceof ApiError && err.status === 404) { return null; }
         console.warn(`Could not fetch blog post for slug: ${slug}`, err);
@@ -103,7 +111,7 @@ export async function getBlogPostBySlug(slug: string, lang: 'en' | 'hi' = 'en'):
 export async function getReviews(lang: 'en' | 'hi' = 'en'): Promise<ReviewListItem[]> { return fetchData<ReviewListItem[]>(`/frontend-api/reviews?lang=${lang}`); }
 export async function getReviewBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Promise<Review | null> {
     try {
-        return await fetchData<Review>(`/frontend-api/reviews/${encodeURIComponent(slug)}?lang=${lang}`);
+        return await fetchData<Review>(`/frontend-api/reviews/${slugPath(slug)}?lang=${lang}`);
     } catch (err) {
         if (err instanceof ApiError && err.status === 404) { return null; }
         console.warn(`Could not fetch review for slug: ${slug}`, err);
@@ -145,7 +153,7 @@ export async function getPagesList(lang: 'en' | 'hi' = 'en'): Promise<PageListIt
 
 export async function getPageBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Promise<Page | null> {
     try {
-        return await fetchData<Page>(`/frontend-api/pages/${encodeURIComponent(slug)}?lang=${lang}`);
+        return await fetchData<Page>(`/frontend-api/pages/${slugPath(slug)}?lang=${lang}`);
     } catch (err) {
         if (err instanceof ApiError && err.status === 404) { return null; }
         console.warn(`Could not fetch custom page for slug: ${slug}`, err);
@@ -157,7 +165,7 @@ export async function getPageBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Pro
 export type SlugRedirectType = 'blog' | 'reviews' | 'promotions' | 'pages';
 export async function resolveSlugRedirect(type: SlugRedirectType, slug: string): Promise<string | null> {
     try {
-        const res = await fetchData<{ slug?: string }>(`/frontend-api/slug-redirect/${type}/${encodeURIComponent(slug)}`);
+        const res = await fetchData<{ slug?: string }>(`/frontend-api/slug-redirect/${type}/${slugPath(slug)}`);
         return res.slug || null;
     } catch (err) {
         if (err instanceof ApiError && err.status === 404) { return null; }

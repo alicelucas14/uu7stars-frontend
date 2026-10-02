@@ -1,4 +1,4 @@
-import { resolveSlugRedirect, type SlugRedirectType } from '../services/api';
+import { decodeSlug, resolveSlugRedirect, type SlugRedirectType } from '../services/api';
 
 /**
  * If `slug` is a retired slug of published content, return a 301 to its current URL; otherwise null
@@ -11,6 +11,6 @@ export async function redirectForRetiredSlug(
 ): Promise<Response | null> {
   if (!slug) return null;
   const current = await resolveSlugRedirect(type, slug);
-  if (!current || current === slug) return null;
+  if (!current || current === decodeSlug(slug)) return null;
   return new Response(null, { status: 301, headers: { Location: buildPath(encodeURIComponent(current)) } });
 }

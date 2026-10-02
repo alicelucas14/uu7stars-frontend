@@ -3,6 +3,7 @@
 // --- UPDATED: Integrated the new BlogCommentsSection component ---
 
 import { renderMarkdown } from '@lib/renderMarkdown';
+import { hreflangLangs, langIsIndexable } from '@lib/hreflang';
 import Base from '../../layouts/Base.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
@@ -91,14 +92,14 @@ const articleJsonLd = {
 ---
 
 <Base
-  alternateLangs={post.availableLangs}
+  alternateLangs={hreflangLangs(post, Astro.site)}
   title={pageTitle}
   description={pageDescription}
   canonical={canonical}
   jsonLd={articleJsonLd}
   schemaMarkup={post.schemaMarkup}
   focusKeyword={post.focusKeyword}
-  robotsIndex={post.robotsIndex !== false}
+  robotsIndex={post.robotsIndex !== false && langIsIndexable(post, locale)}
   robotsFollow={post.robotsFollow !== false}
   ogTitle={ogTitle}
   ogDescription={ogDescription}

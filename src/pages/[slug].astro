@@ -1,6 +1,7 @@
 ---
 // ===== src/pages/[slug].astro =====
 import { renderMarkdown } from '@lib/renderMarkdown';
+import { hreflangLangs, langIsIndexable } from '@lib/hreflang';
 import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -61,14 +62,14 @@ const pageJsonLd = {
 ---
 
 <Base
-  alternateLangs={page.availableLangs}
+  alternateLangs={hreflangLangs(page, Astro.site)}
   title={metaTitle}
   description={metaDescription}
   canonical={canonical}
   jsonLd={pageJsonLd}
   schemaMarkup={page.schemaMarkup}
   focusKeyword={page.focusKeyword}
-  robotsIndex={page.robotsIndex !== false}
+  robotsIndex={page.robotsIndex !== false && langIsIndexable(page, locale)}
   robotsFollow={page.robotsFollow !== false}
   ogTitle={ogTitle}
   ogDescription={ogDescription}

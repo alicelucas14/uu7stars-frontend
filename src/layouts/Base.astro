@@ -10,6 +10,7 @@ import { getSettings } from '../services/api';
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import PopupBanner from '../components/PopupBanner.astro';
 import { useI18n, locales, createPath, getPathWithoutLocale } from '../i18n';
+import { toPlainText } from '../lib/plainText';
 
 export interface Props {
   title?: string;
@@ -52,6 +53,11 @@ const {
   twitterDescription = '',
   schemaMarkup,
 } = Astro.props;
+
+// CMS excerpts are markdown; meta tags must be plain text.
+const metaDescription = toPlainText(pageDescription);
+const metaOgDescription = toPlainText(ogDescription);
+const metaTwitterDescription = toPlainText(twitterDescription);
 
 const siteBase = new URL('/', Astro.site).toString();
 const pathname = Astro.url.pathname;
@@ -175,7 +181,7 @@ if (jsonLd) {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     name: title,
-    description: pageDescription,
+    description: metaDescription,
     url,
     isPartOf: { '@type': 'WebSite', url: siteBase, name: brandName },
     inLanguage: 'en-IN'
@@ -191,7 +197,7 @@ if (jsonLd) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>{title}</title>
-    <meta name="description" content={pageDescription} />
+    <meta name="description" content={metaDescription} />
     <meta name="keywords" content={focusKeyword ? `${focusKeyword}, Starsuu7, UU7, 777, Starsuu7 app, real cash games` : 'Starsuu7, UU7, 777, Starsuu7 app, Starsuu7 APK, Teen Patti app, Rummy app, real cash games India, Teen Patti real money, Rummy real money, Starsuu7 download'} />
 
     <link rel="canonical" href={url} />
@@ -223,14 +229,14 @@ if (jsonLd) {
     <meta property="og:type" content="website" />
     <meta property="og:locale" content={pageLocale} />
     <meta property="og:title" content={ogTitle || title} />
-    <meta property="og:description" content={ogDescription || pageDescription} />
+    <meta property="og:description" content={metaOgDescription || metaDescription} />
     <meta property="og:url" content={url} />
     <meta property="og:image" content={ogImage || new URL('/wordpress/STARSUU7-Game.webp', Astro.site).toString()} />
     <meta property="og:image:alt" content="Starsuu7 — Teen Patti & Rummy" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={twitterTitle || ogTitle || title} />
-    <meta name="twitter:description" content={twitterDescription || ogDescription || pageDescription} />
+    <meta name="twitter:description" content={metaTwitterDescription || metaOgDescription || metaDescription} />
     <meta name="twitter:image" content={ogImage || new URL('/wordpress/STARSUU7-Game.webp', Astro.site).toString()} />
     <meta name="twitter:site" content="@starsuu7" />
 
