@@ -66,6 +66,10 @@ export interface PopupBanner {
 
 // --- Base API Configuration ---
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
+// Optional internal address for this server's own calls (e.g. http://127.0.0.1:5000). It skips the public
+// DNS/TLS/nginx hop. PUBLIC_API_BASE_URL must stay the public address: it is also used to build image URLs
+// that visitors' browsers load. Unset = server-side calls use the public address, as before.
+const API_FETCH_URL: string | undefined = import.meta.env.API_INTERNAL_URL || API_BASE_URL;
 const BACKEND_API_KEY = import.meta.env.BACKEND_API_KEY;
 
 // --- Generic Fetch Function ---
@@ -75,8 +79,8 @@ export class ApiError extends Error {
 }
 const FETCH_TIMEOUT_MS = 8000;
 async function fetchData<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    if (!API_BASE_URL) { throw new Error('API connection failed: The PUBLIC_API_BASE_URL environment variable is not set.'); }
-    const url = `${API_BASE_URL}${endpoint}`;
+    if (!API_FETCH_URL) { throw new Error('API connection failed: The PUBLIC_API_BASE_URL environment variable is not set.'); }
+    const url = `${API_FETCH_URL}${endpoint}`;
     try {
         const res = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', 'x-api-key': BACKEND_API_KEY || '', ...(options.headers || {}), }, cache: 'no-cache', signal: options.signal ?? AbortSignal.timeout(FETCH_TIMEOUT_MS), });
         if (!res.ok) { const text = await res.text().catch(() => ''); throw new ApiError(`[API ${res.status}] ${url}${text ? ` → ${text}` : ''}`, res.status); }
@@ -132,7 +136,7 @@ export async function getReviewBySlug(slug: string, lang: 'en' | 'hi' = 'en'): P
 const COMMENTS_TTL_MS = 5_000;
 const COMMENTS_TIMEOUT_MS = 3_000; // optional content: fail fast, the page renders without comments
 async function fetchComments<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, { signal: AbortSignal.timeout(COMMENTS_TIMEOUT_MS) });
+  const res = await fetch(`${API_FETCH_URL}${path}`, { signal: AbortSignal.timeout(COMMENTS_TIMEOUT_MS) });
   if (!res.ok) { throw new Error(`Failed to fetch comments with status: ${res.status}`); }
   return res.json() as Promise<T>;
 }

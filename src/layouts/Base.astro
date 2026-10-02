@@ -243,6 +243,14 @@ if (jsonLd) {
     {ahrefsVerification && <meta name="ahrefs-site-verification" content={ahrefsVerification} />}
     {googleSearchConsoleVerification && <meta name="google-site-verification" content={googleSearchConsoleVerification} />}
 
+    <!-- No cookies: storage consent is denied before any Google tag loads, so Analytics (this tag and any
+         added through Settings -> header scripts) runs cookieless: no _ga cookies, no stored client id. -->
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('consent', 'default', { ad_storage: 'denied', analytics_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+    </script>
+
     {googleAnalyticsId && (
       <script async src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}></script>
     )}
