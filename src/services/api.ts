@@ -1,6 +1,8 @@
 // ===== src/services/api.ts =====
 // --- UPDATED: Added an interface and fetch function for blog comments ---
 
+import { cached } from '../lib/apiCache';
+
 // --- Interfaces ---
 export type Lang = 'en' | 'hi';
 export interface Game { _id: string; gameId: string; name: string; category: string; provider: string; image: string; isNew: boolean; isHot: boolean; schemaMarkup?: string; }
@@ -87,6 +89,11 @@ async function fetchData<T>(endpoint: string, options: RequestInit = {}): Promis
     }
 }
 
+// Collections that many components request on every page render (and that rarely change) go through
+// a short in-process cache; see lib/apiCache.ts. Single items and comments are always fetched live.
+const LIST_TTL_MS = 60_000;
+const fetchList = <T>(endpoint: string): Promise<T> => cached<T>(endpoint, LIST_TTL_MS, () => fetchData<T>(endpoint));
+
 // Astro decodes route params with decodeURI, which leaves "%26" (&), "%3F" (?) etc. encoded.
 // Decode once more so encodeURIComponent below doesn't double-encode them ("%2526" -> 404).
 export function decodeSlug(slug: string): string {
@@ -95,10 +102,10 @@ export function decodeSlug(slug: string): string {
 const slugPath = (slug: string) => encodeURIComponent(decodeSlug(slug));
 
 // --- API Service Functions ---
-export async function getSettings(): Promise<SiteSettings | null> { try { return await fetchData<SiteSettings>('/frontend-api/settings'); } catch (err) { console.warn('Could not fetch site settings, using fallback values.', err); return null; } }
-export async function getGames(lang: 'en' | 'hi' = 'en'): Promise<Game[]> { return fetchData<Game[]>(`/frontend-api/games?lang=${lang}`); }
-export async function getPromotions(lang: 'en' | 'hi' = 'en'): Promise<Promotion[]> { return fetchData<Promotion[]>(`/frontend-api/promotions?lang=${lang}`); }
-export async function getBlogPosts(lang: 'en' | 'hi' = 'en'): Promise<BlogPostListItem[]> { return fetchData<BlogPostListItem[]>(`/frontend-api/blog?lang=${lang}`); }
+export async function getSettings(): Promise<SiteSettings | null> { try { return await fetchList<SiteSettings>('/frontend-api/settings'); } catch (err) { console.warn('Could not fetch site settings, using fallback values.', err); return null; } }
+export async function getGames(lang: 'en' | 'hi' = 'en'): Promise<Game[]> { return fetchList<Game[]>(`/frontend-api/games?lang=${lang}`); }
+export async function getPromotions(lang: 'en' | 'hi' = 'en'): Promise<Promotion[]> { return fetchList<Promotion[]>(`/frontend-api/promotions?lang=${lang}`); }
+export async function getBlogPosts(lang: 'en' | 'hi' = 'en'): Promise<BlogPostListItem[]> { return fetchList<BlogPostListItem[]>(`/frontend-api/blog?lang=${lang}`); }
 export async function getBlogPostBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Promise<BlogPost | null> {
     try {
         return await fetchData<BlogPost>(`/frontend-api/blog/${slugPath(slug)}?lang=${lang}`);
@@ -108,7 +115,7 @@ export async function getBlogPostBySlug(slug: string, lang: 'en' | 'hi' = 'en'):
         throw err;
     }
 }
-export async function getReviews(lang: 'en' | 'hi' = 'en'): Promise<ReviewListItem[]> { return fetchData<ReviewListItem[]>(`/frontend-api/reviews?lang=${lang}`); }
+export async function getReviews(lang: 'en' | 'hi' = 'en'): Promise<ReviewListItem[]> { return fetchList<ReviewListItem[]>(`/frontend-api/reviews?lang=${lang}`); }
 export async function getReviewBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Promise<Review | null> {
     try {
         return await fetchData<Review>(`/frontend-api/reviews/${slugPath(slug)}?lang=${lang}`);
@@ -119,12 +126,21 @@ export async function getReviewBySlug(slug: string, lang: 'en' | 'hi' = 'en'): P
     }
 }
 
+// Comments change when a visitor posts, so they are only de-duplicated within a render (desktop and
+// mobile layouts both ask) - never served stale. They also need a timeout: without one a hung
+// comments endpoint stalls the whole page.
+const COMMENTS_TTL_MS = 5_000;
+const COMMENTS_TIMEOUT_MS = 3_000; // optional content: fail fast, the page renders without comments
+async function fetchComments<T>(path: string): Promise<T> {
+  const res = await fetch(`${API_BASE_URL}${path}`, { signal: AbortSignal.timeout(COMMENTS_TIMEOUT_MS) });
+  if (!res.ok) { throw new Error(`Failed to fetch comments with status: ${res.status}`); }
+  return res.json() as Promise<T>;
+}
+
 export async function getCommentsForReview(reviewId: string): Promise<Comment[]> {
   if (!reviewId) return [];
   try {
-    const res = await fetch(`${API_BASE_URL}/api/frontend/comments/${reviewId}`);
-    if (!res.ok) { throw new Error(`Failed to fetch comments with status: ${res.status}`); }
-    return res.json();
+    return await cached(`comments:review:${reviewId}`, COMMENTS_TTL_MS, () => fetchComments<Comment[]>(`/api/frontend/comments/${reviewId}`), 0);
   } catch (err) {
     console.error(`Failed to fetch comments for review ${reviewId}:`, err);
     return [];
@@ -135,11 +151,7 @@ export async function getCommentsForReview(reviewId: string): Promise<Comment[]>
 export async function getCommentsForBlogPost(postId: string): Promise<BlogComment[]> {
   if (!postId) return [];
   try {
-    const res = await fetch(`${API_BASE_URL}/api/frontend/blog-comments/${postId}`);
-    if (!res.ok) {
-        throw new Error(`Failed to fetch blog comments with status: ${res.status}`);
-    }
-    return res.json();
+    return await cached(`comments:blog:${postId}`, COMMENTS_TTL_MS, () => fetchComments<BlogComment[]>(`/api/frontend/blog-comments/${postId}`), 0);
   } catch (err) {
     console.error(`Failed to fetch comments for blog post ${postId}:`, err);
     return []; // Return an empty array on error to prevent the page from crashing.
@@ -148,7 +160,7 @@ export async function getCommentsForBlogPost(postId: string): Promise<BlogCommen
 
 // --- NEW FUNCTIONS to fetch custom pages ---
 export async function getPagesList(lang: 'en' | 'hi' = 'en'): Promise<PageListItem[]> {
-    return fetchData<PageListItem[]>(`/frontend-api/pages?lang=${lang}`);
+    return fetchList<PageListItem[]>(`/frontend-api/pages?lang=${lang}`);
 }
 
 export async function getPageBySlug(slug: string, lang: 'en' | 'hi' = 'en'): Promise<Page | null> {
@@ -176,7 +188,7 @@ export async function resolveSlugRedirect(type: SlugRedirectType, slug: string):
 // --- NEW FUNCTION to fetch popup banners ---
 export async function getPopupBanners(lang: 'en' | 'hi' = 'en'): Promise<PopupBanner[]> {
     try {
-        return await fetchData<PopupBanner[]>(`/frontend-api/popup-banners?lang=${lang}`);
+        return await fetchList<PopupBanner[]>(`/frontend-api/popup-banners?lang=${lang}`);
     } catch (err) {
         console.warn('Could not fetch popup banners, using empty fallback.', err);
         return [];
