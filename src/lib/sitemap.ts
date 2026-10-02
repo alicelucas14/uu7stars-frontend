@@ -22,12 +22,18 @@ export function toIso(d?: string | Date | null): string | undefined {
   return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
 }
 
+// The site uses trailingSlash: 'always', so "/hi" (the Hindi home) 301s to "/hi/" - never submit the redirecting form.
+function pageUrl(siteUrl: string, path: string, lang: 'en' | 'hi'): string {
+  const p = createPath(path, lang);
+  return `${siteUrl}${p.endsWith('/') ? p : `${p}/`}`;
+}
+
 function urlEntry(siteUrl: string, item: SitemapItem, lang: 'en' | 'hi'): string {
-  const loc = `${siteUrl}${createPath(item.path, lang)}`;
+  const loc = pageUrl(siteUrl, item.path, lang);
   const links: string[] = [];
-  if (item.en) links.push(`<xhtml:link rel="alternate" hreflang="en" href="${siteUrl}${createPath(item.path, 'en')}" />`);
-  if (item.hi) links.push(`<xhtml:link rel="alternate" hreflang="hi" href="${siteUrl}${createPath(item.path, 'hi')}" />`);
-  if (item.en) links.push(`<xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}${createPath(item.path, 'en')}" />`);
+  if (item.en) links.push(`<xhtml:link rel="alternate" hreflang="en" href="${pageUrl(siteUrl, item.path, 'en')}" />`);
+  if (item.hi) links.push(`<xhtml:link rel="alternate" hreflang="hi" href="${pageUrl(siteUrl, item.path, 'hi')}" />`);
+  if (item.en) links.push(`<xhtml:link rel="alternate" hreflang="x-default" href="${pageUrl(siteUrl, item.path, 'en')}" />`);
   const lastmod = toIso(item.lastmod);
   return `
   <url>
