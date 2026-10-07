@@ -1,0 +1,169 @@
+---
+// ===== src/components/SocialSidebar.astro =====
+// Fixed left-edge bar linking to the site's social profiles. URLs come from the CMS Settings doc
+// (same keys the Footer uses), so editing them in the admin panel updates this bar too.
+// Desktop: always visible. Mobile: collapsed behind a small tab so it never covers page text.
+
+import { getSettings } from '../services/api';
+
+const settings = await getSettings();
+
+const networks = [
+  { key: 'youtubeUrl', imgSrc: '/wordpress/social/youtube-64.webp', label: 'YouTube' },
+  { key: 'facebookUrl', imgSrc: '/wordpress/social/facebook-64.webp', label: 'Facebook' },
+  { key: 'instagramUrl', imgSrc: '/wordpress/social/instagram-64.webp', label: 'Instagram' },
+  { key: 'telegramUrl', imgSrc: '/wordpress/social/telegram-64.webp', label: 'Telegram' },
+  { key: 'whatsappUrl', imgSrc: '/wordpress/social/whatsapp-64.webp', label: 'WhatsApp' },
+];
+
+// Only real web links: an empty value or a non-http(s) scheme (e.g. javascript:) is skipped.
+const links = settings
+  ? networks
+      .map((n) => ({ ...n, href: String(settings[n.key as keyof typeof settings] ?? '').trim() }))
+      .filter((n) => /^https?:\/\//i.test(n.href))
+  : [];
+---
+
+{links.length > 0 && (
+  <aside class="social-sidebar" aria-label="Follow us on social media" data-open="false">
+    <ul class="ss-list" id="ss-list">
+      {links.map((s) => (
+        <li>
+          <a
+            class="ss-link"
+            href={s.href}
+            aria-label={`Follow us on ${s.label}`}
+            title={s.label}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src={s.imgSrc} alt="" width="34" height="34" decoding="async" />
+          </a>
+        </li>
+      ))}
+    </ul>
+    <button class="ss-toggle" type="button" aria-expanded="false" aria-controls="ss-list" aria-label="Show social links">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+        <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" />
+      </svg>
+    </button>
+  </aside>
+)}
+
+<style>
+  .social-sidebar {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    z-index: 1000;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .ss-list {
+    list-style: none;
+    margin: 0;
+    padding: 10px 8px;
+    display: grid;
+    gap: 10px;
+    background: var(--surface, #0f1115);
+    border: 1px solid var(--ring, rgba(255, 255, 255, 0.08));
+    border-left: none;
+    border-radius: 0 18px 18px 0;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  }
+
+  .ss-link {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: var(--surface-2, rgba(255, 255, 255, 0.06));
+    border: 1px solid var(--ring, rgba(255, 255, 255, 0.08));
+    transition: transform 0.15s ease, background-color 0.15s ease;
+  }
+  .ss-link img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    display: block;
+  }
+  .ss-link:hover {
+    transform: translateX(3px);
+    background: color-mix(in oklab, var(--surface-2, #1a1d24) 80%, white);
+  }
+  .ss-link:focus-visible,
+  .ss-toggle:focus-visible {
+    outline: 2px solid var(--brand-orange, #f97316);
+    outline-offset: 2px;
+  }
+
+  /* The tab only exists on small screens */
+  .ss-toggle {
+    display: none;
+    appearance: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    padding: 0;
+    cursor: pointer;
+    color: #fff;
+    background-color: var(--brand-orange, #f97316);
+    border: 1px solid #fff;
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+  }
+  .ss-toggle svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @media (max-width: 767px) {
+    .ss-toggle { display: inline-flex; padding-block: 14px; }
+    .ss-list { display: none; border-radius: 0; padding: 8px 6px; gap: 8px; }
+    .ss-link { width: 50px; height: 50px; border-radius: 14px; }
+    .ss-link img { width: 30px; height: 30px; }
+    .social-sidebar[data-open='true'] .ss-list { display: grid; }
+    .social-sidebar[data-open='true'] .ss-toggle { border-radius: 0 12px 12px 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ss-link { transition: none; }
+    .ss-link:hover { transform: none; }
+  }
+
+  @media print {
+    .social-sidebar { display: none; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var bar = document.querySelector('.social-sidebar');
+    if (!bar) return;
+    var toggle = bar.querySelector('.ss-toggle');
+    if (!toggle) return;
+    function setOpen(open) {
+      bar.setAttribute('data-open', open ? 'true' : 'false');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.setAttribute('aria-label', open ? 'Hide social links' : 'Show social links');
+    }
+    toggle.addEventListener('click', function () {
+      setOpen(bar.getAttribute('data-open') !== 'true');
+    });
+    document.addEventListener('click', function (e) {
+      if (bar.getAttribute('data-open') === 'true' && !bar.contains(e.target)) setOpen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && bar.getAttribute('data-open') === 'true') { setOpen(false); toggle.focus(); }
+    });
+  })();
+</script>
