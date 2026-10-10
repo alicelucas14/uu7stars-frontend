@@ -10,6 +10,7 @@ import { getSettings } from '../services/api';
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import PopupBanner from '../components/PopupBanner.astro';
 import SocialSidebar from '../components/SocialSidebar.astro';
+import SplashVideo from '../components/SplashVideo.astro';
 import { useI18n, locales, createPath, getPathWithoutLocale } from '../i18n';
 import { toPlainText } from '../lib/plainText';
 
@@ -273,6 +274,10 @@ if (jsonLd) {
   </head>
 
   <body>
+    {settings?.showSplashVideo && settings?.splashVideoUrl && (
+      <SplashVideo videoUrl={settings.splashVideoUrl} logoUrl={logoUrl} lang={lang} />
+    )}
+
     <a id="top" href="#main" class="skiplink">Skip to content</a>
 
     <main id="main">

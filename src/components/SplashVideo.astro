@@ -1,0 +1,228 @@
+---
+// ===== src/components/SplashVideo.astro =====
+// Full-screen intro video for phones, shown once per visit (sessionStorage) before the site.
+// Managed in the admin under Settings -> Mobile Splash Video.
+//
+// How it avoids a flash of the site: this markup is the first thing in <body> and the inline
+// script below runs synchronously right after it, before the rest of the page is parsed/painted.
+// The video src is only assigned when the splash will really show, so desktop visitors (and
+// returning mobile visitors in the same session) never download the file.
+export interface Props {
+  videoUrl?: string;
+  logoUrl: string;
+  lang?: 'en' | 'hi';
+}
+
+const { videoUrl, logoUrl, lang = 'en' } = Astro.props;
+
+// Uploaded files come back as absolute URLs on the admin host; also accept a site-relative path.
+// Anything that isn't http(s) is ignored.
+let src = '';
+if (videoUrl) {
+  try {
+    const u = new URL(videoUrl, import.meta.env.PUBLIC_API_BASE_URL || Astro.site);
+    if (u.protocol === 'https:' || u.protocol === 'http:') src = u.href;
+  } catch {
+    src = '';
+  }
+}
+
+const skipLabel = lang === 'hi' ? 'छोड़ें' : 'Skip';
+---
+
+{src && (
+  <div id="splash-video" class="splash" aria-hidden="true" data-src={src}>
+    <div class="splash-loader" aria-hidden="true">
+      <img src={logoUrl} alt="" width="76" height="76" decoding="async" />
+    </div>
+    <video
+      class="splash-media"
+      muted
+      playsinline
+      webkit-playsinline
+      preload="none"
+      disablepictureinpicture
+      disableremoteplayback
+      aria-hidden="true"
+    ></video>
+    <button type="button" class="splash-skip" aria-label={`${skipLabel} intro video`}>
+      {skipLabel}
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+    </button>
+    <div class="splash-progress" aria-hidden="true"><span></span></div>
+  </div>
+)}
+
+{src && (
+  <script is:inline>
+    (function () {
+      var el = document.getElementById('splash-video');
+      if (!el) return;
+      var KEY = 'uu7SplashSeen';
+      try {
+        if (!window.matchMedia('(max-width: 767px)').matches) return;          // phones only
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (sessionStorage.getItem(KEY)) return;                                // once per visit
+        sessionStorage.setItem(KEY, '1');
+      } catch (e) {
+        return; // storage blocked: don't risk replaying it on every page
+      }
+
+      var root = document.documentElement;
+      var video = el.querySelector('video');
+      var bar = el.querySelector('.splash-progress span');
+      var done = false;
+      var lastProgress = Date.now();
+      var STALL_MS = 7000; // not started / frozen this long -> give up and show the site
+
+      window.__splashActive = true;
+      el.classList.add('is-on');
+      el.setAttribute('aria-hidden', 'false');
+      root.classList.add('splash-lock');
+
+      function finish() {
+        if (done) return;
+        done = true;
+        clearInterval(watchdog);
+        window.__splashActive = false;
+        el.classList.add('is-out');
+        root.classList.remove('splash-lock');
+        document.removeEventListener('keydown', onKey);
+        setTimeout(function () {
+          try { video.pause(); video.removeAttribute('src'); video.load(); } catch (e) {}
+          el.classList.remove('is-on');
+          el.setAttribute('aria-hidden', 'true');
+        }, 450);
+        try { window.dispatchEvent(new Event('splash:done')); } catch (e) {}
+      }
+      function onKey(e) { if (e.key === 'Escape') finish(); }
+
+      var watchdog = setInterval(function () {
+        if (Date.now() - lastProgress > STALL_MS) finish();
+      }, 1000);
+
+      video.addEventListener('playing', function () { el.classList.add('is-playing'); lastProgress = Date.now(); });
+      video.addEventListener('timeupdate', function () {
+        lastProgress = Date.now();
+        if (bar && video.duration) bar.style.transform = 'scaleX(' + Math.min(1, video.currentTime / video.duration) + ')';
+      });
+      video.addEventListener('ended', finish);
+      video.addEventListener('error', finish);
+      el.querySelector('.splash-skip').addEventListener('click', finish);
+      document.addEventListener('keydown', onKey);
+
+      // Muted + inline is what mobile browsers require for autoplay.
+      video.muted = true;
+      video.defaultMuted = true;
+      video.playsInline = true;
+      video.preload = 'auto';
+      video.src = el.getAttribute('data-src');
+      var p = video.play();
+      // Autoplay refused (e.g. iOS Low Power Mode) -> skip straight to the site.
+      if (p && typeof p.catch === 'function') p.catch(finish);
+    })();
+  </script>
+)}
+
+<style is:global>
+  .splash {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    background: radial-gradient(120% 80% at 50% 30%, #2a1606 0%, #0b0705 60%, #000 100%);
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.42s ease;
+  }
+  .splash.is-on { display: flex; }
+  .splash.is-out { opacity: 0; pointer-events: none; }
+  html.splash-lock,
+  html.splash-lock body { overflow: hidden !important; overscroll-behavior: none; }
+
+  .splash-media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: transparent;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  .splash.is-playing .splash-media { opacity: 1; }
+
+  .splash-loader {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    animation: splash-pulse 1.4s ease-in-out infinite;
+    transition: opacity 0.3s ease;
+  }
+  .splash-loader::before {
+    content: '';
+    position: absolute;
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.12);
+    border-top-color: #f97316;
+    animation: splash-spin 0.9s linear infinite;
+  }
+  .splash-loader img { width: 76px; height: 76px; object-fit: contain; }
+  .splash.is-playing .splash-loader { opacity: 0; }
+
+  .splash-skip {
+    position: absolute;
+    top: calc(14px + env(safe-area-inset-top));
+    right: 14px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 40px;
+    padding: 8px 12px 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(0, 0, 0, 0.45);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    font: 700 14px/1 Inter, system-ui, sans-serif;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    animation: splash-fade-in 0.4s ease 0.3s both;
+  }
+  .splash-skip:active { transform: scale(0.96); }
+  .splash-skip svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+  .splash-progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.12);
+    padding-bottom: env(safe-area-inset-bottom);
+    box-sizing: content-box;
+  }
+  .splash-progress span {
+    display: block;
+    height: 3px;
+    background: linear-gradient(90deg, #facc15, #f97316);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.25s linear;
+  }
+
+  @keyframes splash-spin { to { transform: rotate(360deg); } }
+  @keyframes splash-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  @keyframes splash-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Never on tablet/desktop, even if the script were to misfire */
+  @media (min-width: 768px) { .splash { display: none !important; } }
+</style>

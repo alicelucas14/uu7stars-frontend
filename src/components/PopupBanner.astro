@@ -68,13 +68,19 @@ const showPopup = banners && banners.length > 0;
 
       // Check sessionStorage to only show once per visit
       if (!sessionStorage.getItem('popupBannerDismissed')) {
-        setTimeout(() => {
+        const showPopup = () => {
           modal.style.display = 'flex';
           modal.offsetHeight; // layout reflow
           modal.classList.add('is-active');
           modal.setAttribute('aria-hidden', 'false');
           startAutoplay();
-        }, 1000);
+        };
+        // If the mobile splash video is playing, wait until it has finished
+        if (window.__splashActive) {
+          window.addEventListener('splash:done', () => setTimeout(showPopup, 800), { once: true });
+        } else {
+          setTimeout(showPopup, 1000);
+        }
       }
 
       function closeModal() {
