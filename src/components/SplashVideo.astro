@@ -9,11 +9,10 @@
 // returning mobile visitors in the same session) never download the file.
 export interface Props {
   videoUrl?: string;
-  logoUrl: string;
   lang?: 'en' | 'hi';
 }
 
-const { videoUrl, logoUrl, lang = 'en' } = Astro.props;
+const { videoUrl, lang = 'en' } = Astro.props;
 
 // Uploaded files come back as absolute URLs on the admin host; also accept a site-relative path.
 // Anything that isn't http(s) is ignored.
@@ -21,6 +20,9 @@ let src = '';
 if (videoUrl) {
   try {
     const u = new URL(videoUrl, import.meta.env.PUBLIC_API_BASE_URL || Astro.site);
+    // The admin sits behind nginx and can hand out http:// upload URLs; the site is https, so an
+    // http video would be mixed content. Always request it over https (except on local dev hosts).
+    if (u.protocol === 'http:' && !/^(localhost|127\.0\.0\.1)$/.test(u.hostname)) u.protocol = 'https:';
     if (u.protocol === 'https:' || u.protocol === 'http:') src = u.href;
   } catch {
     src = '';
@@ -32,9 +34,6 @@ const skipLabel = lang === 'hi' ? 'छोड़ें' : 'Skip';
 
 {src && (
   <div id="splash-video" class="splash" aria-hidden="true" data-src={src}>
-    <div class="splash-loader" aria-hidden="true">
-      <img src={logoUrl} alt="" width="76" height="76" decoding="async" />
-    </div>
     <video
       class="splash-media"
       muted
@@ -101,6 +100,10 @@ const skipLabel = lang === 'hi' ? 'छोड़ें' : 'Skip';
         if (Date.now() - lastProgress > STALL_MS) finish();
       }, 1000);
 
+      // Still downloading on a slow connection counts as progress, not a stall.
+      ['progress', 'loadedmetadata', 'loadeddata', 'canplay'].forEach(function (ev) {
+        video.addEventListener(ev, function () { lastProgress = Date.now(); });
+      });
       video.addEventListener('playing', function () { el.classList.add('is-playing'); lastProgress = Date.now(); });
       video.addEventListener('timeupdate', function () {
         lastProgress = Date.now();
@@ -130,7 +133,7 @@ const skipLabel = lang === 'hi' ? 'छोड़ें' : 'Skip';
     position: fixed;
     inset: 0;
     z-index: 2147483000;
-    background: radial-gradient(120% 80% at 50% 30%, #2a1606 0%, #0b0705 60%, #000 100%);
+    background: #000;
     align-items: center;
     justify-content: center;
     opacity: 1;
@@ -140,41 +143,21 @@ const skipLabel = lang === 'hi' ? 'छोड़ें' : 'Skip';
   .splash.is-out { opacity: 0; pointer-events: none; }
   html.splash-lock,
   html.splash-lock body { overflow: hidden !important; overscroll-behavior: none; }
+  /* Live chat bubble (sets its own huge z-index) stays hidden until the splash is gone */
+  html.splash-lock #chat-widget-container { display: none !important; }
 
   .splash-media {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    background: transparent;
+    /* contain = show the whole video (landscape or portrait), letterboxed on black, never cropped */
+    object-fit: contain;
+    background: #000;
     opacity: 0;
     transition: opacity 0.35s ease;
   }
   .splash.is-playing .splash-media { opacity: 1; }
-
-  .splash-loader {
-    position: relative;
-    display: grid;
-    place-items: center;
-    width: 112px;
-    height: 112px;
-    border-radius: 50%;
-    animation: splash-pulse 1.4s ease-in-out infinite;
-    transition: opacity 0.3s ease;
-  }
-  .splash-loader::before {
-    content: '';
-    position: absolute;
-    width: 112px;
-    height: 112px;
-    border-radius: 50%;
-    border: 3px solid rgba(255, 255, 255, 0.12);
-    border-top-color: #f97316;
-    animation: splash-spin 0.9s linear infinite;
-  }
-  .splash-loader img { width: 76px; height: 76px; object-fit: contain; }
-  .splash.is-playing .splash-loader { opacity: 0; }
 
   .splash-skip {
     position: absolute;
@@ -219,8 +202,6 @@ const skipLabel = lang === 'hi' ? 'छोड़ें' : 'Skip';
     transition: transform 0.25s linear;
   }
 
-  @keyframes splash-spin { to { transform: rotate(360deg); } }
-  @keyframes splash-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
   @keyframes splash-fade-in { from { opacity: 0; } to { opacity: 1; } }
 
   /* Never on tablet/desktop, even if the script were to misfire */
