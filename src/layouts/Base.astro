@@ -13,6 +13,7 @@ import SocialSidebar from '../components/SocialSidebar.astro';
 import SplashVideo from '../components/SplashVideo.astro';
 import { useI18n, locales, createPath, getPathWithoutLocale } from '../i18n';
 import { toPlainText } from '../lib/plainText';
+import { resolveExtraSocialLinks } from '../lib/socialPlatforms';
 
 export interface Props {
   title?: string;
@@ -118,14 +119,15 @@ const fileSize = release.size ?? '22.1 MB';
 const updatedHuman = release.updated ?? '2025-10-03';
 const dateModifiedISO = new Date(updatedHuman).toISOString();
 
-const sameAs = [
+const sameAs = [...new Set([
   settings?.twitterUrl,
   settings?.facebookUrl,
   settings?.instagramUrl,
   settings?.youtubeUrl,
   settings?.telegramUrl,
-  settings?.whatsappUrl
-].filter(Boolean) as string[];
+  settings?.whatsappUrl,
+  ...resolveExtraSocialLinks(settings?.extraSocialLinks).map((l) => l.href)
+].filter(Boolean) as string[])];
 
 const ldOrganization = {
   '@context': 'https://schema.org',
