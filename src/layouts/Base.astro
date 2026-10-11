@@ -13,7 +13,7 @@ import SocialSidebar from '../components/SocialSidebar.astro';
 import SplashVideo from '../components/SplashVideo.astro';
 import { useI18n, locales, createPath, getPathWithoutLocale } from '../i18n';
 import { toPlainText } from '../lib/plainText';
-import { resolveExtraSocialLinks } from '../lib/socialPlatforms';
+import { resolveExtraSocialLinks, isSocialLinkActive } from '../lib/socialPlatforms';
 
 export interface Props {
   title?: string;
@@ -119,13 +119,16 @@ const fileSize = release.size ?? '22.1 MB';
 const updatedHuman = release.updated ?? '2025-10-03';
 const dateModifiedISO = new Date(updatedHuman).toISOString();
 
+// Profiles outside their admin schedule window are left out (Footer/Sidebar ticks don't matter here)
+const liveFixed = (url: string | undefined, key: string) =>
+  isSocialLinkActive(settings?.socialLinkDisplay?.[key]) ? url : undefined;
 const sameAs = [...new Set([
-  settings?.twitterUrl,
-  settings?.facebookUrl,
-  settings?.instagramUrl,
-  settings?.youtubeUrl,
-  settings?.telegramUrl,
-  settings?.whatsappUrl,
+  liveFixed(settings?.twitterUrl, 'twitter'),
+  liveFixed(settings?.facebookUrl, 'facebook'),
+  liveFixed(settings?.instagramUrl, 'instagram'),
+  liveFixed(settings?.youtubeUrl, 'youtube'),
+  liveFixed(settings?.telegramUrl, 'telegram'),
+  liveFixed(settings?.whatsappUrl, 'whatsapp'),
   ...resolveExtraSocialLinks(settings?.extraSocialLinks).map((l) => l.href)
 ].filter(Boolean) as string[])];
 

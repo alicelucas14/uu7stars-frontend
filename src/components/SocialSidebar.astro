@@ -5,26 +5,31 @@
 // Desktop: always visible. Mobile: collapsed behind a small tab so it never covers page text.
 
 import { getSettings } from '../services/api';
-import { resolveExtraSocialLinks } from '../lib/socialPlatforms';
+import { resolveExtraSocialLinks, isFixedSocialShown } from '../lib/socialPlatforms';
 
 const settings = await getSettings();
 
+// `display` = key in settings.socialLinkDisplay (admin: Footer / Sidebar / Schedule per link).
+// X is off here unless the admin ticks "Sidebar" for it.
 const networks = [
-  { key: 'youtubeUrl', imgSrc: '/wordpress/social/youtube-64.webp', label: 'YouTube' },
-  { key: 'facebookUrl', imgSrc: '/wordpress/social/facebook-64.webp', label: 'Facebook' },
-  { key: 'instagramUrl', imgSrc: '/wordpress/social/instagram-64.webp', label: 'Instagram' },
-  { key: 'telegramUrl', imgSrc: '/wordpress/social/telegram-64.webp', label: 'Telegram' },
-  { key: 'whatsappUrl', imgSrc: '/wordpress/social/whatsapp-64.webp', label: 'WhatsApp' },
+  { key: 'youtubeUrl', display: 'youtube', imgSrc: '/wordpress/social/youtube-64.webp', label: 'YouTube' },
+  { key: 'facebookUrl', display: 'facebook', imgSrc: '/wordpress/social/facebook-64.webp', label: 'Facebook' },
+  { key: 'instagramUrl', display: 'instagram', imgSrc: '/wordpress/social/instagram-64.webp', label: 'Instagram' },
+  { key: 'telegramUrl', display: 'telegram', imgSrc: '/wordpress/social/telegram-64.webp', label: 'Telegram' },
+  { key: 'whatsappUrl', display: 'whatsapp', imgSrc: '/wordpress/social/whatsapp-64.webp', label: 'WhatsApp' },
+  { key: 'twitterUrl', display: 'twitter', imgSrc: '/wordpress/x.webp', label: 'X' },
 ];
 
 // Only real web links: an empty value or a non-http(s) scheme (e.g. javascript:) is skipped.
 // Extra links from admin Settings -> "More Social Links" follow the fixed ones.
+const now = Date.now();
 const links = settings
   ? [
       ...networks
+        .filter((n) => isFixedSocialShown(settings.socialLinkDisplay, n.display, 'sidebar', now))
         .map((n) => ({ ...n, href: String(settings[n.key as keyof typeof settings] ?? '').trim() }))
         .filter((n) => /^https?:\/\//i.test(n.href)),
-      ...resolveExtraSocialLinks(settings.extraSocialLinks),
+      ...resolveExtraSocialLinks(settings.extraSocialLinks, 'sidebar', now),
     ]
   : [];
 ---

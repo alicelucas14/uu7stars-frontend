@@ -7,7 +7,7 @@ import { getSettings } from '../services/api';
 import type { Locale } from '../i18n';
 import { useTranslations } from '../lib/i18n';
 import { createPath } from '../lib/paths'; // <-- IMPORT the new utility
-import { resolveExtraSocialLinks } from '../lib/socialPlatforms';
+import { resolveExtraSocialLinks, isFixedSocialShown } from '../lib/socialPlatforms';
 
 interface Props {
   lang?: Locale;
@@ -25,22 +25,25 @@ const brandInfo = {
   homeUrl: createPath('/', lang)
 };
 
+// `display` = key in settings.socialLinkDisplay (admin: Footer / Sidebar / Schedule per link)
 const potentialSocials = [
-  { key: 'youtubeUrl', imgSrc: "/wordpress/youtube.png", label: 'YouTube' },
-  { key: 'facebookUrl', imgSrc: "/wordpress/facebook.png", label: 'Facebook' },
-  { key: 'instagramUrl', imgSrc: "/wordpress/instagram.webp", label: 'Instagram' },
-  { key: 'telegramUrl', imgSrc: "/wordpress/telegram.png", label: 'Telegram' },
-  { key: 'whatsappUrl', imgSrc: "/wordpress/whatsapp.png", label: 'WhatsApp' },
-  { key: 'twitterUrl', imgSrc: "/wordpress/x.webp", label: 'Twitter' },
+  { key: 'youtubeUrl', display: 'youtube', imgSrc: "/wordpress/youtube.png", label: 'YouTube' },
+  { key: 'facebookUrl', display: 'facebook', imgSrc: "/wordpress/facebook.png", label: 'Facebook' },
+  { key: 'instagramUrl', display: 'instagram', imgSrc: "/wordpress/instagram.webp", label: 'Instagram' },
+  { key: 'telegramUrl', display: 'telegram', imgSrc: "/wordpress/telegram.png", label: 'Telegram' },
+  { key: 'whatsappUrl', display: 'whatsapp', imgSrc: "/wordpress/whatsapp.png", label: 'WhatsApp' },
+  { key: 'twitterUrl', display: 'twitter', imgSrc: "/wordpress/x.webp", label: 'Twitter' },
 ];
 
+const now = Date.now();
 const socialLinks = settings
   ? [
       ...potentialSocials
+        .filter(s => isFixedSocialShown(settings.socialLinkDisplay, s.display, 'footer', now))
         .map(s => ({ ...s, href: settings[s.key as keyof typeof settings] as string }))
         .filter(s => s.href),
       // Extra links added in admin Settings -> "More Social Links"
-      ...resolveExtraSocialLinks(settings.extraSocialLinks),
+      ...resolveExtraSocialLinks(settings.extraSocialLinks, 'footer', now),
     ]
   : [];
 
