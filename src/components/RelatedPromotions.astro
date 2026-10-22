@@ -100,7 +100,7 @@ const hasData = ranked.length > 0;
 
       <div class="grid">
         {ranked.map((p: any) => {
-          const href = `/promotions/${p.slug}`;
+          const href = `/promotions/${p.slug}/`;
           const img = toAbs(p.imageUrl);
           const badgeText = p.badgeText || '';
           const badgeColor = p.badgeColor || 'var(--brand-orange)';

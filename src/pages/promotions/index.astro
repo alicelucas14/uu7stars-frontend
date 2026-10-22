@@ -38,7 +38,7 @@ const itemList = {
   itemListElement: promos.map((p: Promotion, i: number) => ({
     '@type': 'ListItem',
     position: i + 1,
-    url: new URL(`/promotions/${p.slug}`, Astro.site).toString(),
+    url: new URL(`/promotions/${p.slug}/`, Astro.site).toString(),
     name: p.title
   }))
 };

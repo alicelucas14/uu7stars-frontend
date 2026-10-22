@@ -18,7 +18,9 @@ const tagCounts = allTags.reduce((acc, tag) => {
   return acc;
 }, {} as Record<string, number>);
 
+// Tags with no Latin characters slugify to "" and would link to "/blog/tag//" (a 404) - skip them
 const popularTags = Object.entries(tagCounts)
+  .filter(([tag]) => slugify(tag))
   .sort(([, a], [, b]) => b - a)
   .slice(0, 15)
   .map(([tag]) => tag);

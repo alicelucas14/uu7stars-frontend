@@ -11,7 +11,9 @@ interface Props {
 const { authorName, lang = 'en' } = Astro.props;
 
 // Use the robust, imported slugify function to handle Unicode names correctly
-const authorUrl = createPath(`/blog/author/${slugify(authorName)}/`, lang);
+// Names with no Latin characters slugify to "" - no author page exists for them, so no link
+const authorSlug = slugify(authorName);
+const authorUrl = authorSlug ? createPath(`/blog/author/${authorSlug}/`, lang) : '';
 ---
 
 <div class="sidebar-widget author-bio">
@@ -21,7 +23,7 @@ const authorUrl = createPath(`/blog/author/${slugify(authorName)}/`, lang);
     <p class="author-description">
       {authorName} is a content contributor for Starsuu7, focusing on game strategies, news, and updates for Teen Patti and Rummy enthusiasts.
     </p>
-    <a href={authorUrl} class="author-link">More from this author &rarr;</a>
+    {authorUrl && <a href={authorUrl} class="author-link">More from this author &rarr;</a>}
   </div>
 </div>
 

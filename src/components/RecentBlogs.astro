@@ -6,6 +6,7 @@ import { getBlogPosts } from '../services/api';
 import type { BlogPostListItem } from '../services/api';
 import type { Locale } from '../i18n';
 import { useTranslations } from '../lib/i18n';
+import { createPath } from '../lib/paths';
 
 interface Props {
   lang?: Locale;
@@ -30,12 +31,13 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
           <p class="muted">{t('recentBlogs.description')}</p>
         </div>
         {/* UPDATED: Dynamic text */}
-        <a href="/blog/" class="btn-view-all">{t('recentBlogs.viewAll')}</a>
+        <a href={createPath('/blog/', lang)} class="btn-view-all">{t('recentBlogs.viewAll')}</a>
       </header>
 
       <div class="post-grid">
         {recentPosts.map((post: BlogPostListItem) => {
-          const postUrl = `/blog/${post.slug}`;
+          // Posts come from the lang-specific list, so link to that language's URL (with the trailing slash - no 301)
+          const postUrl = createPath(`/blog/${post.slug}/`, lang);
           const imageUrl = post.image.startsWith('http') ? post.image : `${API_BASE_URL}${post.image}`;
           const formattedDate = new Date(post.publishedAt).toLocaleDateString('en-IN', {
             year: 'numeric',

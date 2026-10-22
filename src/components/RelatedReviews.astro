@@ -96,7 +96,7 @@ const hasData = ranked.length > 0;
 
       <div class="grid">
         {ranked.map((r: any) => {
-          const href = `/reviews/${r.slug}`;
+          const href = `/reviews/${r.slug}/`;
           const img = abs(r.image);
           const stars = Number.isFinite(+r.rating) ? Math.max(0, Math.min(5, Math.round(+r.rating))) : 0;
 

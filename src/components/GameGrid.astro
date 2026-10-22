@@ -36,7 +36,7 @@ function stars(rating: number): string {
     <div class="grid">
       {reviews.map((review: ReviewListItem) => {
         const imageUrl = review.image.startsWith('http') ? review.image : `${API_BASE_URL}${review.image}`;
-        const reviewUrl = `/reviews/${review.slug}`;
+        const reviewUrl = `/reviews/${review.slug}/`;
         
         return (
           <a href={reviewUrl} class="game-card">

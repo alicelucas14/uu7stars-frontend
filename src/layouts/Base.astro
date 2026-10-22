@@ -147,8 +147,8 @@ const ldWebSite = {
   '@type': 'WebSite',
   name: brandName,
   url: siteBase,
-  inLanguage: 'en-IN',
-  potentialAction: { '@type': 'SearchAction', target: `${siteBase}search?q={search_term_string}`, 'query-input': 'required name=search_term_string' }
+  inLanguage: 'en-IN'
+  // No SearchAction: the site has no /search page (it 404s)
 };
 const ldMobileApp = {
   '@context': 'https://schema.org',
@@ -414,8 +414,6 @@ if (jsonLd) {
         }
       }, { passive: false });
     </script>
-
-    <PopupBanner lang={lang} />
 
     {customFooterScripts && <Fragment set:html={customFooterScripts} />}
   </body>

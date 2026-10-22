@@ -100,7 +100,7 @@ const renderAnything = hasPromos || hasReviews;
 
           <div class="grid promos">
             {scoredPromos.map((p: Promotion) => {
-              const href = `/promotions/${p.slug}`;
+              const href = `/promotions/${p.slug}/`;
               const img = abs(p.imageUrl);
               const badge = p.badgeText || '';
               return (
@@ -139,7 +139,7 @@ const renderAnything = hasPromos || hasReviews;
 
           <div class="grid reviews">
             {scoredReviews.map((r: ReviewListItem) => {
-              const href = `/reviews/${r.slug}`;
+              const href = `/reviews/${r.slug}/`;
               const img = abs(r.image);
               const stars = Number.isFinite(+r.rating) ? Math.max(0, Math.min(5, Math.round(+r.rating))) : 0;
               return (

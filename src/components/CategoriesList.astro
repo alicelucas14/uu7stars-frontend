@@ -11,7 +11,8 @@ interface Props {
 const { lang = 'en' } = Astro.props;
 
 const allPosts = await getBlogPosts(lang).catch(() => []);
-const categories = [...new Set(allPosts.map(post => post.tags[0]).filter(Boolean))];
+// Names with no Latin characters slugify to "" and would link to "/blog/category//" (a 404) - skip them
+const categories = [...new Set(allPosts.map(post => post.tags[0]).filter(c => c && slugify(c)))];
 ---
 
 {categories.length > 0 && (

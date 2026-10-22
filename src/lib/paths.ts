@@ -9,7 +9,8 @@ export function createPath(path: string, locale: Locale): string {
   if (locale === defaultLocale) {
     return path;
   }
-  const finalPath = `/${locale}${path === '/' ? '' : path}`;
+  // Locale home is "/hi/" - the site uses trailingSlash: 'always', so "/hi" is a 301
+  const finalPath = `/${locale}${path === '/' ? '/' : path}`;
   return finalPath;
 }
 

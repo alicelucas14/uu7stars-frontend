@@ -20,17 +20,22 @@ const formattedDate = new Date(publishedAt).toLocaleDateString(lang === 'hi' ? '
   year: 'numeric', month: 'long', day: 'numeric'
 });
 
-// The author link is now restored and will work correctly for all languages
-const authorUrl = createPath(`/blog/author/${slugify(author)}/`, lang);
+// Names with no Latin characters slugify to "" - there is no archive page for them, so they are
+// shown as plain text instead of linking to "/blog/author//" etc. (which 404s)
+const authorSlug = slugify(author);
+const authorUrl = authorSlug ? createPath(`/blog/author/${authorSlug}/`, lang) : '';
 
 const category = tags.length > 0 ? tags[0] : null;
-const otherTags = tags.slice(1);
+const categorySlug = category ? slugify(category) : '';
+const otherTags = tags.slice(1).map((tag) => ({ tag, slug: slugify(tag) }));
 ---
 <header class="article-head">
   <div class="meta">
     {category && (
       <>
-        <a href={createPath(`/blog/category/${slugify(category)}/`, lang)} class="category-pill">{category}</a>
+        {categorySlug
+          ? <a href={createPath(`/blog/category/${categorySlug}/`, lang)} class="category-pill">{category}</a>
+          : <span class="category-pill">{category}</span>}
         <span aria-hidden="true">•</span>
       </>
     )}
@@ -39,7 +44,7 @@ const otherTags = tags.slice(1);
     {/* The author is a link again, with correct i18n formatting and URL */}
     <span>
       {t('blogPost.byAuthor').replace('{authorName}', '')}
-      <a href={authorUrl} rel="author">{author}</a>
+      {authorUrl ? <a href={authorUrl} rel="author">{author}</a> : author}
     </span>
   </div>
 
@@ -47,8 +52,10 @@ const otherTags = tags.slice(1);
 
   {otherTags.length > 0 && (
     <div class="tags" aria-label="Tags">
-      {otherTags.map(tag => (
-        <a href={createPath(`/blog/tag/${slugify(tag)}/`, lang)} class="tag">{tag}</a>
+      {otherTags.map(({ tag, slug }) => (
+        slug
+          ? <a href={createPath(`/blog/tag/${slug}/`, lang)} class="tag">{tag}</a>
+          : <span class="tag">{tag}</span>
       ))}
     </div>
   )}
