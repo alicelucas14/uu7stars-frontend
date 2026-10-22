@@ -35,7 +35,10 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 const toAbsolute = (p?: string) => !p ? '' : (p.startsWith('http') ? p : new URL(p, API_BASE_URL).toString());
 const formatDate = (date: string) => new Date(date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
 ---
-<Base title={pageTitle} description={pageDescription} canonical={canonical} lang={locale}>
+{/* Tag archives are thin (most list one or two posts) and Google was crawling and dropping hundreds of
+    them, so they are noindex,follow: still crawlable for discovering posts, never indexed. No hreflang
+    on noindexed pages. */}
+<Base title={pageTitle} description={pageDescription} canonical={canonical} lang={locale} robotsIndex={false} alternateLangs={[]}>
 
   <div class="desktop-layout"><Header lang={locale} /></div>
   <div class="mobile-layout"><MobileAppShell title={h1} active="blog" lang={locale} showBack={true} /></div>
