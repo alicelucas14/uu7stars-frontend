@@ -14,6 +14,9 @@ import SplashVideo from '../components/SplashVideo.astro';
 import { useI18n, locales, createPath, getPathWithoutLocale } from '../i18n';
 import { toPlainText } from '../lib/plainText';
 import { resolveExtraSocialLinks, isSocialLinkActive } from '../lib/socialPlatforms';
+import { getMenuPages } from '../lib/menuPages';
+// Link builder that leaves "#section" links alone (i18n's createPath adds a trailing slash: "/#how/")
+import { createPath as linkPath } from '../lib/paths';
 
 export interface Props {
   title?: string;
@@ -76,13 +79,15 @@ const hreflangLocales = locales.filter((l) => !alternateLangs || alternateLangs.
 const hreflangDefault = hreflangLocales.includes('en' as any) ? 'en' : hreflangLocales[0];
 
 const menuLinks = [
-  { href: createPath('/#how', lang), label: 'How to Play' },
-  { href: createPath('/#promos', lang), label: 'Promotions' },
-  { href: createPath('/#about', lang), label: 'About Us' },
-  { href: createPath('/faq/', lang), label: 'FAQ' },
-  { href: createPath('/blog/', lang), label: 'Blog' },
+  { href: linkPath('/#how', lang), label: 'How to Play' },
+  { href: linkPath('/#promos', lang), label: 'Promotions' },
+  { href: linkPath('/#about', lang), label: 'About Us' },
+  { href: linkPath('/faq/', lang), label: 'FAQ' },
+  { href: linkPath('/blog/', lang), label: 'Blog' },
+  // Custom pages ticked "Show in the website menu" in the admin
+  ...(await getMenuPages(lang)),
 ];
-const downloadLink = createPath('/#download', lang);
+const downloadLink = linkPath('/#download', lang);
 
 const settings = await getSettings(); 
 const brandName = settings?.siteName || 'Starsuu7';
@@ -402,6 +407,41 @@ if (jsonLd) {
         window.addEventListener('scroll', onFirstIntent, { passive: true });
         (window.requestIdleCallback || ((cb) => setTimeout(cb, 1500)))(() => {
           if (!lcLoaded) loadLiveChat();
+        });
+      })();
+
+      // The home page renders its desktop and mobile layouts with the same section ids (#how, #promos,
+      // #about, #download). The browser jumps to the first copy, which is hidden on phones, so "/#how"
+      // did nothing there. When the first copy is hidden, jump to the visible one instead.
+      (function () {
+        function visibleTarget(hash) {
+          if (!hash || hash.length < 2) return null;
+          var id;
+          try { id = decodeURIComponent(hash.slice(1)); } catch (_) { return null; }
+          var first = document.getElementById(id);
+          if (!first || first.getClientRects().length) return null; // missing, or the browser's own jump works
+          var all = document.querySelectorAll('[id="' + id.replace(/["\\]/g, '\\$&') + '"]');
+          for (var i = 0; i < all.length; i++) if (all[i].getClientRects().length) return all[i];
+          return null;
+        }
+        function jump(hash, smooth) {
+          var el = visibleTarget(hash);
+          if (!el) return false;
+          var bar = document.querySelector('.app-bar'); // sticky mobile top bar
+          var offset = bar && bar.getClientRects().length ? bar.getBoundingClientRect().height + 8 : 0;
+          window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - offset), behavior: smooth ? 'smooth' : 'auto' });
+          return true;
+        }
+        if (location.hash) {
+          jump(location.hash, false);
+          window.addEventListener('load', function () { jump(location.hash, false); }); // after images settle
+        }
+        window.addEventListener('hashchange', function () { jump(location.hash, true); });
+        // A link to the hash already in the address bar fires no hashchange, so handle that click here
+        document.addEventListener('click', function (e) {
+          var a = e.target instanceof Element ? e.target.closest('a[href*="#"]') : null;
+          if (!a || e.defaultPrevented || a.pathname !== location.pathname || a.hash !== location.hash) return;
+          if (jump(a.hash, true)) e.preventDefault();
         });
       })();
 

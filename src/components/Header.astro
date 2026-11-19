@@ -4,12 +4,24 @@
 import type { Locale } from '../i18n';
 import { useTranslations } from '../lib/i18n';
 import { createPath } from '../lib/paths'; // <-- IMPORT the new utility
+import { getMenuPages } from '../lib/menuPages';
 
 interface Props {
   lang?: Locale;
 }
 const { lang = 'en' } = Astro.props as Props;
 const t = useTranslations(lang);
+
+// Custom pages ticked "Show in the website menu" in the admin
+const pageLinks = await getMenuPages(lang);
+
+// Every extra link widens the bar, so switch to the hamburger menu earlier instead of letting it
+// wrap or overflow: ~8px per character (14px bold) + 24px gap on top of what the built-in links need.
+const extraNavWidth = pageLinks.reduce((w, p) => w + p.label.length * 8 + 24, 0);
+const collapseAt = extraNavWidth ? Math.max(920, 860 + extraNavWidth) : 0;
+const collapseCss = collapseAt
+  ? `@media (max-width:${collapseAt}px){header.site-header nav.nav{display:none}header.site-header details.mobile{display:block}}`
+  : '';
 
 // --- UPDATED: All hrefs are now built dynamically using createPath ---
 const nav = [
@@ -18,7 +30,8 @@ const nav = [
   { href: createPath("/reviews/", lang), label: t('header.nav.reviews'), analytics: "nav_reviews" },
   { href: createPath("/#about", lang), label: t('header.nav.about'), analytics: "nav_about" },
   { href: createPath("/faq/", lang), label: t('header.nav.faq'), analytics: "nav_faq" },
-  { href: createPath("/blog/", lang), label: t('header.nav.blog'), analytics: "nav_blog" }
+  { href: createPath("/blog/", lang), label: t('header.nav.blog'), analytics: "nav_blog" },
+  ...pageLinks.map((p) => ({ ...p, analytics: "nav_page" })),
 ];
 
 const ctaText = t('header.cta');
@@ -70,6 +83,7 @@ const downloadPath = createPath('/#download', lang);
     </details>
   </div>
 </header>
+{collapseCss && <style is:inline set:html={collapseCss}></style>}
 
 <style>
   /* Styles remain unchanged */

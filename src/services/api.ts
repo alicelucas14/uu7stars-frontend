@@ -23,6 +23,8 @@ export interface PageListItem {
     updatedAt: string;
     robotsIndex?: boolean;
     translated?: boolean;
+    showInMenu?: boolean;
+    menuOrder?: number;
 }
 
 export interface Page {
