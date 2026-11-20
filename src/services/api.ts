@@ -192,6 +192,18 @@ export async function resolveSlugRedirect(type: SlugRedirectType, slug: string):
     }
 }
 
+// --- Link redirects (admin "Redirects" screen): any address -> any page on the site or an outside link. ---
+// Only consulted for URLs that are already a 404 (see middleware.ts). The whole list is small, so it is cached in
+// memory; individual 404 paths never get a cache entry of their own, which keeps a flood of random 404 URLs from
+// growing the cache. Fresh for 20s and NEVER served stale (maxStaleMs 0): with the default stale-while-refresh the
+// first visit after an expiry would still get the old list, so a redirect added a minute ago could still 404.
+const REDIRECTS_TTL_MS = 20_000;
+export interface LinkRedirectRule { from: string; to: string; status: 301 | 302; }
+export function getLinkRedirects(): Promise<LinkRedirectRule[]> {
+    const endpoint = '/frontend-api/redirects';
+    return cached<LinkRedirectRule[]>(endpoint, REDIRECTS_TTL_MS, () => fetchData<LinkRedirectRule[]>(endpoint), 0);
+}
+
 // --- NEW FUNCTION to fetch popup banners ---
 export async function getPopupBanners(lang: 'en' | 'hi' = 'en'): Promise<PopupBanner[]> {
     try {
