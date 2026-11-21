@@ -115,26 +115,22 @@
   },
   "aboutTabs": {
     "title": "About Starsuu7",
-    "intro1": "Welcome to <strong>Starsuu7</strong> (also known as <strong>UU7</strong> / <strong>777</strong>) — a simple, mobile-first way to play Teen Patti, Rummy, and more. Enjoy a smooth app experience with easy onboarding, quick wallet actions, and helpful support.",
-    "intro2": "If you’re new, head to the <a href=\"/#download\">Download</a> section to get the official APK and start in minutes. For region eligibility and safety tips, see our <a href=\"/faq#compliance\">FAQ</a>.",
+    "intro1": "Starsuu7, also known as UU7 or 777, is a mobile-first app for playing Teen Patti, Rummy and more, with easy sign-up, quick wallet actions and in-app support. The official website is uu7stars.com.",
+    "intro2": "New here? Go to the <a href=\"/#download\">Download section</a> to get the official APK and start in minutes. For eligibility and safety, see our <a href=\"/faq/#compliance\">FAQ</a>.",
     "tab1": {
-      "title": "What Makes Starsuu7 Safe?",
-      "h1": "Standard Security Practices",
-      "p1": "Starsuu7 uses common security measures—such as transport-layer encryption and protective controls—to help keep account and transaction data secure. For best results, use strong passwords, enable device locks, and never share OTPs.",
-      "h2": "Account Controls",
-      "p2": "Manage login, KYC, and wallet settings in-app. Keep your name and payout details consistent to avoid withdrawal delays. Learn more in the <a href=\"/faq#payments\">KYC, Deposits &amp; Withdrawals</a> section.",
-      "h3": "Responsive Support",
-      "p3": "Got a question about Teen Patti, Rummy, gameplay, or payouts? Our team aims to respond quickly via Help/Live Chat. Include your user ID and a brief description for faster resolution.",
-      "h4": "Faster Wallet Actions",
-      "p4": "Deposits and withdrawals are streamlined after KYC. Processing times can vary by method and routine reviews—track status in Wallet → Transactions."
+      "title": "What makes Starsuu7 safe?",
+      "h1": "Standard security practices",
+      "p1": "Starsuu7 uses encryption and protective controls to help keep account and transaction data secure. Use a strong password, lock your phone and never share your OTP.",
+      "h2": "Account controls",
+      "p2": "Manage login, KYC and wallet settings in the app. Keep your name and payout details the same as on your KYC documents to avoid withdrawal delays. More in <a href=\"/faq/#payments\">KYC, deposits and withdrawals</a>.",
+      "h3": "Responsive support",
+      "p3": "Questions about Teen Patti, Rummy, gameplay or payouts? Contact us through Help or Live Chat in the app, or on Telegram at t.me/OfficialStarsuu7game. Include your user ID and a short description.",
+      "h4": "Faster wallet actions",
+      "p4": "Deposits and withdrawals are quicker after KYC. Times can vary by payment method and routine checks. Track the status in Wallet → Transactions."
     },
     "tab2": {
-      "title": "Compliance & Eligibility",
-      "p1": "Availability for real-money, skill-based play varies by state in India. Services are <strong>not available</strong> in <em>Assam, Arunachal Pradesh, Andhra Pradesh, Telangana, Odisha, and Nagaland</em>. Starsuu7 is for players <strong>18+</strong>. Please review local rules before playing and see our <a href=\"/faq#compliance\">FAQ on legality &amp; eligibility</a>.",
-      "h1": "Fair-Play Approach",
-      "p2": "Games are designed for skill-based entertainment. Start at low stakes, learn hand rankings and table etiquette, and play responsibly.",
-      "h2": "Helpful Links",
-      "p3": "• <a href=\"/#download\">Download Starsuu7 (UU7 • 777) APK</a> • <a href=\"/faq#promos\">Promotions &amp; Welcome Bonus</a> • <a href=\"/faq#responsible\">Responsible Play</a>"
+      "title": "Compliance and eligibility",
+      "p1": "Starsuu7 is for players aged 18 and over. Services are not available in Assam, Arunachal Pradesh, Andhra Pradesh, Telangana, Odisha and Nagaland. Please play responsibly: see our <a href=\"/responsible-gaming/\">Responsible Gaming page</a>."
     },
     "tab3": {
       "title": "Discover Starsuu7 Online",
