@@ -7,6 +7,7 @@ import { buildUrlset, xmlResponse, type SitemapItem } from '../lib/sitemap';
 
 const STATIC_PATHS = [
   '/',
+  '/about/',
   '/faq/',
   '/promotions/',
   '/reviews/',

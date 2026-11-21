@@ -324,6 +324,32 @@
     "averageRating": "Average rating",
     "rated": "Rated"
   },
+  "aboutPage": {
+    "shellTitle": "About",
+    "form": {
+      "name": "Your name",
+      "email": "Email address",
+      "phone": "Phone (optional)",
+      "userId": "User ID (optional)",
+      "message": "Your message",
+      "send": "Send message",
+      "sending": "Sending...",
+      "noscript": "This form needs JavaScript. Please turn it on, or contact us through Help or Live Chat in the app.",
+      "errors": {
+        "name": "Please enter your name.",
+        "email": "Please enter a valid email address.",
+        "phone": "That phone number does not look right.",
+        "userId": "That user ID is too long.",
+        "message": "Please write a little more (at least 10 characters) and keep links to a minimum.",
+        "invalid": "Please check the form and try again.",
+        "reload": "This page has been open for a long time. Please reload it and send again.",
+        "wait": "Please wait a moment and try again.",
+        "busy": "Too many messages right now. Please try again later.",
+        "error": "Sorry, we could not send your message. Please try again in a moment."
+      },
+      "successDefault": "Thank you! Your message has been sent."
+    }
+  },
   "faqPage": {
     "title": "FAQ | Starsuu7 - Answers to Your Questions",
     "description": "Find answers to frequently asked questions about creating an account, game rules for Teen Patti and Rummy, account management, and security on Starsuu7.",

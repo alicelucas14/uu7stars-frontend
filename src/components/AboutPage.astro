@@ -1,0 +1,658 @@
+---
+// ===== src/components/AboutPage.astro =====
+// The whole About us page for one language; src/pages/about.astro (en) and src/pages/hi/about.astro (hi) just render this.
+// The content comes from the admin "About page" screen (see lib/about.ts). Every block is optional: one with nothing
+// in it is simply not rendered, so the admin decides exactly what shows.
+// The contact form posts to /api/contact/ (src/pages/api/contact.ts), which hands the message to Admin > Messages.
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import MobileAppShell from './MobileAppShell.astro';
+import { useTranslations } from '../lib/i18n';
+import { loadAbout } from '../lib/about';
+import type { Locale } from '../i18n';
+
+interface Props { lang: Locale; }
+const locale: Locale = Astro.props.lang;
+const t = useTranslations(locale);
+
+const about = await loadAbout(locale);
+const { hero, story, panels, features, benefits, timeline, highlight, contact, cta } = about;
+
+const canonical = new URL(locale === 'hi' ? '/hi/about/' : '/about/', Astro.site).toString();
+const pageTitle = about.seo.title || hero.title;
+const pageDescription = about.seo.description || hero.subtitle.slice(0, 160);
+
+// Light blocks alternate between a white and a warm tinted background, whichever of them the admin has filled in, so two
+// neighbours never share one. The first is white (it sits under the curved white corner of the banner). The mission &
+// values panels bring their own tints, so they stay on white; the orange benefits band restarts the sequence after it.
+const tone: Record<string, string> = {};
+let step = 0;
+for (const key of ['story', 'panels', 'features', 'benefits', 'timeline', 'highlight', 'contact', 'cta'] as const) {
+  if (!about[key]) continue;
+  if (key === 'benefits') { step = 0; continue; }
+  if (key === 'panels') { tone[key] = ''; step = 1; continue; }
+  if (key === 'contact') { tone[key] = 'tint'; step = 0; continue; } // the dark card always sits on the cream background
+  tone[key] = step % 2 ? 'tint' : '';
+  step += 1;
+}
+
+// Everything the contact form's script needs, in the visitor's language (passed as JSON, escaped for a <script> tag)
+const form = t('aboutPage.form');
+const formText = contact ? {
+  sending: form.sending,
+  success: contact.success || form.successDefault,
+  errors: form.errors,
+} : null;
+const formJson = formText ? JSON.stringify(formText).replace(/</g, '\\u003c') : '';
+
+// A pair of dice drawn as vector art (isometric cubes, pips as circles mapped onto each face), in the brand's orange and
+// gold. Used in the contact card when the admin has not set a picture of their own.
+type Pt = [number, number];
+const PIPS: Record<number, Pt[]> = {
+  1: [[.5, .5]], 2: [[.28, .28], [.72, .72]], 3: [[.25, .25], [.5, .5], [.75, .75]],
+  4: [[.28, .28], [.72, .28], [.28, .72], [.72, .72]], 5: [[.28, .28], [.72, .28], [.5, .5], [.28, .72], [.72, .72]],
+  6: [[.3, .25], [.7, .25], [.3, .5], [.7, .5], [.3, .75], [.7, .75]],
+};
+const HALF = 86.6;
+const makeCube = (o: { transform: string; top: string; left: string; right: string; edge: string; pip: string; faces: [number, number, number] }) => {
+  const defs: { fill: string; A: Pt; B: Pt; D: Pt; n: number }[] = [
+    { fill: o.top, A: [-HALF, -50], B: [0, -100], D: [0, 0], n: o.faces[0] },
+    { fill: o.left, A: [-HALF, -50], B: [0, 0], D: [-HALF, 50], n: o.faces[1] },
+    { fill: o.right, A: [0, 0], B: [HALF, -50], D: [0, 100], n: o.faces[2] },
+  ];
+  return {
+    transform: o.transform, edge: o.edge, pip: o.pip,
+    faces: defs.map(({ fill, A, B, D, n }) => {
+      const C: Pt = [B[0] + D[0] - A[0], B[1] + D[1] - A[1]];
+      return {
+        fill, pips: PIPS[n],
+        points: [A, B, C, D].map((p) => p.join(',')).join(' '),
+        matrix: `matrix(${B[0] - A[0]} ${B[1] - A[1]} ${D[0] - A[0]} ${D[1] - A[1]} ${A[0]} ${A[1]})`,
+      };
+    }),
+  };
+};
+const cubes = [
+  makeCube({ transform: 'translate(70 -34) rotate(10) scale(.85)', top: '#fef08a', left: '#facc15', right: '#ca8a04', edge: '#a16207', pip: '#3b1a02', faces: [4, 6, 3] }),
+  makeCube({ transform: 'translate(-50 40) rotate(-8) scale(.95)', top: '#fdba74', left: '#f97316', right: '#c2410c', edge: '#9a3412', pip: '#fff7ed', faces: [5, 3, 2] }),
+];
+
+const aboutJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": pageTitle,
+  "description": pageDescription,
+  "url": canonical,
+  "inLanguage": locale === 'hi' ? 'hi-IN' : 'en-IN',
+};
+---
+
+<Base title={pageTitle} description={pageDescription} canonical={canonical} jsonLd={aboutJsonLd}>
+  <div class="desktop-only"><Header lang={locale} /></div>
+  <div class="mobile-only"><MobileAppShell title={t('aboutPage.shellTitle')} active="about" lang={locale} /></div>
+
+  <div class="about-page">
+    {/* ---------- Banner ---------- */}
+    <section class="hero">
+      <div class:list={['container', 'hero-inner', { 'has-art': !!hero.image }]}>
+        <div class="hero-copy">
+          {hero.eyebrow && <span class="eyebrow">{hero.eyebrow}</span>}
+          <h1>{hero.title}</h1>
+          {hero.subtitle && <p class="lead">{hero.subtitle}</p>}
+          {(hero.primary || hero.secondary) && (
+            <div class="actions">
+              {hero.primary && (
+                <a class="btn btn-primary" href={hero.primary.href}>
+                  <span>{hero.primary.label}</span>
+                  <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>
+                </a>
+              )}
+              {hero.secondary && <a class="btn btn-outline" href={hero.secondary.href}>{hero.secondary.label}</a>}
+            </div>
+          )}
+        </div>
+        {hero.image && (
+          <div class="hero-art">
+            <img src={hero.image.src} alt={hero.image.alt} loading="eager" decoding="async" />
+          </div>
+        )}
+      </div>
+    </section>
+
+    {/* ---------- Who we are ---------- */}
+    {story && (
+      <section class:list={['block', tone.story]}>
+        <div class="container">
+          <div class:list={['story', { 'with-side': !!(story.quote || story.image) }]}>
+            <div class="story-copy">
+              {story.title && <h2>{story.title}</h2>}
+              {story.html && <div class="rich" set:html={story.html} />}
+            </div>
+            {(story.quote || story.image) && (
+              <div class="story-side">
+                {story.image && (
+                  <figure class="story-art"><img src={story.image.src} alt={story.image.alt} loading="lazy" decoding="async" /></figure>
+                )}
+                {story.quote && <blockquote class="story-quote"><p>{story.quote}</p></blockquote>}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    )}
+
+    {/* ---------- Mission & values ---------- */}
+    {panels && (
+      <section class:list={['block', tone.panels]}>
+        <div class="container">
+          <div class="panels">
+            {panels.items.map((p, i) => (
+              <article class:list={['panel', i % 2 ? 'warm' : 'cool']}>
+                {p.icon && <span class="panel-badge" aria-hidden="true">{p.icon}</span>}
+                <h3>{p.title}</h3>
+                {p.html && <div class="rich" set:html={p.html} />}
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    {/* ---------- Cards ---------- */}
+    {features && (
+      <section class:list={['block', tone.features]}>
+        <div class="container">
+          {(features.title || features.intro) && (
+            <header class="block-head">
+              {features.title && <h2>{features.title}</h2>}
+              {features.intro && <p class="intro">{features.intro}</p>}
+            </header>
+          )}
+          <ul class="cards">
+            {features.items.map((item) => (
+              <li class="card">
+                {item.icon && <span class="ico" aria-hidden="true">{item.icon}</span>}
+                <h3>{item.title}</h3>
+                {item.html && <div class="rich" set:html={item.html} />}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )}
+
+    {/* ---------- Our benefits (brand-orange band with big numbers) ---------- */}
+    {benefits && (
+      <section class="benefits">
+        <svg class="deco spark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 0c1 8 4 11 12 12-8 1-11 4-12 12-1-8-4-11-12-12 8-1 11-4 12-12Z" /></svg>
+        <div class="container">
+          {benefits.title && <h2>{benefits.title}</h2>}
+          <ul class="benefit-grid">
+            {benefits.items.map((b) => (
+              <li class="benefit">
+                {b.icon && <span class="b-icon" aria-hidden="true">{b.icon}</span>}
+                <span class="b-num">{b.value}</span>
+                <span class="b-lbl">{b.label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <svg class="deco rings" viewBox="0 0 138 138" aria-hidden="true" focusable="false">
+          {[0, 1, 2].flatMap((r) => [0, 1, 2].map((c) => <circle cx={23 + c * 46} cy={23 + r * 46} r="22" />))}
+        </svg>
+      </section>
+    )}
+
+    {/* ---------- Timeline ---------- */}
+    {timeline && (
+      <section class:list={['block', tone.timeline]}>
+        <div class="container">
+          {(timeline.title || timeline.intro) && (
+            <header class="block-head">
+              {timeline.title && <h2>{timeline.title}</h2>}
+              {timeline.intro && <p class="intro">{timeline.intro}</p>}
+            </header>
+          )}
+          <ol class="timeline">
+            {timeline.items.map((step) => (
+              <li>
+                {step.label && <span class="when">{step.label}</span>}
+                <h3>{step.title}</h3>
+                {step.html && <div class="rich" set:html={step.html} />}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    )}
+
+    {/* ---------- Info box ---------- */}
+    {highlight && (
+      <section class:list={['block', tone.highlight]}>
+        <div class="container">
+          <aside class="callout">
+            {highlight.title && <h2>{highlight.title}</h2>}
+            {highlight.html && <div class="rich" set:html={highlight.html} />}
+          </aside>
+        </div>
+      </section>
+    )}
+
+    {/* ---------- Contact form: a large dark card, heading + form on the left, a picture (or a pair of dice) on the right ---------- */}
+    {contact && (
+      <section id="contact" class:list={['block', 'contact', tone.contact]}>
+        <div class="container">
+          <div class="contact-card">
+            <svg class="contact-rings" viewBox="0 0 360 180" aria-hidden="true" focusable="false">
+              {[0, 1, 2, 3].flatMap((r) => [0, 1, 2, 3, 4, 5, 6, 7].map((c) => <circle cx={22 + c * 45} cy={22 + r * 45} r="22" />))}
+            </svg>
+
+            <div class="contact-main">
+              <div class="contact-copy">
+                {contact.title && <h2>{contact.title}</h2>}
+                {contact.intro && <p class="contact-intro">{contact.intro}</p>}
+              </div>
+
+              <form id="contact-form" novalidate>
+                <div class="row">
+                  <div class="field">
+                    <input id="cf-name" name="name" type="text" placeholder=" " autocomplete="name" maxlength="100" required aria-describedby="cf-err-name" />
+                    <label for="cf-name">{form.name}</label>
+                    <span class="err" id="cf-err-name" role="alert"></span>
+                  </div>
+                  <div class="field">
+                    <input id="cf-email" name="email" type="email" placeholder=" " autocomplete="email" maxlength="200" required aria-describedby="cf-err-email" />
+                    <label for="cf-email">{form.email}</label>
+                    <span class="err" id="cf-err-email" role="alert"></span>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="field">
+                    <input id="cf-phone" name="phone" type="tel" placeholder=" " autocomplete="tel" maxlength="30" aria-describedby="cf-err-phone" />
+                    <label for="cf-phone">{form.phone}</label>
+                    <span class="err" id="cf-err-phone" role="alert"></span>
+                  </div>
+                  <div class="field">
+                    <input id="cf-userid" name="userId" type="text" placeholder=" " autocomplete="off" maxlength="60" aria-describedby="cf-err-userId" />
+                    <label for="cf-userid">{form.userId}</label>
+                    <span class="err" id="cf-err-userId" role="alert"></span>
+                  </div>
+                </div>
+                <div class="field">
+                  <textarea id="cf-message" name="message" rows="3" placeholder=" " maxlength="2000" required aria-describedby="cf-err-message"></textarea>
+                  <label for="cf-message">{form.message}</label>
+                  <span class="err" id="cf-err-message" role="alert"></span>
+                </div>
+
+                {/* Honeypot: people never see or reach this field; scripts fill it in */}
+                <div class="hp" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+                <input type="hidden" name="token" value="" />
+                <input type="hidden" name="lang" value={locale} />
+
+                <button type="submit" class="btn btn-primary send">
+                  <svg class="plane" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13" /><path d="M22 2 15 22l-4-9-9-4 20-7Z" /></svg>
+                  <span class="send-label" data-label={contact.button || form.send}>{contact.button || form.send}</span>
+                </button>
+                <p class="form-status" role="status" aria-live="polite"></p>
+                <noscript><p class="form-status show">{form.noscript}</p></noscript>
+              </form>
+              <div class="form-success" id="contact-success" role="status" tabindex="-1" hidden>
+                <span class="tick" aria-hidden="true">✓</span>
+                <p>{contact.success || form.successDefault}</p>
+              </div>
+              {contact.note && <p class="contact-note">{contact.note}</p>}
+            </div>
+
+            <div class="contact-art">
+              {contact.image ? (
+                <img src={contact.image.src} alt={contact.image.alt} loading="lazy" decoding="async" />
+              ) : (
+                <svg class="dice" viewBox="-150 -135 310 300" aria-hidden="true" focusable="false">
+                  <ellipse class="dice-shadow" cx="-6" cy="138" rx="150" ry="15" />
+                  {cubes.map((cube) => (
+                    <g transform={cube.transform}>
+                      {cube.faces.map((f) => (
+                        <>
+                          <polygon points={f.points} fill={f.fill} stroke={cube.edge} stroke-width="6" stroke-linejoin="round" />
+                          <g transform={f.matrix} fill={cube.pip}>
+                            {f.pips.map(([x, y]) => <circle cx={x} cy={y} r="0.085" />)}
+                          </g>
+                        </>
+                      ))}
+                    </g>
+                  ))}
+                </svg>
+              )}
+            </div>
+          </div>
+        </div>
+        <script is:inline type="application/json" id="contact-i18n" set:html={formJson}></script>
+      </section>
+    )}
+
+    {/* ---------- Bottom banner ---------- */}
+    {cta && (
+      <section class:list={['block', tone.cta]}>
+        <div class="container">
+          <div class="cta-card">
+            {cta.title && <h2>{cta.title}</h2>}
+            {cta.html && <div class="rich" set:html={cta.html} />}
+            {cta.button && (
+              <a class="btn btn-gold" href={cta.button.href}>
+                <span>{cta.button.label}</span>
+                <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg>
+              </a>
+            )}
+          </div>
+        </div>
+      </section>
+    )}
+  </div>
+
+  <Footer lang={locale} />
+</Base>
+
+<script>
+  // Contact form: checks the fields, asks /api/contact/ for a signed token on load, sends the message as JSON and
+  // shows the answer in the visitor's language. Nothing is sent without JavaScript (the form says so).
+  const formEl = document.getElementById('contact-form');
+  if (formEl instanceof HTMLFormElement) {
+    const form: HTMLFormElement = formEl;
+    const text = JSON.parse(document.getElementById('contact-i18n')?.textContent || '{}') as { sending: string; success: string; errors: Record<string, string> };
+    const errors = text.errors || {};
+    const status = form.querySelector('.form-status') as HTMLElement;
+    const submit = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const label = submit.querySelector('.send-label') as HTMLElement;
+    const original = label.dataset.label || label.textContent || '';
+    const tokenInput = form.elements.namedItem('token') as HTMLInputElement;
+    const field = (name: string) => form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement;
+
+    const EMAIL = /^[^\s@<>"'`]+@[^\s@<>"'`]+\.[^\s@<>"'`]{2,}$/;
+    const PHONE = /^[0-9+()\-\s.]{6,30}$/;
+
+    const loadToken = async () => {
+      try {
+        const res = await fetch('/api/contact/', { cache: 'no-store', headers: { Accept: 'application/json' } });
+        const data = await res.json();
+        tokenInput.value = typeof data.token === 'string' ? data.token : '';
+      } catch { /* the submit will ask again */ }
+    };
+    loadToken();
+
+    const setError = (name: string, message: string) => {
+      const input = field(name);
+      const out = document.getElementById(`cf-err-${name}`);
+      if (out) out.textContent = message;
+      if (input) input.setAttribute('aria-invalid', message ? 'true' : 'false');
+    };
+    const clearErrors = () => { for (const n of ['name', 'email', 'phone', 'userId', 'message']) setError(n, ''); showStatus(''); };
+    const showStatus = (message: string) => { status.textContent = message; status.classList.toggle('show', !!message); };
+
+    const validate = (): string | null => {
+      const v = (n: string) => field(n).value.trim();
+      let first: string | null = null;
+      const bad = (n: string, m: string) => { setError(n, m); first = first || n; };
+      if (!v('name')) bad('name', errors.name);
+      if (!EMAIL.test(v('email'))) bad('email', errors.email);
+      if (v('phone') && !PHONE.test(v('phone'))) bad('phone', errors.phone);
+      if (v('userId').length > 60) bad('userId', errors.userId);
+      const msg = v('message');
+      if (msg.length < 10 || msg.length > 2000 || (msg.match(/https?:\/\/|www\./gi) || []).length > 2) bad('message', errors.message);
+      return first;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearErrors();
+      const firstBad = validate();
+      if (firstBad) { field(firstBad).focus(); return; }
+
+      submit.disabled = true;
+      label.textContent = text.sending;
+      try {
+        if (!tokenInput.value) await loadToken();
+        const body = {
+          name: field('name').value, email: field('email').value, phone: field('phone').value, userId: field('userId').value,
+          message: field('message').value, lang: field('lang').value, website: field('website').value, token: tokenInput.value,
+        };
+        const res = await fetch('/api/contact/', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
+        const data = await res.json().catch(() => ({} as Record<string, unknown>));
+        if (data.ok) {
+          form.hidden = true;
+          const done = document.getElementById('contact-success');
+          if (done) { done.hidden = false; done.focus(); }
+          return;
+        }
+        const code = typeof data.code === 'string' ? data.code : 'error';
+        if (code === 'reload') await loadToken();
+        if (code === 'invalid' && typeof data.field === 'string' && document.getElementById(`cf-err-${data.field}`)) {
+          setError(data.field, errors[data.field] || errors.invalid);
+          field(data.field).focus();
+        } else {
+          showStatus(errors[code] || errors.error);
+        }
+      } catch {
+        showStatus(errors.error);
+      } finally {
+        if (!form.hidden) { submit.disabled = false; label.textContent = original; }
+      }
+    });
+  }
+</script>
+
+<style>
+  .desktop-only { display: block; }
+  .mobile-only { display: none; }
+  @media (max-width: 767px) {
+    .desktop-only { display: none; }
+    .mobile-only { display: block; }
+  }
+
+  .about-page { --bg: var(--surface); --navy: #0c1230; color: var(--text-primary); }
+
+  /* ----- buttons: pills with an arrow, like the banner on the reference page ----- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 13px 30px; border-radius: 999px; border: 0; font-family: inherit; font-weight: 800; font-size: 16px; letter-spacing: .04em; text-transform: uppercase; text-decoration: none; cursor: pointer; transition: transform .15s, box-shadow .15s, background-color .15s, border-color .15s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:focus-visible { outline: 3px solid var(--navy); outline-offset: 3px; }
+  .btn .chev { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
+  .btn:hover .chev { transform: translateX(3px); }
+  .btn:disabled { opacity: .65; cursor: progress; transform: none; }
+  .btn-primary { color: #fff; background: linear-gradient(135deg, #e0620a, #f58a22); box-shadow: 0 12px 26px -10px rgba(224, 98, 10, .7); }
+  .btn-primary:hover { box-shadow: 0 16px 30px -10px rgba(224, 98, 10, .8); }
+  .btn-outline { color: var(--navy); background: transparent; border: 2px solid rgba(12, 18, 48, .28); }
+  .btn-outline:hover { border-color: var(--navy); background: rgba(12, 18, 48, .05); }
+  .btn-gold { color: #0b0b0f; background: linear-gradient(135deg, var(--brand-gold), var(--brand-orange)); box-shadow: 0 10px 24px -8px rgba(249, 115, 22, .65); }
+  .btn-gold:focus-visible { outline-color: #fff; }
+
+  /* ----- banner: light cream, big bold title on the left, artwork on the right, white corner cut into the bottom ----- */
+  .hero { --hero-pb: clamp(80px, 10vw, 128px); position: relative; overflow: hidden; color: var(--text-primary); padding-block: clamp(48px, 7vw, 96px) var(--hero-pb); background:
+      radial-gradient(48% 70% at 76% 52%, rgba(255, 255, 255, .85), transparent 70%),
+      radial-gradient(circle at 8% 22%, rgba(12, 18, 48, .16) 0 2px, transparent 3px),
+      radial-gradient(circle at 21% 74%, rgba(249, 115, 22, .26) 0 2px, transparent 3px),
+      radial-gradient(circle at 37% 14%, rgba(12, 18, 48, .12) 0 2px, transparent 3px),
+      radial-gradient(circle at 52% 58%, rgba(12, 18, 48, .14) 0 2px, transparent 3px),
+      radial-gradient(circle at 61% 20%, rgba(249, 115, 22, .22) 0 3px, transparent 4px),
+      radial-gradient(circle at 93% 36%, rgba(12, 18, 48, .14) 0 2px, transparent 3px),
+      radial-gradient(circle at 88% 84%, rgba(12, 18, 48, .12) 0 2px, transparent 3px),
+      #fdf1e3; }
+  /* the white corner: flat on top, then a rounded shoulder sloping down to the right (the page below is white) */
+  .hero::after { content: ''; position: absolute; left: 0; bottom: -1px; width: min(64%, 820px); height: clamp(34px, 5vw, 64px); background: var(--surface);
+      clip-path: polygon(0 0, calc(100% - 96px) 0, calc(100% - 78px) 7%, calc(100% - 64px) 20%, calc(100% - 46px) 52%, 100% 100%, 0 100%); }
+  .hero-inner { position: relative; z-index: 1; display: grid; gap: 32px; align-items: center; }
+  .hero-inner.has-art { grid-template-columns: 1fr 1fr; }
+  .hero-copy { max-width: 620px; }
+  .hero-inner:not(.has-art) .hero-copy { max-width: 760px; margin-inline: auto; text-align: center; }
+  .eyebrow { display: inline-block; margin-bottom: 18px; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #c2410c; background: rgba(249, 115, 22, .12); border: 1px solid rgba(249, 115, 22, .3); }
+  .hero h1 { margin: 0; font-size: clamp(38px, 6vw, 72px); line-height: 1.02; font-weight: 800; letter-spacing: -.025em; text-transform: uppercase; color: var(--navy); }
+  .lead { margin: 22px 0 0; font-size: clamp(17px, 1.8vw, 20px); line-height: 1.65; color: var(--text-secondary); }
+  .actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+  .hero-inner:not(.has-art) .actions { justify-content: center; }
+  /* the artwork is a cut-out (transparent background): no frame, no box. It stands on the bottom edge of the banner
+     (its bottom padding is cancelled out), so a half-length picture looks like it is rising from the white corner. */
+  .hero-art { align-self: end; margin-bottom: calc(var(--hero-pb) * -1); }
+  .hero-art img { width: 100%; max-height: clamp(290px, 44vw, 560px); object-fit: contain; object-position: center bottom; filter: drop-shadow(0 18px 24px rgba(60, 30, 10, .2)); }
+
+  /* ----- generic block ----- */
+  .block { --bg: var(--surface); background: var(--bg); padding-block: clamp(48px, 7vw, 88px); }
+  .block.tint { --bg: #fff7ed; }
+  /* two white blocks in a row would show double spacing between them */
+  .block:not(.tint) + .block:not(.tint) { padding-top: 0; }
+  .block.tint + .block.tint { padding-top: 0; }
+  .block-head { max-width: 720px; margin: 0 auto clamp(28px, 4vw, 48px); text-align: center; }
+  h2 { margin: 0; font-size: clamp(26px, 3.4vw, 38px); line-height: 1.2; font-weight: 800; letter-spacing: -.01em; color: var(--navy); }
+  .intro { margin: 14px 0 0; font-size: 17px; line-height: 1.65; color: var(--text-secondary); }
+
+  /* answers / texts are rendered Markdown (set:html), so these rules must reach elements Astro did not create */
+  .rich { color: var(--text-secondary); font-size: 17px; line-height: 1.75; }
+  .rich :global(p), .rich :global(ul), .rich :global(ol) { margin: 0 0 1em; }
+  .rich :global(ul), .rich :global(ol) { padding-left: 24px; }
+  .rich :global(li) { margin-bottom: 6px; }
+  .rich :global(a) { color: #c2410c; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+  .rich :global(strong) { color: var(--text-primary); }
+  .rich > :global(:last-child) { margin-bottom: 0; }
+
+  /* ----- "Who we are": big heavy heading + text on the left, a large highlighted statement with an orange bar on the right ----- */
+  .story { display: grid; gap: clamp(28px, 7vw, 104px); align-items: start; max-width: 820px; margin-inline: auto; }
+  .story.with-side { max-width: 1060px; grid-template-columns: 1fr 1fr; }
+  .story-copy h2 { margin: 0 0 clamp(20px, 3vw, 32px); font-size: clamp(34px, 4.8vw, 60px); line-height: 1.04; font-weight: 800; letter-spacing: -.03em; }
+  .story-copy .rich { color: var(--text-primary); font-size: clamp(17px, 1.5vw, 19px); line-height: 1.7; }
+  .story-copy .rich :global(p) { color: var(--text-primary); }
+  .story-copy .rich :global(strong) { font-weight: 800; color: var(--navy); }
+  .story-side { display: grid; gap: 28px; align-self: center; }
+  .story-art { margin: 0; }
+  .story-art img { width: 100%; max-height: 460px; object-fit: cover; border-radius: 24px; box-shadow: var(--shadow-lg); }
+  .story-quote { margin: 0; padding: 4px 0 4px clamp(22px, 3.4vw, 44px); border-left: 4px solid var(--brand-orange); }
+  .story-quote p { margin: 0; font-size: clamp(24px, 2.8vw, 38px); line-height: 1.22; font-weight: 700; letter-spacing: -.01em; color: var(--navy); white-space: pre-line; }
+
+  /* ----- mission & values: two big tinted panels, a dotted-ring badge on the top edge, the second one a little lower ----- */
+  .panels { --cool: #1d63f0; --warm: var(--brand-orange); display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 clamp(28px, 5vw, 64px); max-width: 1060px; margin-inline: auto; padding-top: 40px; align-items: start; }
+  .panel { --accent: var(--cool); position: relative; padding: clamp(52px, 6vw, 72px) clamp(24px, 4.5vw, 56px) clamp(48px, 7vw, 96px) clamp(40px, 7vw, 108px); border-radius: 30px 30px 0 0; background: linear-gradient(180deg, #e8f0ff 0%, rgba(232, 240, 255, 0) 88%); }
+  .panel.warm { --accent: var(--warm); background: linear-gradient(180deg, #fdefdc 0%, rgba(253, 239, 220, 0) 88%); }
+  .panel:nth-child(even) { margin-top: 42px; }
+  /* the small coloured tab on the left edge, level with the heading */
+  .panel::before { content: ''; position: absolute; left: 0; top: clamp(70px, 8vw, 92px); width: 7px; height: 30px; border-radius: 0 6px 6px 0; background: var(--accent); }
+  .panel-badge { position: absolute; top: -34px; right: clamp(20px, 4vw, 52px); display: grid; place-items: center; width: 100px; height: 100px; border-radius: 50%; font-size: 36px; line-height: 1; background: #fff; border: 2px dotted color-mix(in oklab, var(--accent) 55%, white); box-shadow: 0 0 0 8px rgba(255, 255, 255, .85); }
+  .panel h3 { margin: 0 0 clamp(14px, 2vw, 22px); font-size: clamp(28px, 3.2vw, 40px); line-height: 1.1; font-weight: 800; letter-spacing: -.02em; color: var(--navy); }
+  .panel .rich { color: var(--text-primary); font-size: clamp(16px, 1.4vw, 18px); line-height: 1.7; }
+  .panel .rich :global(p) { color: var(--text-primary); }
+  .panel .rich :global(strong) { font-weight: 800; color: #000; }
+
+  /* ----- cards ----- */
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .card { padding: 28px 26px; border-radius: 22px; background: var(--surface); border: 1px solid var(--ring); box-shadow: var(--shadow-md); transition: transform .2s, box-shadow .2s, border-color .2s; }
+  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: rgba(249, 115, 22, .45); }
+  .ico { display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 18px; border-radius: 16px; font-size: 28px; line-height: 1; background: linear-gradient(135deg, rgba(250, 204, 21, .28), rgba(249, 115, 22, .22)); }
+  .card h3 { margin: 0 0 10px; font-size: 20px; line-height: 1.3; font-weight: 800; color: var(--navy); }
+  .card .rich { font-size: 16px; line-height: 1.7; }
+
+  /* ----- our benefits: a band in the brand orange (a touch deeper at the bottom so white text stays easy to read), glassy
+     cards with big white numbers; a gold sparkle and ring grid hang over its edges ----- */
+  .benefits { position: relative; z-index: 1; margin-block: clamp(24px, 4vw, 48px); padding-block: clamp(56px, 8vw, 96px) clamp(64px, 9vw, 112px); color: #fff; background:
+      radial-gradient(60% 90% at 88% 0%, rgba(250, 204, 21, .38), transparent 62%),
+      linear-gradient(170deg, var(--brand-orange) 0%, #ea580c 62%, #c2410c 100%); }
+  .benefits h2 { margin: 0 0 clamp(28px, 4vw, 48px); text-align: center; font-size: clamp(30px, 4vw, 48px); font-weight: 800; letter-spacing: -.02em; color: #fff; }
+  .benefit-grid { list-style: none; margin: 0 auto; padding: 0; max-width: 1100px; display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .benefit { position: relative; display: flex; flex-direction: column; gap: 10px; min-height: 170px; justify-content: flex-end; padding: 34px 28px 28px; border-radius: 22px; background: linear-gradient(135deg, rgba(255, 255, 255, .24), rgba(255, 255, 255, .08)); border: 1px solid rgba(255, 255, 255, .38); box-shadow: 0 20px 34px -22px rgba(124, 45, 18, .7); }
+  /* the emoji sits in a white badge so it shows up on orange */
+  .b-icon { position: absolute; top: 18px; right: 20px; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; font-size: 22px; line-height: 1; background: rgba(255, 255, 255, .96); box-shadow: 0 6px 14px -6px rgba(124, 45, 18, .6); }
+  .b-num { font-size: clamp(36px, 4.2vw, 54px); line-height: 1; font-weight: 800; letter-spacing: -.02em; color: #fff; text-shadow: 0 2px 0 rgba(124, 45, 18, .28); }
+  .b-lbl { font-size: 14px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: rgba(255, 255, 255, .95); overflow-wrap: anywhere; }
+  .deco { position: absolute; pointer-events: none; }
+  .spark { top: -24px; left: 50%; width: 48px; height: 48px; margin-left: -24px; fill: var(--brand-gold); filter: drop-shadow(0 2px 4px rgba(194, 65, 12, .35)); }
+  .rings { right: clamp(16px, 8vw, 150px); bottom: -64px; width: 138px; height: 138px; fill: none; stroke: var(--brand-gold); stroke-width: 1.6; opacity: .95; }
+
+  /* ----- timeline ----- */
+  .timeline { list-style: none; margin: 0 auto; padding: 0; max-width: 820px; position: relative; }
+  .timeline::before { content: ''; position: absolute; left: 11px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(var(--brand-orange), var(--ring)); }
+  .timeline li { position: relative; padding: 0 0 36px 48px; }
+  .timeline li:last-child { padding-bottom: 0; }
+  .timeline li::before { content: ''; position: absolute; left: 3px; top: 5px; width: 18px; height: 18px; border-radius: 50%; background: var(--brand-orange); box-shadow: 0 0 0 5px var(--bg), 0 0 0 7px rgba(249, 115, 22, .3); }
+  .when { display: inline-block; margin-bottom: 8px; padding: 3px 12px; border-radius: 999px; font-size: 13px; font-weight: 800; letter-spacing: .04em; color: #9a3412; background: #ffedd5; }
+  .timeline h3 { margin: 0 0 8px; font-size: 20px; line-height: 1.3; font-weight: 800; color: var(--navy); }
+  .timeline .rich { font-size: 16px; line-height: 1.7; }
+
+  /* ----- info box ----- */
+  .callout { max-width: 880px; margin-inline: auto; padding: clamp(24px, 4vw, 40px); border-radius: 22px; background: var(--surface); border: 1px solid #fed7aa; border-left: 8px solid var(--brand-orange); box-shadow: var(--shadow-md); }
+  .callout h2 { margin-bottom: 14px; font-size: clamp(22px, 2.6vw, 30px); }
+
+  /* ----- contact form: a large dark-brown card on the cream block; big uppercase heading, underline fields with the label
+     inside (it floats up when you type), an amber paper-plane button; rings in the corner, a picture / dice on the right ----- */
+  .contact { scroll-margin-top: 84px; }
+  .contact-card { position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, .7fr); gap: clamp(16px, 3vw, 40px); align-items: center; max-width: 1180px; margin-inline: auto; padding: clamp(34px, 5.4vw, 72px) clamp(24px, 5.4vw, 76px) clamp(36px, 5vw, 64px); border-radius: clamp(28px, 4vw, 48px); color: #fff; background:
+      radial-gradient(55% 70% at 88% 82%, rgba(249, 115, 22, .26), transparent 68%),
+      #3b1b04; box-shadow: 0 34px 60px -30px rgba(59, 27, 4, .75); }
+  /* the small amber tab on the left edge, level with the heading */
+  .contact-card::before { content: ''; position: absolute; left: 0; top: clamp(60px, 8vw, 104px); width: 7px; height: 54px; border-radius: 0 6px 6px 0; background: #f59e0b; }
+  .contact-rings { position: absolute; top: 56px; right: -6px; width: 360px; height: 180px; fill: none; stroke: rgba(255, 255, 255, .13); stroke-width: 1.2; pointer-events: none; }
+  .contact-main { position: relative; z-index: 1; min-width: 0; }
+  .contact-copy h2 { margin: 0 0 clamp(12px, 1.6vw, 18px); font-size: clamp(34px, 5.2vw, 64px); line-height: 1; font-weight: 800; letter-spacing: -.03em; text-transform: uppercase; color: #fff; }
+  .contact-intro { margin: 0 0 clamp(14px, 2vw, 22px); max-width: 600px; font-size: clamp(16px, 1.4vw, 18px); line-height: 1.65; color: rgba(255, 238, 220, .82); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 clamp(24px, 4.5vw, 56px); }
+  .field { position: relative; margin-bottom: 14px; }
+  .field input, .field textarea { display: block; width: 100%; padding: 28px 0 10px; border: 0; border-bottom: 1.5px solid rgba(255, 255, 255, .3); border-radius: 0; font: inherit; font-size: 17px; line-height: 1.4; color: #fff; background: transparent; transition: border-color .15s, box-shadow .15s; }
+  .field textarea { min-height: 88px; resize: vertical; }
+  .field input:focus, .field textarea:focus { outline: none; border-bottom-color: #fbbf24; box-shadow: 0 1.5px 0 0 #fbbf24; }
+  /* the label sits inside the field like a placeholder, and floats up once there is text or focus */
+  .field label { position: absolute; left: 0; top: 26px; max-width: 100%; font-size: 17px; line-height: 1.2; color: rgba(255, 226, 196, .68); pointer-events: none; transform-origin: left top; transition: transform .16s ease, color .16s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .field input:focus + label, .field input:not(:placeholder-shown) + label, .field textarea:focus + label, .field textarea:not(:placeholder-shown) + label,
+  .field input:-webkit-autofill + label { transform: translateY(-22px) scale(.78); color: #fbbf24; }
+  .field input:-webkit-autofill { -webkit-text-fill-color: #fff; transition: background-color 600000s ease-in-out 0s; }
+  .field input[aria-invalid="true"], .field textarea[aria-invalid="true"] { border-bottom-color: #f87171; }
+  .err { margin-top: 6px; font-size: 13.5px; font-weight: 600; color: #fecaca; }
+  .err:empty { display: none; }
+  .hp { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+  .send { margin-top: 18px; gap: 12px; }
+  .send .plane { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .form-status { display: none; margin: 16px 0 0; padding: 11px 14px; border-radius: 12px; font-size: 15px; font-weight: 600; color: #fecaca; background: rgba(248, 113, 113, .14); border: 1px solid rgba(248, 113, 113, .45); }
+  .form-status.show { display: block; }
+  .form-success { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; padding: 12px 0 8px; outline: none; }
+  .form-success[hidden] { display: none; }
+  .form-success .tick { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; font-size: 30px; font-weight: 800; color: #fff; background: linear-gradient(135deg, #16a34a, #22c55e); }
+  .form-success p { margin: 0; font-size: clamp(19px, 2vw, 24px); font-weight: 700; line-height: 1.4; color: #fff; }
+  .contact-note { margin: 22px 0 0; font-size: 14px; line-height: 1.6; color: rgba(255, 226, 196, .62); }
+  .contact-art { position: relative; z-index: 1; align-self: center; justify-self: center; width: 100%; max-width: 380px; }
+  .contact-art img { width: 100%; max-height: 420px; object-fit: contain; filter: drop-shadow(0 18px 24px rgba(0, 0, 0, .4)); }
+  .dice { width: 100%; height: auto; overflow: visible; }
+  .dice-shadow { fill: rgba(0, 0, 0, .32); }
+
+  /* ----- bottom banner ----- */
+  .cta-card { max-width: 980px; margin-inline: auto; padding: clamp(32px, 6vw, 64px) clamp(22px, 5vw, 56px); text-align: center; border-radius: 28px; color: #fff; background:
+      radial-gradient(70% 120% at 100% 0%, rgba(249, 115, 22, .5), transparent 60%),
+      linear-gradient(160deg, #0f172a, #1f2937); box-shadow: 0 30px 60px -24px rgba(15, 23, 42, .6); }
+  .cta-card h2 { color: #fff; }
+  .cta-card .rich { max-width: 640px; margin: 14px auto 0; color: rgba(255, 255, 255, .84); }
+  /* the site-wide paragraph colour would otherwise win over the container's */
+  .cta-card .rich :global(p), .cta-card .rich :global(li) { color: rgba(255, 255, 255, .84); }
+  .cta-card .rich :global(a) { color: var(--brand-gold); }
+  .cta-card .rich :global(strong) { color: #fff; }
+  .cta-card .btn { margin-top: 28px; }
+
+  /* ----- tablets and phones ----- */
+  @media (max-width: 860px) {
+    .hero-inner.has-art { grid-template-columns: 1fr; }
+    .hero-art { order: 2; justify-self: center; max-width: 440px; }
+    .story.with-side { grid-template-columns: 1fr; max-width: 820px; }
+    .hero::after { width: 78%; }
+    .panels { grid-template-columns: 1fr; gap: 56px; padding-top: 34px; }
+    .panel:nth-child(even) { margin-top: 0; }
+    .contact-card { grid-template-columns: 1fr; }
+    .contact-art { display: none; }
+  }
+  @media (max-width: 767px) {
+    /* The phone shell leaves an empty 72px strip (its tab-bar spacing) between the app bar and the page. It is invisible
+       on white pages but shows as a white gap above the banner, so the banner is pulled up over it. */
+    .hero { margin-top: calc(-72px - env(safe-area-inset-bottom)); padding-top: 44px; }
+    .actions .btn { flex: 1 1 100%; }
+    .card { padding: 22px 20px; }
+    .timeline li { padding-left: 42px; }
+    .rings { display: none; }
+    .row { grid-template-columns: 1fr; }
+    .contact-rings { display: none; }
+    .panel-badge { width: 84px; height: 84px; font-size: 30px; top: -30px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn, .btn .chev, .card { transition: none; }
+    .btn:hover, .card:hover, .btn:hover .chev { transform: none; }
+  }
+</style>

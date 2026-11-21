@@ -53,7 +53,7 @@ const navLinks = [
   { href: createPath("/", lang), label: t('footer.nav.home') },
   { href: createPath("/#games", lang), label: t('footer.nav.games') },
   { href: createPath("/faq/", lang), label: t('footer.nav.faq') },
-  { href: createPath("/#about", lang), label: t('footer.nav.about') },
+  { href: createPath("/about/", lang), label: t('footer.nav.about') },
   // Custom pages ticked "Show in the website menu" in the admin
   ...(await getMenuPages(lang)),
 ];

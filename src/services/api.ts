@@ -222,6 +222,64 @@ export async function getFaq(lang: Lang = 'en'): Promise<FaqApiSection[]> {
     }
 }
 
+// --- About us page (admin "About page" screen) ---
+// The API already serves the starting content when nothing was saved, so null only means "API unreachable": the page
+// then shows a small built-in version (see lib/about.ts). Same caching rules as the FAQ: a saved edit is live in ~30s.
+const ABOUT_TTL_MS = 30_000;
+const ABOUT_TIMEOUT_MS = 3_000;
+export interface AboutLink { label: string; url: string; }
+export interface AboutPicture { url: string; alt: string; }
+export interface AboutApiContent {
+    hero: { eyebrow: string; title: string; subtitle: string; primary: AboutLink | null; secondary: AboutLink | null; image: AboutPicture | null };
+    story: { title: string; body: string; quote: string; image: AboutPicture | null } | null;
+    panels: { items: { icon: string; title: string; text: string }[] } | null;
+    features: { title: string; intro: string; items: { icon: string; title: string; text: string }[] } | null;
+    benefits: { title: string; items: { icon: string; value: string; label: string }[] } | null;
+    timeline: { title: string; intro: string; items: { label: string; title: string; text: string }[] } | null;
+    highlight: { title: string; body: string } | null;
+    contact: { title: string; intro: string; button: string; success: string; note: string; image: AboutPicture | null } | null;
+    cta: { title: string; text: string; button: AboutLink | null } | null;
+    seo: { title: string; description: string };
+}
+export async function getAbout(lang: Lang = 'en'): Promise<AboutApiContent | null> {
+    const endpoint = `/frontend-api/about?lang=${lang}`;
+    try {
+        const res = await cached<{ content?: AboutApiContent }>(endpoint, ABOUT_TTL_MS, () => fetchData(endpoint, { signal: AbortSignal.timeout(ABOUT_TIMEOUT_MS) }), 0);
+        return res.content && res.content.hero ? res.content : null;
+    } catch (err) {
+        console.warn('Could not fetch the About page, using the built-in text.', err);
+        return null;
+    }
+}
+
+// --- Contact form on the About page: sent from OUR server (src/pages/api/contact.ts), never from the browser, so the API
+// key stays secret. The outcome is reduced to what the form needs to say to the visitor. ---
+export interface ContactPayload { name: string; email: string; phone: string; userId: string; message: string; lang: Lang; }
+export type ContactResult = { ok: true } | { ok: false; kind: 'invalid' | 'busy' | 'error'; field?: string };
+export async function submitContact(payload: ContactPayload): Promise<ContactResult> {
+    if (!API_FETCH_URL) { console.error('Contact form: the API address is not configured.'); return { ok: false, kind: 'error' }; }
+    try {
+        const res = await fetch(`${API_FETCH_URL}/frontend-api/contact`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-api-key': BACKEND_API_KEY || '' },
+            body: JSON.stringify(payload),
+            cache: 'no-cache',
+            signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        });
+        if (res.ok) return { ok: true };
+        if (res.status === 400) {
+            const body = await res.json().catch(() => ({} as { field?: unknown }));
+            return { ok: false, kind: 'invalid', field: typeof body.field === 'string' ? body.field : undefined };
+        }
+        if (res.status === 429) return { ok: false, kind: 'busy' };
+        console.error(`Contact form: the backend answered ${res.status}.`);
+        return { ok: false, kind: 'error' };
+    } catch (err) {
+        console.error('Contact form: could not reach the backend.', err);
+        return { ok: false, kind: 'error' };
+    }
+}
+
 // --- NEW FUNCTION to fetch popup banners ---
 export async function getPopupBanners(lang: 'en' | 'hi' = 'en'): Promise<PopupBanner[]> {
     try {
