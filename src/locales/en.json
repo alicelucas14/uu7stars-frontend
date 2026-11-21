@@ -332,20 +332,64 @@
     "title": "FAQ | Starsuu7 - Answers to Your Questions",
     "description": "Find answers to frequently asked questions about creating an account, game rules for Teen Patti and Rummy, account management, and security on Starsuu7.",
     "h1": "Starsuu7 Frequently Asked Questions (FAQs)",
-    "mobileIntro": "Find answers to common questions below.",
-    "list": [
-      { "q": "How do I create an account on Starsuu7?", "a": "Visit the Starsuu7 website and download the game. Fill in the required fields with your personal information and follow the prompts to complete registration." },
-      { "q": "What types of games are available on Starsuu7?", "a": "Starsuu7 offers Rummy, Teen Patti, casino games, lotteries, and more. New games are added regularly." },
-      { "q": "How to Play Teen Patti", "a": "Each player is dealt three cards. Aim to have the best hand or bluff opponents to win the pot." },
-      { "q": "How to Play Rummy", "a": "Form valid sets and sequences by picking and discarding cards efficiently." },
-      { "q": "Is Starsuu7 safe and secure?", "a": "Yes. We use advanced encryption and other security measures to protect data and transactions." },
-      { "q": "I forgot my password. How can I reset it?", "a": "Click “Forgot Password” on the login page, enter your registered email, then follow the emailed instructions." },
-      { "q": "How can I update my personal information?", "a": "Log in, go to the Profile section, edit your details, and save." },
-      { "q": "How do I make a deposit?", "a": "Log in, open Banking/Wallet → Deposit, select a payment method, enter details, and confirm." },
-      { "q": "How long do withdrawals take on Starsuu7?", "a": "Typically within 24 hours, depending on the payment method." },
-      { "q": "Can I play games on my mobile device?", "a": "Yes. Starsuu7 is optimized for mobile, via browser or the Android app." },
-      { "q": "What should I do if a game freezes?", "a": "Refresh the page or restart the app. If it persists, contact support via Help." },
-      { "q": "How do I claim a bonus?", "a": "Follow the instructions in the Promotions page or in-app notices. Most bonuses apply automatically once criteria are met." }
+    "sections": [
+      {
+        "title": "General questions",
+        "items": [
+          { "q": "What is Starsuu7?", "a": "Starsuu7, also known as UU7 or 777, is a mobile-first gaming app for Teen Patti, Rummy, casino games and more. The official website is uu7stars.com." },
+          { "q": "How do I download the UU7 APK?", "a": "Go to the Download section on uu7stars.com and tap \"Download APK\", then open the file and tap Install. If Android asks, allow your browser to install unknown apps. Only download the app from uu7stars.com. Step-by-step help: [UU7 APK download guide](/blog/uu7-game-apk-for-android-step-by-step-download-for-players/)." },
+          { "q": "How do I create an account?", "a": "Download and install the app, open it, fill in the required details and follow the prompts to finish registration." },
+          { "q": "What games are available on Starsuu7?", "a": "Starsuu7 offers Rummy, Teen Patti, casino games, lotteries and more. New games are added regularly." },
+          { "q": "How do I play Teen Patti?", "a": "Each player gets three cards face down, and the best three-card hand wins the pot, unless everyone else folds first. New to the game? Read our Teen Patti tips and tricks." },
+          { "q": "How do I play Rummy?", "a": "Rummy is about forming valid sets and sequences. Players pick and discard cards to complete their hand. For strategies, see our card game tips on the blog." },
+          { "q": "Is Starsuu7 safe and secure?", "a": "Starsuu7 uses encryption and account security controls to protect your data and transactions. Download the app only from uu7stars.com, use a strong password and never share your OTP. Starsuu7 support will never ask for it." }
+        ]
+      },
+      {
+        "id": "compliance",
+        "title": "Who can play",
+        "items": [
+          { "q": "Who can play on Starsuu7?", "a": "Starsuu7 is for players aged 18 and over. Services are not available in Assam, Arunachal Pradesh, Andhra Pradesh, Telangana, Odisha and Nagaland." },
+          { "q": "Where can I read about responsible gaming?", "a": "See our [Responsible Gaming page](/responsible-gaming/) for limits, tips and where to get help." }
+        ]
+      },
+      {
+        "title": "Account management",
+        "items": [
+          { "q": "I forgot my password. How can I reset it?", "a": "Click \"Forgot Password\" on the login page, enter your registered email address and follow the instructions sent to your email." },
+          { "q": "How can I update my personal information?", "a": "Log in, go to the \"Profile\" section, edit your details and save." }
+        ]
+      },
+      {
+        "id": "payments",
+        "title": "KYC, deposits and withdrawals",
+        "items": [
+          { "q": "Do I need to complete KYC?", "a": "Yes. Deposits and withdrawals are fastest after KYC. Keep your name and payout details the same as on your KYC documents to avoid delays." },
+          { "q": "How do I make a deposit?", "a": "Log in, go to the Wallet section, select Deposit, choose your payment method, fill in the details and confirm." },
+          { "q": "How do I withdraw money from Starsuu7?", "a": "Complete KYC first. Then log in, go to Wallet, select Withdraw, enter the amount and your payout details, and confirm. Track the status in Wallet → Transactions." },
+          { "q": "How long do withdrawals take on Starsuu7?", "a": "Withdrawals are usually processed within 24 hours. Times can vary by payment method and routine checks." }
+        ]
+      },
+      {
+        "title": "Gaming questions",
+        "items": [
+          { "q": "Can I play on my phone?", "a": "Yes. Starsuu7 is built for mobile. Play in your phone's browser or download the app." },
+          { "q": "What should I do if a game freezes?", "a": "Refresh the page or restart the app. If it still freezes, contact support through the Help section." }
+        ]
+      },
+      {
+        "title": "Promotions and bonuses",
+        "items": [
+          { "q": "How can I find current promotions?", "a": "Visit the [Promotions page](/promotions/) on the website or in the app." },
+          { "q": "How do I claim a bonus?", "a": "Follow the instructions on the Promotions page or in the app notification. Most bonuses are applied automatically once you meet the conditions. Bonus terms apply." }
+        ]
+      },
+      {
+        "title": "Support",
+        "items": [
+          { "q": "How do I contact Starsuu7 support?", "a": "Use Help or Live Chat in the app, or message us on Telegram at [t.me/OfficialStarsuu7game](https://t.me/OfficialStarsuu7game). Include your user ID and a short description of the problem." }
+        ]
+      }
     ]
   },
   "privacyPolicyPage": {

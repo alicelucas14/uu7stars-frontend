@@ -1,0 +1,129 @@
+---
+// ===== src/components/FaqPage.astro =====
+// The whole FAQ page for one language; src/pages/faq.astro (en) and src/pages/hi/faq.astro (hi) just render this.
+// One source for everything on it: the long-form desktop layout, the phone accordion and the FAQPage markup.
+// The content comes from the admin "FAQ" screen, with the locale files as the fallback (see lib/faq.ts).
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import MobileAppShell from './MobileAppShell.astro';
+import { useTranslations } from '../lib/i18n';
+import { loadFaq } from '../lib/faq';
+import type { Locale } from '../i18n';
+
+interface Props { lang: Locale; }
+const locale: Locale = Astro.props.lang;
+const t = useTranslations(locale);
+
+const pageTitle = t('faqPage.title');
+const pageDescription = t('faqPage.description');
+const h1 = t('faqPage.h1');
+
+const groups = await loadFaq(locale);
+const canonical = new URL(locale === 'hi' ? '/hi/faq/' : '/faq/', Astro.site).toString();
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": groups.flatMap((group) => group.items).map(({ q, text }) => ({
+    "@type": "Question",
+    "name": q,
+    "acceptedAnswer": { "@type": "Answer", "text": text }
+  }))
+};
+---
+
+<Base title={pageTitle} description={pageDescription} canonical={canonical} jsonLd={faqJsonLd}>
+  <div class="desktop-only"><Header lang={locale} /></div>
+  <div class="mobile-only"><MobileAppShell title="FAQ" active="faq" lang={locale} /></div>
+
+  <div class="faq-page">
+    <div class="container">
+      <h1 class="page-title">{h1}</h1>
+
+      <div class="content-box">
+        {groups.map((group) => (
+          <section class="faq-group">
+            {/* The heading is shared by both layouts so its id exists once and works on desktop and phone. */}
+            {group.title && <h2 id={group.id}>{group.title}</h2>}
+
+            {/* --- DESKTOP LAYOUT (long-form content) --- */}
+            <div class="desktop-layout">
+              {group.items.map((item) => (
+                <>
+                  <h3>{item.q}</h3>
+                  <div class="rich" set:html={item.html} />
+                </>
+              ))}
+            </div>
+
+            {/* --- MOBILE LAYOUT (accordion content) --- */}
+            <div class="mobile-layout">
+              {group.items.map((item) => (
+                <details class="faq-item">
+                  <summary>
+                    <span class="question">{item.q}</span>
+                    <svg class="icon" viewBox="0 0 24 24" width="20" height="20"><path d="m6 9 6 6 6-6"/></svg>
+                  </summary>
+                  <div class="answer">
+                    <div class="rich" set:html={item.html} />
+                  </div>
+                </details>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <Footer lang={locale} />
+</Base>
+
+<style>
+  .desktop-layout { display: block; }
+  .mobile-layout { display: none; }
+  .desktop-only { display: block; }
+  .mobile-only { display: none; }
+  @media (max-width: 767px) {
+    .desktop-layout { display: none; }
+    .mobile-layout { display: block; }
+    .desktop-only { display: none; }
+    .mobile-only { display: block; }
+  }
+
+  .faq-page { padding-block: 48px; }
+  @media (max-width: 767px) {
+    .faq-page { padding-block: 24px; }
+    .content-box { border-radius: 0; border-inline: none; padding-top: 12px; }
+  }
+
+  .page-title { font-size: clamp(28px, 4vw, 40px); margin-bottom: 32px; text-align: center; color: var(--text-primary); }
+  .content-box { background-color: var(--surface); border: 1px solid var(--ring); border-radius: 24px; padding: clamp(24px, 5vw, 48px); }
+
+  .faq-group + .faq-group { margin-top: 48px; }
+  /* keep a jumped-to heading (/faq/#compliance) clear of the sticky header (64px) / phone app bar (60px) */
+  h2 { font-size: clamp(22px, 3vw, 28px); margin: 0 0 24px; border-bottom: 1px solid var(--ring); padding-bottom: 12px; color: var(--text-primary); scroll-margin-top: 84px; }
+  h3 { font-size: 18px; margin-top: 32px; margin-bottom: 16px; color: var(--brand-gold); }
+  h3:first-child { margin-top: 0; }
+
+  /* answers are rendered Markdown (set:html), so these rules must reach elements Astro did not create */
+  .rich { color: var(--text-secondary); font-size: 16px; line-height: 1.7; }
+  .rich :global(p), .rich :global(ul), .rich :global(ol) { margin: 0 0 1em; }
+  .rich :global(ul), .rich :global(ol) { padding-left: 24px; }
+  .rich :global(li) { margin-bottom: 6px; }
+  .rich :global(a) { color: var(--brand-gold); text-decoration: underline; text-underline-offset: 2px; }
+  .rich :global(strong) { color: var(--text-primary); }
+  .rich > :global(:last-child) { margin-bottom: 0; }
+  .desktop-layout .rich { margin-bottom: 1em; }
+
+  .faq-item { background: var(--surface-2); border: 1px solid var(--ring); border-radius: 12px; transition: background-color .2s; margin-bottom: 12px; }
+  .faq-item[open] { background-color: color-mix(in oklab, var(--surface) 50%, var(--surface-2)); }
+  summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 20px; }
+  summary::-webkit-details-marker { display: none; }
+  .question { font-weight: 600; color: var(--text-primary); }
+  .icon { transition: transform 0.2s; color: var(--brand-orange); stroke: currentColor; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .faq-item[open] .icon { transform: rotate(180deg); }
+  .answer { padding: 0 20px 20px; }
+  .answer .rich { font-size: 15px; }
+</style>

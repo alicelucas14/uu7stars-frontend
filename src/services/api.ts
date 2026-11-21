@@ -204,6 +204,24 @@ export function getLinkRedirects(): Promise<LinkRedirectRule[]> {
     return cached<LinkRedirectRule[]>(endpoint, REDIRECTS_TTL_MS, () => fetchData<LinkRedirectRule[]>(endpoint), 0);
 }
 
+// --- FAQ page (admin "FAQ" screen) ---
+// Empty result = nothing saved in the admin yet, no Hindi yet, or the API is unreachable: the page then falls back
+// to the FAQ text in its locale files (see lib/faq.ts). Fresh for 30s and never served stale (maxStaleMs 0), so a
+// saved edit is live within ~30s; the short timeout keeps a slow API from stalling the page (the fallback is instant).
+const FAQ_TTL_MS = 30_000;
+const FAQ_TIMEOUT_MS = 3_000;
+export interface FaqApiSection { id?: string; title: string; items: { q: string; a: string }[]; }
+export async function getFaq(lang: Lang = 'en'): Promise<FaqApiSection[]> {
+    const endpoint = `/frontend-api/faq?lang=${lang}`;
+    try {
+        const res = await cached<{ sections?: FaqApiSection[] }>(endpoint, FAQ_TTL_MS, () => fetchData(endpoint, { signal: AbortSignal.timeout(FAQ_TIMEOUT_MS) }), 0);
+        return Array.isArray(res.sections) ? res.sections : [];
+    } catch (err) {
+        console.warn('Could not fetch the FAQ, using the built-in text.', err);
+        return [];
+    }
+}
+
 // --- NEW FUNCTION to fetch popup banners ---
 export async function getPopupBanners(lang: 'en' | 'hi' = 'en'): Promise<PopupBanner[]> {
     try {
