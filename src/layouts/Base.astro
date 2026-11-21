@@ -445,6 +445,37 @@ if (jsonLd) {
         });
       })();
 
+      // Keep the address bar clean on the home pages: after a section link ("About Us" -> /#about, #how, #promos,
+      // #download ...) has scrolled the page, drop the "#section" from the URL. Only on "/" and "/hi/" and only when
+      // the hash really is a section on the page, so FAQ links such as /faq/#payments keep their shareable "#".
+      // replaceState does not scroll and does not fire hashchange, so nothing moves; it waits until the scroll has
+      // stopped (the jump above can be smooth, and the browser may re-scroll while images load).
+      (function () {
+        var HOME = { '/': true, '/hi/': true };
+        var timer;
+        function cleanNow() {
+          if (!location.hash || !HOME[location.pathname] || !window.history || !history.replaceState) return;
+          var id;
+          try { id = decodeURIComponent(location.hash.slice(1)); } catch (_) { return; }
+          if (!id || !document.getElementById(id)) return; // not one of our sections: leave it alone
+          history.replaceState(history.state, '', location.pathname + location.search);
+        }
+        function cleanSoon() {
+          clearTimeout(timer);
+          var last = -1, waited = 0;
+          (function tick() {
+            var y = window.scrollY;
+            waited += 150;
+            if ((y === last && waited >= 450) || waited >= 3000) { cleanNow(); return; }
+            last = y;
+            timer = setTimeout(tick, 150);
+          })();
+        }
+        window.addEventListener('hashchange', cleanSoon);
+        if (document.readyState === 'complete') { if (location.hash) cleanSoon(); }
+        else window.addEventListener('load', function () { if (location.hash) cleanSoon(); });
+      })();
+
       // --- NEW SCRIPT FOR JS-TRIGGERED DOWNLOADS ---
       document.addEventListener('click', function(e) {
         const target = e.target.closest('[data-js-download]');
