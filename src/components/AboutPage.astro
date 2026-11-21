@@ -37,6 +37,13 @@ for (const key of ['story', 'panels', 'features', 'benefits', 'timeline', 'highl
   step += 1;
 }
 
+// How many cards per row in the numbers band: 1 to 4 numbers sit in one row; 5 or 6 make two rows of three
+const benefitCols = benefits ? (benefits.items.length <= 4 ? benefits.items.length : 3) : 4;
+// Roughly how wide a number is, in em, glyph by glyph. The widest one in the band sets ONE font size that fits every card
+// (the stylesheet divides the card's width by this), so a long number gets a smaller size instead of breaking or overflowing.
+const emWidth = (s: string) => [...s].reduce((w, ch) => w + (/[0-9]/.test(ch) ? .62 : /[A-Z]/.test(ch) ? .68 : /[a-z]/.test(ch) ? .56 : /[ ,.]/.test(ch) ? .28 : ch === '/' ? .36 : .62), 0);
+const benefitW = benefits ? Math.max(2.2, ...benefits.items.map((b) => emWidth(b.value))) : 3.4;
+
 // Everything the contact form's script needs, in the visitor's language (passed as JSON, escaped for a <script> tag)
 const form = t('aboutPage.form');
 const formText = contact ? {
@@ -188,7 +195,7 @@ const aboutJsonLd = {
         <svg class="deco spark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 0c1 8 4 11 12 12-8 1-11 4-12 12-1-8-4-11-12-12 8-1 11-4 12-12Z" /></svg>
         <div class="container">
           {benefits.title && <h2>{benefits.title}</h2>}
-          <ul class="benefit-grid">
+          <ul class="benefit-grid" style={`--cols:${benefitCols}; --w:${benefitW.toFixed(2)}`}>
             {benefits.items.map((b) => (
               <li class="benefit">
                 {b.icon && <span class="b-icon" aria-hidden="true">{b.icon}</span>}
@@ -548,19 +555,24 @@ const aboutJsonLd = {
 
   /* ----- our benefits: a band in the brand orange (a touch deeper at the bottom so white text stays easy to read), glassy
      cards with big white numbers; a gold sparkle and ring grid hang over its edges ----- */
-  .benefits { position: relative; z-index: 1; margin-block: clamp(24px, 4vw, 48px); padding-block: clamp(56px, 8vw, 96px) clamp(64px, 9vw, 112px); color: #fff; background:
+  .benefits { position: relative; z-index: 1; margin-block: clamp(24px, 4vw, 48px); padding-block: clamp(68px, 9vw, 116px) clamp(76px, 10vw, 136px); color: #fff; background:
       radial-gradient(60% 90% at 88% 0%, rgba(250, 204, 21, .38), transparent 62%),
       linear-gradient(170deg, var(--brand-orange) 0%, #ea580c 62%, #c2410c 100%); }
-  .benefits h2 { margin: 0 0 clamp(28px, 4vw, 48px); text-align: center; font-size: clamp(30px, 4vw, 48px); font-weight: 800; letter-spacing: -.02em; color: #fff; }
-  .benefit-grid { list-style: none; margin: 0 auto; padding: 0; max-width: 1100px; display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-  .benefit { position: relative; display: flex; flex-direction: column; gap: 10px; min-height: 170px; justify-content: flex-end; padding: 34px 28px 28px; border-radius: 22px; background: linear-gradient(135deg, rgba(255, 255, 255, .24), rgba(255, 255, 255, .08)); border: 1px solid rgba(255, 255, 255, .38); box-shadow: 0 20px 34px -22px rgba(124, 45, 18, .7); }
+  .benefits h2 { margin: 0 0 clamp(32px, 5vw, 64px); text-align: center; font-size: clamp(34px, 4.8vw, 60px); font-weight: 800; letter-spacing: -.025em; color: #fff; }
+  /* this band uses a wider container than the rest of the page (see the .container rules below) */
+  .about-page .benefits .container { --cmax: 1400px; max-width: var(--cmax); }
+  .benefit-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(16px, 2.2vw, 32px); grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); }
+  /* each card is its own size container, so the number can grow with the card (and never be wider than it) */
+  .benefit { container-type: inline-size; position: relative; display: flex; flex-direction: column; gap: 12px; min-height: clamp(190px, 17vw, 260px); justify-content: flex-end; padding: 86px 32px 34px; border-radius: 26px; background: linear-gradient(135deg, rgba(255, 255, 255, .24), rgba(255, 255, 255, .08)); border: 1px solid rgba(255, 255, 255, .38); box-shadow: 0 24px 40px -24px rgba(124, 45, 18, .75); }
   /* the emoji sits in a white badge so it shows up on orange */
-  .b-icon { position: absolute; top: 18px; right: 20px; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; font-size: 22px; line-height: 1; background: rgba(255, 255, 255, .96); box-shadow: 0 6px 14px -6px rgba(124, 45, 18, .6); }
-  .b-num { font-size: clamp(36px, 4.2vw, 54px); line-height: 1; font-weight: 800; letter-spacing: -.02em; color: #fff; text-shadow: 0 2px 0 rgba(124, 45, 18, .28); }
-  .b-lbl { font-size: 14px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: rgba(255, 255, 255, .95); overflow-wrap: anywhere; }
+  .b-icon { position: absolute; top: 20px; right: 22px; display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; font-size: 29px; line-height: 1; background: rgba(255, 255, 255, .96); box-shadow: 0 8px 18px -8px rgba(124, 45, 18, .65); }
+  /* the number fills the card: 100cqw is the room inside it, --w the width (in em) of the widest number in the band, plus 4% to
+     spare; between 34px and 84px. The first line is for browsers without container units. */
+  .b-num { font-size: clamp(36px, 4.8vw, 72px); font-size: clamp(34px, calc(100cqw / (var(--w, 3.4) * 1.04)), 84px); line-height: 1; font-weight: 800; letter-spacing: -.025em; color: #fff; text-shadow: 0 3px 0 rgba(124, 45, 18, .28); overflow-wrap: anywhere; }
+  .b-lbl { font-size: clamp(14px, 1.2vw, 17px); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: rgba(255, 255, 255, .96); overflow-wrap: anywhere; }
   .deco { position: absolute; pointer-events: none; }
-  .spark { top: -24px; left: 50%; width: 48px; height: 48px; margin-left: -24px; fill: var(--brand-gold); filter: drop-shadow(0 2px 4px rgba(194, 65, 12, .35)); }
-  .rings { right: clamp(16px, 8vw, 150px); bottom: -64px; width: 138px; height: 138px; fill: none; stroke: var(--brand-gold); stroke-width: 1.6; opacity: .95; }
+  .spark { top: -30px; left: 50%; width: 60px; height: 60px; margin-left: -30px; fill: var(--brand-gold); filter: drop-shadow(0 2px 4px rgba(194, 65, 12, .35)); }
+  .rings { right: clamp(16px, 6vw, 130px); bottom: -80px; width: 172px; height: 172px; fill: none; stroke: var(--brand-gold); stroke-width: 1.6; opacity: .95; }
 
   /* ----- timeline ----- */
   .timeline { list-style: none; margin: 0 auto; padding: 0; max-width: 820px; position: relative; }
@@ -628,7 +640,16 @@ const aboutJsonLd = {
   .cta-card .rich :global(strong) { color: #fff; }
   .cta-card .btn { margin-top: 28px; }
 
+  /* ----- the floating social bar hugs the left edge of the screen (about 73px wide, on every desktop page). On screens
+     narrower than about 1330px the page content would start underneath it and hide the first letters of the banner
+     text, so the content is kept 88px or more from the edge (symmetrical, so it stays centred). Wider screens get 0. ----- */
+  @media (min-width: 768px) {
+    .about-page .container { --cmax: 1200px; padding-inline: calc(24px + clamp(0px, calc(64px - (100vw - var(--cmax)) / 2), 64px)); }
+  }
+
   /* ----- tablets and phones ----- */
+  @media (max-width: 1100px) { .benefit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .benefit-grid { grid-template-columns: 1fr; } .benefit { min-height: 190px; } }
   @media (max-width: 860px) {
     .hero-inner.has-art { grid-template-columns: 1fr; }
     .hero-art { order: 2; justify-self: center; max-width: 440px; }
