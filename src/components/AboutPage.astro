@@ -53,8 +53,8 @@ const formText = contact ? {
 } : null;
 const formJson = formText ? JSON.stringify(formText).replace(/</g, '\\u003c') : '';
 
-// A pair of dice drawn as vector art (isometric cubes, pips as circles mapped onto each face), in the brand's orange and
-// gold. Used in the contact card when the admin has not set a picture of their own.
+// A pair of dice drawn as vector art (isometric cubes, pips as circles mapped onto each face): one white with deep-orange
+// pips, one gold, so they stand out on the orange contact card. Used when the admin has not set a picture of their own.
 type Pt = [number, number];
 const PIPS: Record<number, Pt[]> = {
   1: [[.5, .5]], 2: [[.28, .28], [.72, .72]], 3: [[.25, .25], [.5, .5], [.75, .75]],
@@ -81,8 +81,8 @@ const makeCube = (o: { transform: string; top: string; left: string; right: stri
   };
 };
 const cubes = [
-  makeCube({ transform: 'translate(70 -34) rotate(10) scale(.85)', top: '#fef08a', left: '#facc15', right: '#ca8a04', edge: '#a16207', pip: '#3b1a02', faces: [4, 6, 3] }),
-  makeCube({ transform: 'translate(-50 40) rotate(-8) scale(.95)', top: '#fdba74', left: '#f97316', right: '#c2410c', edge: '#9a3412', pip: '#fff7ed', faces: [5, 3, 2] }),
+  makeCube({ transform: 'translate(70 -34) rotate(10) scale(.85)', top: '#fef08a', left: '#facc15', right: '#ca8a04', edge: '#a16207', pip: '#7c2d12', faces: [4, 6, 3] }),
+  makeCube({ transform: 'translate(-50 40) rotate(-8) scale(.95)', top: '#ffffff', left: '#fff1e0', right: '#fdba74', edge: '#c2410c', pip: '#c2410c', faces: [5, 3, 2] }),
 ];
 
 const aboutJsonLd = {
@@ -588,45 +588,51 @@ const aboutJsonLd = {
   .callout { max-width: 880px; margin-inline: auto; padding: clamp(24px, 4vw, 40px); border-radius: 22px; background: var(--surface); border: 1px solid #fed7aa; border-left: 8px solid var(--brand-orange); box-shadow: var(--shadow-md); }
   .callout h2 { margin-bottom: 14px; font-size: clamp(22px, 2.6vw, 30px); }
 
-  /* ----- contact form: a large dark-brown card on the cream block; big uppercase heading, underline fields with the label
-     inside (it floats up when you type), an amber paper-plane button; rings in the corner, a picture / dice on the right ----- */
+  /* ----- contact form: a large card in the brand orange (same gradient as the numbers band; it gets deeper towards the bottom
+     where the small form text sits, so white text stays readable) on the cream block; big uppercase heading, underline fields
+     with the label inside (it floats up when you type), a white paper-plane button; rings in the corner, a picture / dice
+     on the right ----- */
   .contact { scroll-margin-top: 84px; }
   .contact-card { position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, .7fr); gap: clamp(16px, 3vw, 40px); align-items: center; max-width: 1180px; margin-inline: auto; padding: clamp(34px, 5.4vw, 72px) clamp(24px, 5.4vw, 76px) clamp(36px, 5vw, 64px); border-radius: clamp(28px, 4vw, 48px); color: #fff; background:
-      radial-gradient(55% 70% at 88% 82%, rgba(249, 115, 22, .26), transparent 68%),
-      #3b1b04; box-shadow: 0 34px 60px -30px rgba(59, 27, 4, .75); }
-  /* the small amber tab on the left edge, level with the heading */
-  .contact-card::before { content: ''; position: absolute; left: 0; top: clamp(60px, 8vw, 104px); width: 7px; height: 54px; border-radius: 0 6px 6px 0; background: #f59e0b; }
-  .contact-rings { position: absolute; top: 56px; right: -6px; width: 360px; height: 180px; fill: none; stroke: rgba(255, 255, 255, .13); stroke-width: 1.2; pointer-events: none; }
+      radial-gradient(60% 80% at 92% 0%, rgba(250, 204, 21, .36), transparent 62%),
+      radial-gradient(90% 70% at 0% 100%, rgba(124, 45, 18, .38), transparent 70%),
+      linear-gradient(170deg, var(--brand-orange) 0%, #ea580c 55%, #c2410c 100%); box-shadow: 0 34px 60px -30px rgba(194, 65, 12, .7); }
+  /* the small white tab on the left edge, level with the heading */
+  .contact-card::before { content: ''; position: absolute; left: 0; top: clamp(60px, 8vw, 104px); width: 7px; height: 54px; border-radius: 0 6px 6px 0; background: #fff; }
+  .contact-rings { position: absolute; top: 56px; right: -6px; width: 360px; height: 180px; fill: none; stroke: rgba(255, 255, 255, .26); stroke-width: 1.2; pointer-events: none; }
   .contact-main { position: relative; z-index: 1; min-width: 0; }
   .contact-copy h2 { margin: 0 0 clamp(12px, 1.6vw, 18px); font-size: clamp(34px, 5.2vw, 64px); line-height: 1; font-weight: 800; letter-spacing: -.03em; text-transform: uppercase; color: #fff; }
-  .contact-intro { margin: 0 0 clamp(14px, 2vw, 22px); max-width: 600px; font-size: clamp(16px, 1.4vw, 18px); line-height: 1.65; color: rgba(255, 238, 220, .82); }
+  .contact-intro { margin: 0 0 clamp(14px, 2vw, 22px); max-width: 600px; font-size: clamp(16px, 1.4vw, 18px); line-height: 1.65; color: rgba(255, 255, 255, .96); }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 clamp(24px, 4.5vw, 56px); }
   .field { position: relative; margin-bottom: 14px; }
-  .field input, .field textarea { display: block; width: 100%; padding: 28px 0 10px; border: 0; border-bottom: 1.5px solid rgba(255, 255, 255, .3); border-radius: 0; font: inherit; font-size: 17px; line-height: 1.4; color: #fff; background: transparent; transition: border-color .15s, box-shadow .15s; }
+  .field input, .field textarea { display: block; width: 100%; padding: 28px 0 10px; border: 0; border-bottom: 1.5px solid rgba(255, 255, 255, .62); border-radius: 0; font: inherit; font-size: 17px; line-height: 1.4; color: #fff; background: transparent; transition: border-color .15s, box-shadow .15s; }
   .field textarea { min-height: 88px; resize: vertical; }
-  .field input:focus, .field textarea:focus { outline: none; border-bottom-color: #fbbf24; box-shadow: 0 1.5px 0 0 #fbbf24; }
+  .field input:focus, .field textarea:focus { outline: none; border-bottom-color: #fff; box-shadow: 0 2px 0 0 #fff; }
   /* the label sits inside the field like a placeholder, and floats up once there is text or focus */
-  .field label { position: absolute; left: 0; top: 26px; max-width: 100%; font-size: 17px; line-height: 1.2; color: rgba(255, 226, 196, .68); pointer-events: none; transform-origin: left top; transition: transform .16s ease, color .16s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .field label { position: absolute; left: 0; top: 26px; max-width: 100%; font-size: 17px; line-height: 1.2; color: rgba(255, 255, 255, .92); pointer-events: none; transform-origin: left top; transition: transform .16s ease, color .16s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .field input:focus + label, .field input:not(:placeholder-shown) + label, .field textarea:focus + label, .field textarea:not(:placeholder-shown) + label,
-  .field input:-webkit-autofill + label { transform: translateY(-22px) scale(.78); color: #fbbf24; }
+  .field input:-webkit-autofill + label { transform: translateY(-22px) scale(.78); color: #fff; font-weight: 700; }
   .field input:-webkit-autofill { -webkit-text-fill-color: #fff; transition: background-color 600000s ease-in-out 0s; }
-  .field input[aria-invalid="true"], .field textarea[aria-invalid="true"] { border-bottom-color: #f87171; }
-  .err { margin-top: 6px; font-size: 13.5px; font-weight: 600; color: #fecaca; }
+  .field input[aria-invalid="true"], .field textarea[aria-invalid="true"] { border-bottom-color: #7f1d1d; box-shadow: 0 2px 0 0 #7f1d1d; }
+  /* an error is white text on a deep-red chip, which stays readable on the orange */
+  .err { display: inline-block; margin-top: 8px; padding: 3px 10px; border-radius: 8px; font-size: 13.5px; font-weight: 700; color: #fff; background: rgba(127, 29, 29, .82); }
   .err:empty { display: none; }
   .hp { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
-  .send { margin-top: 18px; gap: 12px; }
+  /* on the orange card the button is white with deep-orange text (an orange button would disappear) */
+  .send { margin-top: 18px; gap: 12px; color: #c2410c; background: #fff; box-shadow: 0 14px 28px -12px rgba(124, 45, 18, .75); }
+  .send:hover { box-shadow: 0 18px 32px -12px rgba(124, 45, 18, .85); }
   .send .plane { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-  .form-status { display: none; margin: 16px 0 0; padding: 11px 14px; border-radius: 12px; font-size: 15px; font-weight: 600; color: #fecaca; background: rgba(248, 113, 113, .14); border: 1px solid rgba(248, 113, 113, .45); }
+  .form-status { display: none; margin: 16px 0 0; padding: 11px 14px; border-radius: 12px; font-size: 15px; font-weight: 700; color: #fff; background: rgba(127, 29, 29, .82); border: 1px solid rgba(254, 202, 202, .55); }
   .form-status.show { display: block; }
   .form-success { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; padding: 12px 0 8px; outline: none; }
   .form-success[hidden] { display: none; }
-  .form-success .tick { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; font-size: 30px; font-weight: 800; color: #fff; background: linear-gradient(135deg, #16a34a, #22c55e); }
+  .form-success .tick { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; font-size: 30px; font-weight: 800; color: #16a34a; background: #fff; box-shadow: 0 10px 22px -10px rgba(124, 45, 18, .7); }
   .form-success p { margin: 0; font-size: clamp(19px, 2vw, 24px); font-weight: 700; line-height: 1.4; color: #fff; }
-  .contact-note { margin: 22px 0 0; font-size: 14px; line-height: 1.6; color: rgba(255, 226, 196, .62); }
+  .contact-note { margin: 22px 0 0; font-size: 14px; line-height: 1.6; color: rgba(255, 255, 255, .92); }
   .contact-art { position: relative; z-index: 1; align-self: center; justify-self: center; width: 100%; max-width: 380px; }
   .contact-art img { width: 100%; max-height: 420px; object-fit: contain; filter: drop-shadow(0 18px 24px rgba(0, 0, 0, .4)); }
   .dice { width: 100%; height: auto; overflow: visible; }
-  .dice-shadow { fill: rgba(0, 0, 0, .32); }
+  .dice-shadow { fill: rgba(124, 45, 18, .4); }
 
   /* ----- bottom banner ----- */
   .cta-card { max-width: 980px; margin-inline: auto; padding: clamp(32px, 6vw, 64px) clamp(22px, 5vw, 56px); text-align: center; border-radius: 28px; color: #fff; background:
