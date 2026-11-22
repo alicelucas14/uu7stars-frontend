@@ -60,12 +60,9 @@ const faqs: { q: string; a: string }[] = Array.isArray(faqListResult) ? faqListR
     border-bottom: 1px solid var(--ring);
   }
   
-  .faq-section .container {
-    padding-inline: 0;
-  }
-  @media (min-width: 768px) {
+  @media (max-width: 767.98px) {
     .faq-section .container {
-      padding-inline: 24px;
+      padding-inline: 0;
     }
   }
 
