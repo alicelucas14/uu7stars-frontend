@@ -15,6 +15,7 @@ import { useI18n, locales, createPath, getPathWithoutLocale } from '../i18n';
 import { toPlainText } from '../lib/plainText';
 import { resolveExtraSocialLinks, isSocialLinkActive } from '../lib/socialPlatforms';
 import { getMenuPages } from '../lib/menuPages';
+import { buildOrganizationLd } from '../lib/orgSchema';
 // Link builder that leaves "#section" links alone (i18n's createPath adds a trailing slash: "/#how/")
 import { createPath as linkPath } from '../lib/paths';
 
@@ -137,16 +138,15 @@ const sameAs = [...new Set([
   ...resolveExtraSocialLinks(settings?.extraSocialLinks).map((l) => l.href)
 ].filter(Boolean) as string[])];
 
-const ldOrganization = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: brandName,
-  url: siteBase,
-  logo: { '@type': 'ImageObject', url: logoUrl },
-  ...(sameAs.length ? { sameAs } : {}),
-  alternateName: ['UU7', '777', 'Starsuu7 App'],
-  contactPoint: [{ '@type': 'ContactPoint', contactType: 'customer support', availableLanguage: ['en'], url: `${siteBase}#support` }]
-};
+// Name, other names and support link are editable in Admin > Site Settings > "Organization Info for Google"
+const ldOrganization = buildOrganizationLd({
+  settings,
+  brandName,
+  siteBase,
+  logoUrl,
+  sameAs,
+  telegramUrl: liveFixed(settings?.telegramUrl, 'telegram')
+});
 const ldWebSite = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
@@ -277,7 +277,7 @@ if (jsonLd) {
 
     {customHeaderScripts && <Fragment set:html={customHeaderScripts} />}
 
-    <script type="application/ld+json" set:html={JSON.stringify(ldBlocks)} />
+    <script type="application/ld+json" set:html={JSON.stringify(ldBlocks).replace(/</g, '\\u003c')} />
     {safeSchemaMarkup && (
       <script type="application/ld+json" set:html={safeSchemaMarkup} />
     )}
