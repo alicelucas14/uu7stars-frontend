@@ -20,6 +20,31 @@ const pageDescription = t('faqPage.description');
 const h1 = t('faqPage.h1');
 
 const groups = await loadFaq(locale);
+// Internal links to the Teen Patti and card game guides. They live here (not in the admin FAQ text), so they always show,
+// whatever the admin FAQ contains. Every target is a published blog post in both languages.
+const guides = locale === 'hi'
+  ? {
+      title: 'तीन पत्ती और कार्ड गेम गाइड',
+      intro: 'खेलना सीखने के लिए हमारी गाइड पढ़ें।',
+      links: [
+        { href: '/hi/blog/teen-patti-master/', label: 'Teen Patti Master गाइड' },
+        { href: '/hi/blog/how-to-play-rummy/', label: 'ऑनलाइन रम्मी की शुरुआती गाइड' },
+        { href: '/hi/blog/real-money-rummy-guide-for-beginners-rules-tips-strategy/', label: 'असली पैसे वाली रम्मी: नियम, टिप्स और स्ट्रेटेजी' },
+        { href: '/hi/blog/rummy-gold-tips-and-tricks/', label: 'Rummy Gold टिप्स और ट्रिक्स' },
+        { href: '/hi/blog/pusoy-go-vs-card-apps/', label: 'पुसोय गो बनाम कार्ड गेम ऐप्स' },
+      ],
+    }
+  : {
+      title: 'Teen Patti and card game guides',
+      intro: 'New to a game? Read our guides before you play.',
+      links: [
+        { href: '/blog/teen-patti-master/', label: 'Teen Patti Master guide' },
+        { href: '/blog/how-to-play-rummy/', label: "A beginner's guide to online rummy" },
+        { href: '/blog/real-money-rummy-guide-for-beginners-rules-tips-strategy/', label: 'Real money rummy: rules, tips and strategy' },
+        { href: '/blog/rummy-gold-tips-and-tricks/', label: 'Rummy Gold tips and tricks' },
+        { href: '/blog/pusoy-go-vs-card-apps/', label: 'Pusoy Go vs card game apps' },
+      ],
+    };
 const canonical = new URL(locale === 'hi' ? '/hi/faq/' : '/faq/', Astro.site).toString();
 
 const faqJsonLd = {
@@ -37,7 +62,7 @@ const faqJsonLd = {
   <div class="desktop-only"><Header lang={locale} /></div>
   <div class="mobile-only"><MobileAppShell title="FAQ" active="faq" lang={locale} /></div>
 
-  <div class="faq-page">
+  <div class="faq-page clear-social-bar">
     <div class="container">
       <h1 class="page-title">{h1}</h1>
 
@@ -74,6 +99,14 @@ const faqJsonLd = {
           </section>
         ))}
       </div>
+
+      <nav class="guides" aria-labelledby="faq-guides-title">
+        <h2 id="faq-guides-title">{guides.title}</h2>
+        <p>{guides.intro}</p>
+        <ul>
+          {guides.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        </ul>
+      </nav>
     </div>
   </div>
 
@@ -100,6 +133,13 @@ const faqJsonLd = {
 
   .page-title { font-size: clamp(28px, 4vw, 40px); margin-bottom: 32px; text-align: center; color: var(--text-primary); }
   .content-box { background-color: var(--surface); border: 1px solid var(--ring); border-radius: 24px; padding: clamp(24px, 5vw, 48px); }
+
+  .guides { margin-top: 32px; background-color: var(--surface); border: 1px solid var(--ring); border-radius: 24px; padding: clamp(24px, 5vw, 40px); }
+  .guides h2 { margin-bottom: 12px; }
+  .guides p { margin: 0 0 12px; color: var(--text-secondary); }
+  .guides ul { margin: 0; padding-left: 24px; line-height: 1.8; }
+  .guides a { color: #c2410c; text-decoration: underline; text-underline-offset: 2px; }
+  @media (max-width: 767px) { .guides { border-radius: 0; border-inline: none; } }
 
   .faq-group + .faq-group { margin-top: 48px; }
   /* keep a jumped-to heading (/faq/#compliance) clear of the sticky header (64px) / phone app bar (60px) */
