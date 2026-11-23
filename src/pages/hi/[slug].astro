@@ -87,7 +87,7 @@ const pageJsonLd = {
     <main class="custom-page">
       <div class="container">
         <div class="content-box">
-          <h1>{pageTitle}</h1>
+          <div class="h1-alt" role="heading" aria-level="1">{pageTitle}</div>
           <div class="prose" set:html={contentHtml} />
         </div>
       </div>
@@ -150,7 +150,7 @@ const pageJsonLd = {
     margin-inline: auto; 
   } 
   
-  h1 { 
+  h1 , .h1-alt { 
     font-size: clamp(28px, 4vw, 40px); 
     margin-bottom: 32px; 
     text-align: center; 

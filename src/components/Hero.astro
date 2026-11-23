@@ -6,8 +6,9 @@ import { useTranslations } from '../lib/i18n';
 // --- ADDED: Language props and translation function ---
 interface Props {
   lang?: Locale;
+  asH1?: boolean;
 }
-const { lang = 'en' } = Astro.props as Props;
+const { lang = 'en', asH1 = true } = Astro.props as Props;
 const t = useTranslations(lang);
 // ---
 
@@ -19,7 +20,7 @@ const HERO_WEBP = "/wordpress/STARSUU7-Game.webp";
   <div class="container hero__inner">
     <div class="hero__copy">
       {/* UPDATED: Use the 't' function for the headline */}
-      <h1>{t('hero.h1')}</h1>
+      {asH1 ? <h1>{t('hero.h1')}</h1> : <div class="h1-alt" role="heading" aria-level="1">{t('hero.h1')}</div>}
 
       {/* UPDATED: Use the 't' function with set:html for rich text */}
       <p class="lead" set:html={t('hero.lead')}></p>
@@ -80,7 +81,7 @@ const HERO_WEBP = "/wordpress/STARSUU7-Game.webp";
     grid-template-columns: 1.1fr .9fr;
     align-items: center;
   }
-  .hero__copy h1 {
+  .hero__copy h1, .hero__copy .h1-alt {
     margin: 0 0 12px;
     font-size: clamp(32px, 4.2vw, 56px);
     line-height: 1.1;

@@ -11,9 +11,10 @@ export interface Props {
   author: string;
   tags?: string[];
   lang?: Locale;
+  asH1?: boolean;
 }
 
-const { title, publishedAt, author, tags = [], lang = 'en' } = Astro.props;
+const { title, publishedAt, author, tags = [], lang = 'en', asH1 = true } = Astro.props;
 const t = useTranslations(lang);
 
 const formattedDate = new Date(publishedAt).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', {
@@ -48,7 +49,7 @@ const otherTags = tags.slice(1).map((tag) => ({ tag, slug: slugify(tag) }));
     </span>
   </div>
 
-  <h1 class="title">{title}</h1>
+  {asH1 ? <h1 class="title">{title}</h1> : <div class="title h1-alt" role="heading" aria-level="1">{title}</div>}
 
   {otherTags.length > 0 && (
     <div class="tags" aria-label="Tags">

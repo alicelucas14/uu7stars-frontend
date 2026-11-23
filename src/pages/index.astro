@@ -22,8 +22,8 @@ import Footer from "../components/Footer.astro";
 // --- ADDED: Get the current language from the URL ---
 const { locale } = useI18n(Astro);
 
-const title = "Starsuu7 (UU7 • 777) — Teen Patti & Rummy Real Cash App in India";
-const description = "Play Teen Patti & Rummy on Starsuu7 (also known as UU7 / 777). Secure deposits, instant withdrawals, and 24/7 support. Download Starsuu7 APK and start winning today. 18+ only.";
+const title = "Starsuu7 UU7 Game – Official Site & App Download";
+const description = "Starsuu7 (UU7) is the official home of the UU7 game. Play Teen Patti, Rummy and more, and download the latest UU7 APK. 18+ only.";
 ---
 <Base {title} {description}>
   
@@ -32,7 +32,7 @@ const description = "Play Teen Patti & Rummy on Starsuu7 (also known as UU7 / 77
     <Header lang={locale} />
     <main class="clear-social-bar">
       {/* --- UPDATED: Pass the lang prop to all components --- */}
-      <Hero lang={locale} />
+      <Hero lang={locale} asH1={false} />
       <Stats lang={locale} />
       <Promotions lang={locale} />
       <GameGrid lang={locale} />

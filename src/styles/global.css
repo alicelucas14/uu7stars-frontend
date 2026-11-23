@@ -67,6 +67,9 @@ img, video, svg, canvas, iframe {
 }
 
 /* ===== Global Typography ===== */
+/* The desktop-layout copy of a page's main heading (hidden on phones) is a role=heading div, so each page has exactly one h1 element */
+.h1-alt { display: block; font-size: 2em; font-weight: 800; margin: 0; color: var(--text-primary); }
+
 h1,h2,h3,h4,h5,h6 { 
   font-weight: 800; 
   margin: 0; 

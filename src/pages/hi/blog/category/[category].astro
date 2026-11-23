@@ -33,7 +33,8 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 const toAbsolute = (p?: string) => !p ? '' : (p.startsWith('http') ? p : new URL(p, API_BASE_URL).toString());
 const formatDate = (date: string) => new Date(date).toLocaleDateString('hi-IN', { year: 'numeric', month: 'long', day: 'numeric' });
 ---
-<Base title={pageTitle} description={pageDescription} canonical={canonical} lang={locale}>
+{/* noindex,follow + no hreflang - see blog/category/[category].astro */}
+<Base title={pageTitle} description={pageDescription} canonical={canonical} lang={locale} robotsIndex={false} alternateLangs={[]}>
 
   <div class="desktop-layout"><Header lang={locale} /></div>
   <div class="mobile-layout"><MobileAppShell title={h1} active="blog" lang={locale} showBack={true} /></div>

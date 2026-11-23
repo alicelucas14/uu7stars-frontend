@@ -81,10 +81,10 @@
     ]
   },
   "hero": {
-    "h1": "Starsuu7 — Teen Patti & Rummy real cash app",
-    "lead": "Play skill-based Teen Patti and Rummy on Starsuu7 with secure payments, quick <strong>withdrawals</strong>, and friendly 24/7 support. Download the Starsuu7 APK and start in minutes. For players 18+; play responsibly.",
-    "ctaAriaLabel": "Download the Starsuu7 app",
-    "ctaButton": "Download App",
+    "h1": "Starsuu7 – Official UU7 Game App",
+    "lead": "Starsuu7, also known as UU7 or 777, is the official site of the UU7 game app. Download the latest UU7 APK for Android, play Teen Patti, Rummy, Dragon Tiger and more, and contact our support team any time. 18+ only. Please play responsibly.",
+    "ctaAriaLabel": "Download UU7 APK",
+    "ctaButton": "Download UU7 APK",
     "ctaBonus": "Get Cash Bonus on 1st Add Cash*",
     "imageAlt": "Starsuu7 app — Teen Patti & Rummy real cash games"
   },
@@ -187,31 +187,31 @@
   },
   "promoHowToPlay": {
     "promoTitle": "Promotion & Offer",
-    "howToTitle": "How To Play Staruu7 Games",
+    "howToTitle": "How To Play Starsuu7 Games",
     "seeAll": "See All Promotions &rarr;",
     "steps": [
       {
         "title": "Basic Game Settings",
-        "text": "Two to five players usually play Teen Patti, with each player holding three cards. With the exception of the little king, it employs two set decks of cards, for a total of 106 cards."
+        "text": "Teen Patti is usually played by 3 to 6 players with one standard 52-card deck, without jokers. Each player gets three cards face down."
       },
       {
         "title": "Fundamental Game Rules",
-        "text": "Three hands are handed to each participant, and the larger hand wins after the cards are compared based on the type of hand."
+        "text": "Players bet in turns. Players who stay in until the end compare hands, and the best three-card hand wins the pot."
       },
       {
         "title": "Types of Cards",
         "list": [
-          "Trail, Trio, or Set (three individuals of the same rank)",
-          "Straight Flush, Pure Sequence, or Pure Run (three cards in the same suit in a row)",
-          "Run/Straight/Sequence (three cards in a row, not all in the same suit)",
-          "Color/Flush (three identical cards, not in order)",
-          "Pair/Two of a Kind (two identically ranked cards)",
-          "High Card: three cards that don't fit into any of the combinations listed above"
+          "Trail (or Set): three cards of the same rank",
+          "Pure sequence: three cards in a row, all of the same suit",
+          "Sequence (or Run): three cards in a row, not all of the same suit",
+          "Color: three cards of the same suit, not in a row",
+          "Pair: two cards of the same rank",
+          "High card: none of the above; the highest card counts"
         ]
       },
       {
         "title": "Ante Betting",
-        "text": "Each player puts a certain amount into the pot, which is the starting wager. After shuffling the deck, the dealer deals each player three cards, face down."
+        "text": "Before the cards are dealt, every player puts a fixed starting bet, the boot, into the pot. The dealer then deals three cards to each player, face down."
       }
     ]
   },

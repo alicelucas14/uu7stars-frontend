@@ -75,7 +75,7 @@ const reviewJsonLd = {
           
           <article class="main-content">
             <header class="review-header">
-              <h1>{review.title.en}</h1>
+              <div class="h1-alt" role="heading" aria-level="1">{review.title.en}</div>
               <p class="review-game-name" set:html={t('reviewPost.reviewOf').replace('{gameName}', review.gameName)}></p>
             </header>
             <div class="prose" set:html={contentHtml} />
@@ -204,7 +204,7 @@ const reviewJsonLd = {
   
   /* --- Main Content --- */
   .review-header { margin-bottom: 24px; }
-  .review-header h1 { font-size: clamp(28px, 4vw, 40px); margin-bottom: 4px; }
+  .review-header h1 , .review-header .h1-alt { font-size: clamp(28px, 4vw, 40px); margin-bottom: 4px; }
   .review-game-name { color: var(--text-secondary); }
 
   .prose { font-size: 17px; line-height: 1.8; }
