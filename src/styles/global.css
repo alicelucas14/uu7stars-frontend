@@ -253,4 +253,11 @@ button, .btn, .ghost-btn, .promo-link, .btn-header-download {
 /* Defensive: any absolutely positioned art layers stay clipped to their parent */
 .art-wrap, .hero__art { overflow: clip; }
 
+/* LiveChat new-message preview on phones (a ~320x116 card with the round chat button in its bottom-right corner): keep
+   only that button visible and tappable, so the card cannot cover the tab bar. The class is set by the script in
+   layouts/Base.astro (phones only, only while the box is the preview, not the button and not the open chat window). */
+#chat-widget-container.uu7-chat-popup-clip {
+  clip-path: inset(calc(100% - 80px) 0 0 calc(100% - 72px)) !important; /* the button is 60px, 9px from the right and 17px from the bottom */
+}
+
 /* END */

@@ -370,6 +370,25 @@ if (jsonLd) {
           if (t.closest('[data-gmm-close]')) { e.preventDefault(); closeMenu(); }
           if (t.closest('[data-gmm-link]')) { closeMenu(); }
         }, { passive: false });
+        // ---- LiveChat ----
+        // Phones only. LiveChat pops up a greeting card ("Hi, let us know if you have any questions") and, later, a
+        // new-message preview over the middle / bottom of the screen. They cover buttons and the tab bar until the
+        // visitor closes them. 1) The greeting is cancelled as soon as LiveChat announces it, so the chat box goes
+        // back to the round 84px button. 2) The preview (about 320x116, with the button in its corner) is clipped down
+        // to that button (class uu7-chat-popup-clip, defined in global.css). An open chat window (full screen) and
+        // everything on larger screens are left alone.
+        const lcPhone = window.matchMedia('(max-width: 767px)');
+        function watchChatBox(box) {
+          function sync() {
+            const w = box.offsetWidth, h = box.offsetHeight;
+            const isButton = w <= 100 && h <= 100;
+            const isOpen = w >= window.innerWidth * 0.9 && h >= window.innerHeight * 0.9;
+            box.classList.toggle('uu7-chat-popup-clip', lcPhone.matches && !isButton && !isOpen && h <= 200);
+          }
+          new MutationObserver(sync).observe(box, { attributes: true, attributeFilter: ['style'] });
+          window.addEventListener('resize', sync);
+          sync();
+        }
         let lcLoaded = false;
         function loadLiveChat() {
           if (lcLoaded) return;
@@ -378,23 +397,32 @@ if (jsonLd) {
           window.__lc.license = 18988469;
           window.__lc.integration_name = 'manual_channels';
           window.__lc.product_name = 'livechat';
+          // LiveChat's own start-up snippet first creates window.LiveChatWidget, a small queue that tracking.js takes
+          // over once it has loaded. Without it the widget waits about 3 seconds, during which an invisible
+          // full-screen layer sits on top of the page and swallows taps (Download button, tab bar...).
+          const lw = { _q: [], _h: null, _v: '2.0' };
+          const lwQueue = function (args) { return lw._h ? lw._h.apply(null, args) : lw._q.push(args); };
+          ['on', 'once', 'off', 'call'].forEach(function (m) { lw[m] = function () { lwQueue([m, [].slice.call(arguments)]); }; });
+          lw.get = function () {
+            if (!lw._h) throw new Error("[LiveChatWidget] You can't use getters before load.");
+            return lwQueue(['get', [].slice.call(arguments)]);
+          };
+          const lcApi = window.LiveChatWidget || (window.LiveChatWidget = lw);
+          // The greeting arrives as a "new_event" that carries a greeting object; hiding it then means it is never drawn.
+          // "greeting_displayed" is the fallback if it gets drawn anyway.
+          lcApi.on('new_event', function (ev) { if (lcPhone.matches && ev && ev.greeting) lcApi.call('hide_greeting'); });
+          lcApi.on('greeting_displayed', function () { if (lcPhone.matches) lcApi.call('hide_greeting'); });
           const s = document.createElement('script');
           s.async = true;
           s.src = 'https://cdn.livechatinc.com/tracking.js';
           document.head.appendChild(s);
-          (function waitLC() {
-            if (!window.LiveChatWidget || !window.LiveChatWidget.on) { setTimeout(waitLC, 80); return; }
-            window.LiveChatWidget.on('ready', function () {
-              try {
-                var bubble = document.getElementById('chat-widget-container');
-                if (bubble) {
-                  bubble.style.right = '12px';
-                  bubble.style.bottom = 'calc(160px + env(safe-area-inset-bottom))';
-                  bubble.style.zIndex = '10015';
-                }
-              } catch (_) {}
-            });
-          })();
+          // Pick up the chat box as soon as LiveChat adds it to the page (give up after a minute).
+          let lcTries = 0;
+          const lcTimer = setInterval(function () {
+            const box = document.getElementById('chat-widget-container');
+            if (box) { clearInterval(lcTimer); watchChatBox(box); }
+            else if (++lcTries > 240) clearInterval(lcTimer);
+          }, 250);
         }
         function onFirstIntent() {
           loadLiveChat();
