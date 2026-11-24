@@ -24,6 +24,11 @@ const {
 
 const t = useTranslations(lang);
 
+// A sticky bar only stays on screen inside its parent box. Pages that put their content inside this shell have a tall
+// parent, so it works there. Pages that use the shell on its own (blog lists, FAQ, About) would let the bar scroll away,
+// so for those the bar is fixed to the top of the screen and a spacer of the same height keeps the layout where it was.
+const wraps = Astro.slots.has('default');
+
 // --- UPDATED: All hrefs are now built dynamically using createPath ---
 const homePath = createPath('/', lang);
 const blogPath = createPath('/blog/', lang);
@@ -31,7 +36,7 @@ const promosPath = createPath('/#promos', lang);
 const downloadPath = createPath('/#download', lang);
 const faqPath = createPath('/faq/', lang);
 ---
-<div class="app-shell">
+<div class:list={['app-shell', { 'app-shell--bare': !wraps }]}>
   <!-- Top App Bar -->
   <header class="app-bar" role="banner">
     <div class="app-bar-safe">
@@ -106,6 +111,14 @@ const faqPath = createPath('/faq/', lang);
 <style>
   /* Styles remain unchanged */
   @media (min-width: 768px) { .app-bar, .tabbar, .dl-fab { display: none; } .app-content { padding-top: 0; padding-bottom: 0; } } .app-shell { position: relative; } .app-bar { position: sticky; top: 0; z-index: 100; background: var(--brand-orange); border-bottom: 1px solid color-mix(in oklab, black 12%, var(--brand-orange)); box-shadow: var(--shadow-md); color: #fff; } .app-bar-safe { padding-top: env(safe-area-inset-top); } .app-bar-inner { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; height: 60px; } .app-title { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; font-weight: 900; font-size: 17px; letter-spacing: .2px; } .app-title .logo { border-radius: 8px; } .app-icon-btn { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; border: 1px solid color-mix(in oklab, #fff 35%, var(--brand-orange)); background: color-mix(in oklab, var(--brand-orange) 72%, #000 28%); color: #fff; -webkit-tap-highlight-color: transparent; } .app-icon-btn:hover { background: color-mix(in oklab, var(--brand-orange) 60%, #000 40%); } .app-icon-btn:active { transform: translateY(1px); } .app-icon-btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; } .app-icon-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2.4; } .app-icon-btn.left { justify-self: start; } .app-actions { display: grid; justify-content: end; } .app-dl-pill { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: 999px; text-decoration: none; font-weight: 800; font-size: 13px; background: linear-gradient(180deg, var(--brand-gold), color-mix(in oklab, var(--brand-orange) 80%, var(--brand-gold))); color: #0b0b0f; box-shadow: 0 3px 8px rgba(0,0,0,.25); -webkit-tap-highlight-color: transparent; white-space: nowrap; } .app-dl-pill svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.6; } .app-dl-pill:active { transform: translateY(1px); } .app-dl-pill:focus-visible { outline: 3px solid #fff; outline-offset: 2px; } .app-content { padding-top: 0; padding-bottom: calc(72px + env(safe-area-inset-bottom)); } .tabbar  { position: fixed; inset-inline: 0; bottom: 0; z-index: 10020; background: var(--brand-orange); border-top: 1px solid color-mix(in oklab, black 12%, var(--brand-orange)); box-shadow: 0 -6px 18px rgba(0,0,0,.18); color: #fff; } .dl-fab  { z-index: 10030; position: fixed; right: 14px; bottom: calc(86px + env(safe-area-inset-bottom)); display: inline-grid; grid-auto-flow: column; align-items: center; gap: 8px; padding: 12px 14px; border-radius: 16px; text-decoration: none; font-weight: 900; letter-spacing: .2px; background: linear-gradient(180deg, var(--brand-gold), var(--brand-orange)); color: #0b0b0f; box-shadow: 0 10px 30px rgba(0,0,0,.25); border: 1px solid color-mix(in oklab, #000 12%, var(--brand-gold)); -webkit-tap-highlight-color: transparent; } .dl-fab svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2.6; } .dl-fab:active { transform: translateY(1px); } .dl-fab:focus-visible { outline: 3px solid #fff; outline-offset: 2px; } .tabbar-safe { display: grid; grid-template-columns: repeat(5, 1fr); align-items: stretch; height: calc(64px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); } .tab { display: grid; place-items: center; gap: 6px; text-decoration: none; color: color-mix(in oklab, #fff 88%, #000); font-size: 12px; padding-block: 8px; -webkit-tap-highlight-color: transparent; position: relative; } .tab .ico svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2.6; } .tab .lbl { font-weight: 700; letter-spacing: .1px; } .tab.is-active { color: #fff; } .tab.is-active .lbl { color: var(--brand-gold); } .tab:active { background: color-mix(in oklab, var(--brand-orange) 70%, #000 30%); } .tab:focus-visible { outline: 3px solid #fff; outline-offset: -3px; border-radius: 12px; } .badge-wrap { position: relative; } .badge { position: absolute; top: -4px; right: -10px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 10px; background: var(--brand-gold); color: #0b0b0f; font-size: 10px; font-weight: 900; line-height: 18px; text-align: center; border: 1px solid color-mix(in oklab, #000 20%, var(--brand-gold)); } @media (prefers-reduced-motion: reduce) { .app-icon-btn:active, .tab:active, .dl-fab:active { transform: none; } } @media (max-width: 767px) { :global(.site-header) { display: none !important; } }
+</style>
+
+<style>
+  /* Shell used on its own (no content inside it): keep the top bar on screen while the page scrolls.
+     Spacer height = bar (60px) + its 1px border + the phone's top safe area. */
+  .app-shell--bare .app-bar { position: fixed; top: 0; left: 0; right: 0; }
+  .app-shell--bare::before { content: ""; display: block; height: calc(61px + env(safe-area-inset-top)); }
+  @media (min-width: 768px) { .app-shell--bare::before { display: none; } }
 </style>
 
 <script is:inline>
