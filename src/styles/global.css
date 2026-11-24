@@ -111,14 +111,16 @@ a:hover {
 }
 
 /* The floating social bar hugs the left edge of every desktop page (about 73px wide). On screens narrower than about
-   1330px a page's content would start underneath it. A block that opts in with class="clear-social-bar" (the home pages'
+   1330px a page's content would start underneath it. A block that opts in with class="clear-social-bar" (the home, blog,
+   promotions and reviews pages' desktop
    <main> and the footer) keeps the .container content inside it at least 88px from the edge: the extra gutter is added on
    BOTH sides so the content stays centred, shrinks as the screen gets wider, and is 0 from about 1330px up
-   (--cmax must match the .container max-width above). */
+   (--cmax / --cpad = the container's max-width and normal side padding as above; a page whose container differs sets them
+   on its own <main>, as the single promotion page does). */
 @media (min-width: 768px) {
+  .clear-social-bar { --cmax: 1200px; --cpad: 24px; }
   .clear-social-bar .container {
-    --cmax: 1200px;
-    padding-inline: calc(24px + clamp(0px, calc(64px - (100vw - var(--cmax)) / 2), 64px));
+    padding-inline: max(var(--cpad), calc(88px - max(0px, (100vw - var(--cmax)) / 2)));
   }
 }
 
