@@ -95,6 +95,11 @@ const toAbsolute = (p?: string) => !p ? '' : (p.startsWith('http') ? p : new URL
           <li>{nextUrl ? (<a class="pg-btn" href={nextUrl} aria-label="Next page">{t('blogIndex.pager.next')}</a>) : (<span class="pg-btn" aria-disabled="true">{t('blogIndex.pager.next')}</span>)}</li>
           <li class="desktop-layout">{CURRENT_PAGE < totalPages ? (<a class="pg-btn" href={blogRoot + `page/${totalPages}/`} aria-label="Go to last page">{t('blogIndex.pager.last')}</a>) : (<span class="pg-btn" aria-disabled="true">{t('blogIndex.pager.last')}</span>)}</li>
         </ul>
+        <ol class="pg-numbers">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+            <li>{n === CURRENT_PAGE ? (<span class="pg-num is-current" aria-current="page">{n}</span>) : (<a class="pg-num" href={n === 1 ? blogRoot : blogRoot + `page/${n}/`}>{n}</a>)}</li>
+          ))}
+        </ol>
       </nav>
     </div>
   </main>
@@ -144,5 +149,9 @@ const toAbsolute = (p?: string) => !p ? '' : (p.startsWith('http') ? p : new URL
  .pager ul { list-style: none; padding: 0; margin: 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; align-items: center; }
  .pg-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 72px; height: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--ring); background: var(--surface-2); color: var(--text-primary); font-weight: 700; text-decoration: none; }
  .pg-btn[aria-disabled="true"] { opacity: .6; pointer-events: none; }
- .pg-status { font-weight: 700; color: var(--text-secondary); padding: 6px 8px; }
+ .pg-status { font-weight: 700; color: var(--text-secondary); padding: 6px 8px; }
+ .pg-numbers { list-style: none; padding: 0; margin: 14px 0 0; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
+ .pg-num { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 8px; border-radius: 10px; border: 1px solid var(--ring); background: var(--surface); color: var(--text-primary); font-weight: 700; text-decoration: none; }
+ a.pg-num:hover { background: var(--surface-2); }
+ .pg-num.is-current { background: var(--brand-orange); border-color: var(--brand-orange); color: #fff; }
 </style>

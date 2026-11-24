@@ -4,6 +4,7 @@
 
 import type { APIRoute } from 'astro';
 import { getReviews } from '../services/api';
+import { isRealHindi } from '../lib/hreflang';
 import { buildUrlset, bothLists, mergeLocales, unavailableResponse, xmlResponse, type SitemapItem } from '../lib/sitemap';
 
 export const GET: APIRoute = async ({ site }) => {
@@ -19,7 +20,8 @@ export const GET: APIRoute = async ({ site }) => {
       path: `/reviews/${encodeURIComponent(m.slug.trim())}/`,
       lastmod: (m.enItem ?? m.hiItem)?.updatedAt,
       en: m.en,
-      hi: m.hi,
+      // The API flags finished Hindi reviews as untranslated; trust the Hindi text itself.
+      hi: m.hi || isRealHindi(m.hiItem?.title, m.hiItem?.excerpt),
     }));
 
   return xmlResponse(buildUrlset(siteUrl, items));
