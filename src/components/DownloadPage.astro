@@ -1,0 +1,280 @@
+---
+// ===== src/components/DownloadPage.astro =====
+// The whole Download page for one language; src/pages/download.astro (en) and src/pages/hi/download.astro (hi) just render
+// this. The download box itself (APK button, QR code, version / size, mirror + copy link, install helper) is the same
+// DownloadCTA block the home page uses, so the download logic lives in one place. The text is in locales/*.json under
+// "downloadPage". The version and file size come from data/release.json, like on the home page.
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import MobileAppShell from './MobileAppShell.astro';
+import DownloadCTA from './DownloadCTA.astro';
+import { useTranslations } from '../lib/i18n';
+import { createPath } from '../lib/paths';
+import type { Locale } from '../i18n';
+
+interface Props { lang: Locale; }
+const locale: Locale = Astro.props.lang;
+const t = useTranslations(locale);
+const p = t('downloadPage');
+
+let release: Record<string, string> = {};
+try {
+  release = (await import('../data/release.json')).default as Record<string, string>;
+} catch (_) {}
+const size = release.size ?? '—';
+const fill = (s: string) => s.replace('{size}', size);
+
+const path = createPath('/download/', locale);
+const canonical = new URL(path, Astro.site).toString();
+const homeUrl = new URL(createPath('/', locale), Astro.site).toString();
+
+const guideHref = createPath('/blog/uu7-game-apk-for-android-step-by-step-download-for-players/', locale);
+const faqHref = createPath('/faq/', locale);
+const contactHref = createPath('/about/', locale) + '#contact';
+const responsibleHref = createPath('/responsible-gaming/', locale);
+
+const steps: { title: string; text: string }[] = p.steps;
+const faq: { q: string; a: string }[] = p.faq;
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: p.metaTitle,
+    description: p.metaDescription,
+    url: canonical,
+    inLanguage: locale === 'hi' ? 'hi-IN' : 'en-IN',
+    breadcrumb: { '@id': canonical + '#breadcrumb' },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    '@id': canonical + '#breadcrumb',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: p.breadcrumbHome, item: homeUrl },
+      { '@type': 'ListItem', position: 2, name: p.breadcrumbDownload, item: canonical },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  },
+];
+---
+
+<Base title={p.metaTitle} description={p.metaDescription} canonical={canonical} jsonLd={jsonLd}>
+  <div class="desktop-only"><Header lang={locale} /></div>
+  <div class="mobile-only"><MobileAppShell title={p.shellTitle} active="download" showFab={false} lang={locale} /></div>
+
+  <main class:list={['download-page', 'clear-social-bar', { 'is-hi': locale === 'hi' }]}>
+    {/* ---------- Intro ---------- */}
+    <section class="dl-intro">
+      <div class="container">
+        <span class="eyebrow">{p.eyebrow}</span>
+        <h1>{p.h1}</h1>
+        <p class="lead">{p.lead}</p>
+        <ul class="facts">
+          {p.chips.map((c: string) => <li>{c}</li>)}
+        </ul>
+      </div>
+    </section>
+
+    {/* ---------- The download box (same block as on the home page) ---------- */}
+    <DownloadCTA lang={locale} />
+
+    {/* ---------- Install steps ---------- */}
+    <section class="steps-section" aria-labelledby="dl-steps-title">
+      <div class="container">
+        <h2 id="dl-steps-title">{p.stepsTitle}</h2>
+        <p class="section-lead">{p.stepsLead}</p>
+        <ol class="steps">
+          {steps.map((s) => (
+            <li>
+              <h3>{s.title}</h3>
+              <p>{fill(s.text)}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    {/* ---------- Requirements + safety ---------- */}
+    <section class="info-section">
+      <div class="container info-grid">
+        <div class="info-card">
+          <h2>{p.needTitle}</h2>
+          <ul class="ticks">
+            {p.need.map((n: string) => <li>{fill(n)}</li>)}
+          </ul>
+        </div>
+        <div class="info-card">
+          <h2>{p.safeTitle}</h2>
+          <ul class="ticks shield">
+            {p.safe.map((n: string) => <li>{n}</li>)}
+          </ul>
+          <a class="text-link" href={responsibleHref}>{p.safeLink} &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    {/* ---------- Questions ---------- */}
+    <section class="faq-section" aria-labelledby="dl-faq-title">
+      <div class="container">
+        <h2 id="dl-faq-title">{p.faqTitle}</h2>
+        <div class="faq-list">
+          {faq.map((f) => (
+            <details>
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* ---------- Help ---------- */}
+    <section class="help-section">
+      <div class="container">
+        <div class="help-card">
+          <div class="help-copy">
+            <h2>{p.helpTitle}</h2>
+            <p>{p.helpText}</p>
+          </div>
+          <div class="help-actions">
+            <a class="help-btn primary" href={guideHref}>{p.helpGuide}</a>
+            <a class="help-btn" href={faqHref}>{p.helpFaq}</a>
+            <a class="help-btn" href={contactHref}>{p.helpContact}</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer lang={locale} />
+</Base>
+
+<style>
+  .desktop-only { display: block; }
+  .mobile-only { display: none; }
+  @media (max-width: 767px) {
+    .desktop-only { display: none; }
+    .mobile-only { display: block; }
+  }
+
+  .download-page { color: var(--text-primary); }
+
+  /* Intro */
+  .dl-intro {
+    padding-block: clamp(36px, 6vw, 72px) clamp(8px, 2vw, 16px);
+    text-align: center;
+    background: radial-gradient(90% 120% at 50% -30%, color-mix(in oklab, var(--brand-gold) 34%, transparent), transparent 70%), var(--surface);
+  }
+  .eyebrow {
+    display: inline-block; margin-bottom: 16px; padding: 6px 14px; border-radius: 999px;
+    font-size: 13px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+    color: #c2410c; background: rgba(249, 115, 22, .12); border: 1px solid rgba(249, 115, 22, .3);
+  }
+  .dl-intro h1 {
+    margin: 0 auto; max-width: 20ch; font-size: clamp(30px, 5vw, 56px); line-height: 1.06; font-weight: 800; letter-spacing: -.02em;
+    color: var(--text-primary);
+  }
+  /* Devanagari needs more room between lines than Latin text, or the marks above and below touch */
+  .is-hi .dl-intro h1 { line-height: 1.4; letter-spacing: 0; }
+  .is-hi .steps h3, .is-hi h2 { line-height: 1.4; }
+  .lead { margin: 18px auto 0; max-width: 62ch; font-size: clamp(16px, 1.6vw, 19px); line-height: 1.65; color: var(--text-secondary); }
+  .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 22px 0 0; padding: 0; list-style: none; }
+  .facts li {
+    padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 700;
+    color: var(--text-primary); background: var(--surface); border: 1px solid var(--ring); box-shadow: var(--shadow-md);
+  }
+
+  /* Shared section bits */
+  .steps-section, .info-section, .faq-section, .help-section { padding-block: clamp(24px, 4vw, 48px); }
+  h2 { margin: 0 0 8px; font-size: clamp(22px, 3vw, 32px); line-height: 1.2; color: var(--text-primary); }
+  .section-lead { margin: 0 0 24px; color: var(--text-secondary); line-height: 1.6; }
+
+  /* Steps: numbered cards */
+  .steps { counter-reset: step; display: grid; grid-template-columns: 1fr; gap: 16px; margin: 0; padding: 0; list-style: none; }
+  /* 5 steps: 2 columns on tablets (last one full width), then 3 + 2 wide cards on desktop, so no card is left on its own */
+  @media (min-width: 640px) {
+    .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps li:last-child { grid-column: 1 / -1; }
+  }
+  @media (min-width: 1000px) {
+    .steps { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .steps li { grid-column: span 2; }
+    .steps li:nth-child(n + 4) { grid-column: span 3; }
+  }
+  .steps li {
+    counter-increment: step; position: relative; padding: 22px 20px 20px; border-radius: 20px;
+    background: var(--surface); border: 1px solid var(--ring); box-shadow: var(--shadow-md);
+  }
+  .steps li::before {
+    content: counter(step); display: grid; place-items: center; width: 38px; height: 38px; margin-bottom: 14px; border-radius: 50%;
+    font-weight: 800; font-size: 18px; color: #fff; background: linear-gradient(135deg, #e0620a, #f58a22);
+    box-shadow: 0 8px 18px -8px rgba(224, 98, 10, .8);
+  }
+  .steps h3 { margin: 0 0 6px; font-size: 18px; color: var(--text-primary); }
+  .steps p { margin: 0; line-height: 1.6; color: var(--text-secondary); }
+
+  /* What you need + stay safe */
+  .info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .info-card { padding: clamp(20px, 3vw, 28px); border-radius: 22px; background: var(--surface-2); border: 1px solid var(--ring); }
+  .info-card h2 { font-size: clamp(20px, 2.4vw, 26px); margin-bottom: 14px; }
+  .ticks { display: grid; gap: 10px; margin: 0 0 14px; padding: 0; list-style: none; }
+  .ticks li { position: relative; padding-left: 30px; line-height: 1.55; color: var(--text-secondary); }
+  .ticks li::before {
+    content: ""; position: absolute; left: 0; top: .2em; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--brand-green) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 14px no-repeat;
+  }
+  .ticks.shield li::before { background-color: var(--brand-orange); }
+  .text-link { display: inline-block; font-weight: 700; color: #c2410c; text-decoration: none; }
+  .text-link:hover { text-decoration: underline; }
+
+  /* Questions */
+  .faq-list { display: grid; gap: 10px; }
+  .faq-list details { border-radius: 16px; background: var(--surface); border: 1px solid var(--ring); box-shadow: var(--shadow-md); overflow: hidden; }
+  .faq-list summary {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 18px; cursor: pointer;
+    font-weight: 700; color: var(--text-primary); list-style: none;
+  }
+  .faq-list summary::-webkit-details-marker { display: none; }
+  .faq-list summary::after { content: "+"; flex: none; font-size: 24px; line-height: 1; font-weight: 600; color: #c2410c; transition: transform .15s; }
+  .faq-list details[open] summary::after { transform: rotate(45deg); }
+  .faq-list summary:focus-visible { outline: 3px solid var(--brand-orange); outline-offset: -3px; }
+  .faq-list details p { margin: 0; padding: 0 18px 18px; line-height: 1.65; color: var(--text-secondary); }
+
+  /* Help band */
+  .help-section { padding-bottom: clamp(36px, 6vw, 72px); }
+  .help-card {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;
+    padding: clamp(22px, 4vw, 36px); border-radius: 24px; color: #fff;
+    background: linear-gradient(135deg, var(--brand-orange), color-mix(in oklab, var(--brand-orange) 78%, #7c2d12));
+    box-shadow: 0 16px 36px -16px rgba(194, 65, 12, .7);
+  }
+  .help-copy h2 { margin: 0 0 4px; color: #fff; }
+  .help-copy p { margin: 0; color: #fff; opacity: .95; }
+  .help-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .help-btn {
+    display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 10px 20px; border-radius: 999px;
+    font-weight: 800; text-decoration: none; color: #fff; border: 2px solid rgba(255, 255, 255, .7); transition: transform .15s, background .15s;
+  }
+  .help-btn:hover { transform: translateY(-2px); background: rgba(255, 255, 255, .14); }
+  .help-btn.primary { color: #7c2d12; background: #fff; border-color: #fff; }
+  .help-btn.primary:hover { background: #fff7ed; }
+  .help-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+  @media (max-width: 767px) {
+    /* The phone header is fixed and its empty content area leaves a blank band under it (same fix as the About page) */
+    .dl-intro { margin-top: calc(-72px - env(safe-area-inset-bottom)); padding-top: 40px; }
+    .info-grid { grid-template-columns: 1fr; }
+    .help-card { flex-direction: column; align-items: flex-start; }
+    .help-actions { width: 100%; }
+    .help-btn { flex: 1 1 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .help-btn, .faq-list summary::after { transition: none; }
+  }
+</style>

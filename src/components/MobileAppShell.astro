@@ -33,7 +33,7 @@ const wraps = Astro.slots.has('default');
 const homePath = createPath('/', lang);
 const blogPath = createPath('/blog/', lang);
 const promosPath = createPath('/#promos', lang);
-const downloadPath = createPath('/#download', lang);
+const downloadPath = createPath('/download/', lang);
 const faqPath = createPath('/faq/', lang);
 ---
 <div class:list={['app-shell', { 'app-shell--bare': !wraps }]}>

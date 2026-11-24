@@ -88,7 +88,7 @@ const menuLinks = [
   // Custom pages ticked "Show in the website menu" in the admin
   ...(await getMenuPages(lang)),
 ];
-const downloadLink = linkPath('/#download', lang);
+const downloadLink = linkPath('/download/', lang);
 
 const settings = await getSettings(); 
 const brandName = settings?.siteName || 'Starsuu7';

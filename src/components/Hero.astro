@@ -2,6 +2,7 @@
 // src/components/Hero.astro — REFACTORED for i18n
 import type { Locale } from '../i18n';
 import { useTranslations } from '../lib/i18n';
+import { createPath } from '../lib/paths';
 
 // --- ADDED: Language props and translation function ---
 interface Props {
@@ -27,7 +28,7 @@ const HERO_WEBP = "/wordpress/STARSUU7-Game.webp";
 
       <div class="cta-group">
         {/* UPDATED: Use the 't' function for the aria-label */}
-        <a href="#download" class="hero-cta-unit" aria-label={t('hero.ctaAriaLabel')}>
+        <a href={createPath('/download/', lang)} class="hero-cta-unit" aria-label={t('hero.ctaAriaLabel')}>
           <div class="btn-hero-top">
             <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>

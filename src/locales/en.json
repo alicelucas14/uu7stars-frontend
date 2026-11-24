@@ -116,7 +116,7 @@
   "aboutTabs": {
     "title": "About Starsuu7",
     "intro1": "Starsuu7, also known as UU7 or 777, is a mobile-first app for playing Teen Patti, Rummy and more, with easy sign-up, quick wallet actions and in-app support. The official website is uu7stars.com.",
-    "intro2": "New here? Go to the <a href=\"/#download\">Download section</a> to get the official APK and start in minutes. For eligibility and safety, see our <a href=\"/faq/#compliance\">FAQ</a>.",
+    "intro2": "New here? Go to the <a href=\"/download/\">Download page</a> to get the official APK and start in minutes. For eligibility and safety, see our <a href=\"/faq/#compliance\">FAQ</a>.",
     "tab1": {
       "title": "What makes Starsuu7 safe?",
       "h1": "Standard security practices",
@@ -135,11 +135,11 @@
     "tab3": {
       "title": "Discover Starsuu7 Online",
       "h1": "Game Highlights",
-      "p1": "Explore Teen Patti, Rummy, Andar Bahar, Dragon vs Tiger, and more—new titles are added periodically. Jump in from the <a href=\"/#games\">Games</a> section or go straight to the <a href=\"/#download\">Download</a> button to play on Android.",
+      "p1": "Explore Teen Patti, Rummy, Andar Bahar, Dragon vs Tiger, and more—new titles are added periodically. Jump in from the <a href=\"/#games\">Games</a> section or go straight to the <a href=\"/download/\">Download</a> button to play on Android.",
       "h2": "Smooth Mobile Experience",
       "p2": "Starsuu7 runs great on modern Android devices. For the best experience, keep your OS updated and disable aggressive battery savers that can throttle live gameplay.",
       "h3": "Get the APK",
-      "p3": "Install the latest build from the official site. Use the primary CDN or the mirror link based on your network conditions: visit <a href=\"/#download\">Download Starsuu7 APK</a>."
+      "p3": "Install the latest build from the official site. Use the primary CDN or the mirror link based on your network conditions: visit <a href=\"/download/\">Download Starsuu7 APK</a>."
     }
   },
   "howToPlay": {
@@ -493,5 +493,83 @@
         "content": "<p>If you are concerned about your gaming habits or are affected by someone else's, there are resources available to provide help and support. We encourage you to seek assistance from relevant counseling organizations if you feel you need it.</p>"
       }
     ]
+  },
+  "downloadPage": {
+    "metaTitle": "Download Starsuu7 APK for Android | Official UU7 App",
+    "metaDescription": "Download the official Starsuu7 (UU7 • 777) APK for Android. Get the latest version, scan the QR code and follow the simple install steps. 18+ only.",
+    "shellTitle": "Download",
+    "breadcrumbHome": "Home",
+    "breadcrumbDownload": "Download",
+    "eyebrow": "Official app · Android",
+    "h1": "Download the Starsuu7 APK for Android",
+    "lead": "Get the latest official Starsuu7 (UU7 • 777) app straight from uu7stars.com. Tap the download button below, or scan the QR code with your phone, then follow the short steps to install it.",
+    "chips": [
+      "Free to download",
+      "Direct from uu7stars.com",
+      "18+ only"
+    ],
+    "stepsTitle": "How to install Starsuu7 on Android",
+    "stepsLead": "It takes about a minute. Follow the steps in order.",
+    "steps": [
+      {
+        "title": "Tap “Download APK”",
+        "text": "Use the Download APK button above, or scan the QR code with your phone. The file is about {size}."
+      },
+      {
+        "title": "Open the file",
+        "text": "When the download finishes, tap Open in the notification, or find the file in your Downloads folder."
+      },
+      {
+        "title": "Allow the install",
+        "text": "If Android asks, allow your browser to install unknown apps. You only need to do this once, and you can switch it off again afterwards."
+      },
+      {
+        "title": "Tap Install, then Open",
+        "text": "Wait for the install to finish, then open the app."
+      },
+      {
+        "title": "Sign up and play",
+        "text": "Create your account and finish the quick KYC. New users get a cash bonus on their first add cash (bonus terms apply)."
+      }
+    ],
+    "needTitle": "What you need",
+    "need": [
+      "An Android phone or tablet",
+      "About {size} of free space",
+      "An internet connection",
+      "To be 18 years or older"
+    ],
+    "safeTitle": "Stay safe",
+    "safe": [
+      "Download the app only from uu7stars.com.",
+      "Never share your OTP or password. Starsuu7 support will never ask for it.",
+      "Allow unknown-app installs only for the browser you used to download the file.",
+      "Play responsibly, and only with money you can afford to lose."
+    ],
+    "safeLink": "Read our Responsible Gaming page",
+    "faqTitle": "Download questions",
+    "faq": [
+      {
+        "q": "Is the Starsuu7 app free to download?",
+        "a": "Yes, downloading the app costs nothing. Real-cash games use money you add yourself, so play responsibly. 18+ only."
+      },
+      {
+        "q": "Why does Android ask me to allow unknown apps?",
+        "a": "The app is installed from an APK file instead of from an app store, so Android asks you to confirm. Allow it only for the browser you used to download the file, and only for files from uu7stars.com."
+      },
+      {
+        "q": "I do not have an Android phone. Can I still play?",
+        "a": "The app on this page is for Android. You can also play in your phone’s browser."
+      },
+      {
+        "q": "The download is slow or stops. What can I do?",
+        "a": "Try the Mirror Link in the download box above, switch between Wi-Fi and mobile data, or tap Copy Link and open it in another browser. If it still does not work, contact our support team."
+      }
+    ],
+    "helpTitle": "Need help installing?",
+    "helpText": "Our support team is available 24/7.",
+    "helpGuide": "Step-by-step APK guide",
+    "helpFaq": "Read the FAQ",
+    "helpContact": "Contact support"
   }
 }

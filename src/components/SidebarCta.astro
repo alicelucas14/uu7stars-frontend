@@ -10,7 +10,7 @@ interface Props {
 }
 const { lang = 'en' } = Astro.props;
 const t = useTranslations(lang);
-const downloadPath = createPath('/#download', lang);
+const downloadPath = createPath('/download/', lang);
 ---
 <div class="sidebar-cta-card">
   <img src="/logo.webp" alt="Starsuu7 Logo" width="60" height="60" loading="lazy" />
