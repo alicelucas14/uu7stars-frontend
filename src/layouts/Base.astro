@@ -375,15 +375,27 @@ if (jsonLd) {
         // new-message preview over the middle / bottom of the screen. They cover buttons and the tab bar until the
         // visitor closes them. 1) The greeting is cancelled as soon as LiveChat announces it, so the chat box goes
         // back to the round 84px button. 2) The preview (about 320x116, with the button in its corner) is clipped down
-        // to that button (class uu7-chat-popup-clip, defined in global.css). An open chat window (full screen) and
+        // to that button (class uu7-chat-popup-clip, defined in global.css). 3) LiveChat puts its round button in the
+        // bottom-right corner, right on top of the FAQ tab of the bottom tab bar, so FAQ could not be tapped. While the
+        // chat is not open, the box is lifted to sit just above the tab bar (class uu7-chat-lift, with --uu7-chat-lift =
+        // the tab bar's height; pages without a tab bar are left alone). An open chat window (full screen) and
         // everything on larger screens are left alone.
         const lcPhone = window.matchMedia('(max-width: 767px)');
+        function tabBarHeight() {
+          const bar = Array.from(document.querySelectorAll('.tabbar')).find(function (n) { return n.offsetHeight > 0; });
+          return bar ? bar.offsetHeight : 0;
+        }
         function watchChatBox(box) {
           function sync() {
             const w = box.offsetWidth, h = box.offsetHeight;
             const isButton = w <= 100 && h <= 100;
             const isOpen = w >= window.innerWidth * 0.9 && h >= window.innerHeight * 0.9;
             box.classList.toggle('uu7-chat-popup-clip', lcPhone.matches && !isButton && !isOpen && h <= 200);
+            // Never lift something that would then stick out at the top of the screen.
+            const lift = lcPhone.matches && !isOpen ? tabBarHeight() : 0;
+            const doLift = lift > 0 && h + lift <= window.innerHeight;
+            if (doLift) document.documentElement.style.setProperty('--uu7-chat-lift', lift + 'px');
+            box.classList.toggle('uu7-chat-lift', doLift);
           }
           new MutationObserver(sync).observe(box, { attributes: true, attributeFilter: ['style'] });
           window.addEventListener('resize', sync);
