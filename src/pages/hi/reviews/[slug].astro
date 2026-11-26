@@ -41,7 +41,8 @@ const imageUrl = review.image.startsWith('http') ? review.image : `${API_BASE_UR
 const contentHtml = await renderMarkdown(review.body.hi);
 
 const pageTitle = t('reviewPost.title').replace('{reviewTitle}', review.title.hi);
-const pageDescription = t('reviewPost.description').replace('{gameName}', review.gameName);
+// The admin's "Meta description" (Hindi) when filled in; otherwise the standard sentence about the game.
+const pageDescription = review.metaDescription?.hi?.trim() || t('reviewPost.description').replace('{gameName}', review.gameName);
 const canonical = new URL(`/hi/reviews/${slug}/`, Astro.site).toString();
 
 // The admin API flags finished Hindi reviews as untranslated; trust the text itself.
@@ -71,7 +72,7 @@ const reviewJsonLd = {
   }
 };
 ---
-<Base alternateLangs={hreflangLangs(seoLangs, Astro.site)} title={pageTitle} description={pageDescription} canonical={canonical} jsonLd={reviewJsonLd} schemaMarkup={review.schemaMarkup} robotsIndex={langIsIndexable(seoLangs, locale)}>
+<Base alternateLangs={hreflangLangs(seoLangs, Astro.site)} title={pageTitle} description={pageDescription} focusKeyword={review.focusKeyword} canonical={canonical} jsonLd={reviewJsonLd} schemaMarkup={review.schemaMarkup} robotsIndex={langIsIndexable(seoLangs, locale)}>
 
   <div class="desktop-layout">
     <Header lang={locale} />
