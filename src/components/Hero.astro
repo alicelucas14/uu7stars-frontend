@@ -118,21 +118,17 @@ const HERO_WEBP = "/wordpress/STARSUU7-Game.webp";
   }
   .lead { max-width: 56ch; margin: 0; font-size: clamp(16px, 1.25vw, 18px); line-height: 1.65; color: rgba(255,255,255,.95); text-shadow: 0 1px 8px rgba(124, 45, 18, .18); }
 
-  .hero__badges { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; }
+  /* trust line: plain text with small gold icons and hairline dividers, no boxes */
+  .hero__badges { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 0; margin: 20px 0 0; padding: 0; }
   .hero__badges li {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 4px 11px 4px 4px; border-radius: 999px;
-    font-size: 12px; font-weight: 700; letter-spacing: .1px; line-height: 1; white-space: nowrap; color: #fff;
-    background: linear-gradient(180deg, rgba(124, 45, 18, .30), rgba(124, 45, 18, .20));
-    border: 1px solid rgba(255,255,255,.34);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 4px 10px -4px rgba(124, 45, 18, .35);
-    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    position: relative; display: inline-flex; align-items: center; gap: 8px;
+    padding: 0 18px; font-size: 13px; font-weight: 700; letter-spacing: .2px; line-height: 1.2; color: #fff;
+    text-shadow: 0 1px 8px rgba(124, 45, 18, .3);
   }
-  .badge-ico {
-    display: inline-grid; place-items: center; flex: none; width: 20px; height: 20px; border-radius: 50%;
-    color: var(--ink); background: linear-gradient(180deg, #fde047, var(--brand-gold) 60%, #f5b50b);
-    box-shadow: 0 1px 3px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.6);
-  }
+  .hero__badges li:first-child { padding-left: 0; }
+  .hero__badges li + li::before { content: ""; position: absolute; left: 0; top: 50%; width: 1px; height: 16px; transform: translateY(-50%); background: rgba(255,255,255,.5); }
+  .badge-ico { display: inline-grid; place-items: center; flex: none; color: #fff7c2; filter: drop-shadow(0 1px 3px rgba(124, 45, 18, .35)); }
+  .badge-ico svg { width: 17px; height: 17px; }
 
   .cta-group { display: block; margin-top: 30px; }
   .hero-cta-unit {
@@ -188,15 +184,12 @@ const HERO_WEBP = "/wordpress/STARSUU7-Game.webp";
   .art-wrap:hover .hero__art { transform: translateY(14px) scale(1.11); }
   @keyframes hero-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
 
-  /* phones: three equal compact tiles in one row (icon above the label), also fits the longer Hindi labels */
+  /* phones: three equal columns, icon above the text, hairline dividers; clear of the floating share bar and language tab */
   @media (max-width: 560px) {
-    .hero__badges { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; max-width: 420px; margin-inline: auto; }
-    .hero__badges li { flex-direction: column; justify-content: flex-start; gap: 6px; padding: 9px 6px 8px; border-radius: 14px; font-size: 11.5px; line-height: 1.2; text-align: center; white-space: normal; }
-    .badge-ico { width: 24px; height: 24px; }
-    .badge-ico svg { width: 13px; height: 13px; }
+    .hero__badges { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; max-width: 300px; margin-inline: auto; }
+    .hero__badges li, .hero__badges li:first-child { flex-direction: column; justify-content: flex-start; gap: 6px; padding: 2px 6px; font-size: 11.5px; text-align: center; }
+    .hero__badges li + li::before { height: 34px; top: 50%; }
   }
-  /* keep clear of the floating share bar (left) and language tab (right) */
-  @media (max-width: 440px) { .hero__badges { max-width: 296px; gap: 6px; } .hero__badges li { padding-inline: 4px; font-size: 11px; } }
   @media (prefers-reduced-motion: reduce) {
     .hero-cta-unit, .btn-hero-top::after, .hero__art { transition: none !important; animation: none !important; transform: none !important; }
   }
