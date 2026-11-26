@@ -258,7 +258,9 @@
     "aria": {
       "goBack": "वापस जाएं",
       "openMenu": "मेनू खोलें",
-      "downloadApp": "ऐप डाउनलोड करें"
+      "downloadApp": "ऐप डाउनलोड करें",
+      "menu": "मेनू",
+      "closeMenu": "मेनू बंद करें"
     }
   },
   "blogIndex": {

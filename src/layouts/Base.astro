@@ -12,6 +12,7 @@ import PopupBanner from '../components/PopupBanner.astro';
 import SocialSidebar from '../components/SocialSidebar.astro';
 import SplashVideo from '../components/SplashVideo.astro';
 import { useI18n, locales, createPath, getPathWithoutLocale } from '../i18n';
+import { useTranslations } from '../lib/i18n';
 import { toPlainText } from '../lib/plainText';
 import { resolveExtraSocialLinks, isSocialLinkActive } from '../lib/socialPlatforms';
 import { getMenuPages } from '../lib/menuPages';
@@ -79,14 +80,26 @@ const pathWithoutLocale = getPathWithoutLocale(pathname);
 const hreflangLocales = locales.filter((l) => !alternateLangs || alternateLangs.includes(l as 'en' | 'hi'));
 const hreflangDefault = hreflangLocales.includes('en' as any) ? 'en' : hreflangLocales[0];
 
+const tMenu = useTranslations(lang);
+// Which small icon each menu entry gets (custom pages from the admin use the generic page icon).
+const MENU_ICONS: Record<string, string> = {
+  how: '<circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z"/>',
+  promos: '<path d="M20 12v8H4v-8M2 7h20v5H2zM12 22V7M12 7H8a2.5 2.5 0 1 1 0-5c2.5 0 4 5 4 5zM12 7h4a2.5 2.5 0 1 0 0-5c-2.5 0-4 5-4 5z"/>',
+  reviews: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  about: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  faq: '<path d="M9.09 9a3 3 0 1 1 5.82 1c0 2-3 2-3 4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>',
+  blog: '<path d="M4 4h16v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  page: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+};
 const menuLinks = [
-  { href: linkPath('/#how', lang), label: 'How to Play' },
-  { href: linkPath('/#promos', lang), label: 'Promotions' },
-  { href: linkPath('/about/', lang), label: 'About Us' },
-  { href: linkPath('/faq/', lang), label: 'FAQ' },
-  { href: linkPath('/blog/', lang), label: 'Blog' },
+  { href: linkPath('/#how', lang), label: tMenu('header.nav.how'), icon: 'how' },
+  { href: linkPath('/#promos', lang), label: tMenu('header.nav.promos'), icon: 'promos' },
+  { href: linkPath('/reviews/', lang), label: tMenu('header.nav.reviews'), icon: 'reviews' },
+  { href: linkPath('/about/', lang), label: tMenu('header.nav.about'), icon: 'about' },
+  { href: linkPath('/faq/', lang), label: tMenu('header.nav.faq'), icon: 'faq' },
+  { href: linkPath('/blog/', lang), label: tMenu('header.nav.blog'), icon: 'blog' },
   // Custom pages ticked "Show in the website menu" in the admin
-  ...(await getMenuPages(lang)),
+  ...(await getMenuPages(lang)).map((p) => ({ ...p, icon: 'page' })),
 ];
 const downloadLink = linkPath('/download/', lang);
 
@@ -297,19 +310,27 @@ if (jsonLd) {
     <div id="global-mobile-menu" aria-hidden="true">
       <div class="gmm-backdrop" data-gmm-close tabindex="-1" aria-hidden="true"></div>
       <aside class="gmm-sheet" role="dialog" aria-modal="true" aria-labelledby="gmm-title">
+        <span class="gmm-grip" aria-hidden="true"></span>
         <header class="gmm-head">
-          <h2 id="gmm-title">Menu</h2>
-          <button class="gmm-close" type="button" aria-label="Close menu" data-gmm-close>
+          <div class="gmm-brand">
+            <img src="/logo.webp" alt="" width="36" height="36" decoding="async" />
+            <h2 id="gmm-title">{tMenu('mobileAppShell.aria.menu')}</h2>
+          </div>
+          <button class="gmm-close" type="button" aria-label={tMenu('mobileAppShell.aria.closeMenu')} data-gmm-close>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
           </button>
         </header>
         <nav class="gmm-nav" role="navigation" aria-label="Mobile">
-          {menuLinks.map(link => (
-            <a href={link.href} class="gmm-link" data-gmm-link>{link.label}</a>
+          {menuLinks.map((link, i) => (
+            <a href={link.href} class="gmm-link" data-gmm-link style={`--i:${i}`}>
+              <span class="gmm-ico" aria-hidden="true"><svg viewBox="0 0 24 24" set:html={MENU_ICONS[link.icon] ?? MENU_ICONS.page}></svg></span>
+              <span class="gmm-label">{link.label}</span>
+              <svg class="gmm-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </a>
           ))}
-          <a href={downloadLink} class="gmm-link gmm-download" data-gmm-link>
+          <a href={downloadLink} class="gmm-download" data-gmm-link style={`--i:${menuLinks.length}`}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></svg>
-            Download App
+            {tMenu('mobileAppShell.aria.downloadApp')}
           </a>
         </nav>
       </aside>
@@ -541,26 +562,46 @@ if (jsonLd) {
   #global-mobile-menu { position: fixed; inset: 0; z-index: 11000; display: grid; grid-template-rows: 1fr; pointer-events: none; }
   #global-mobile-menu[aria-hidden="true"] { visibility: hidden; opacity: 0; }
   #global-mobile-menu[aria-hidden="false"] { visibility: visible; opacity: 1; pointer-events: auto; }
-  .gmm-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); }
+  .gmm-backdrop { position: fixed; inset: 0; background: rgba(67, 20, 7, .5); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  /* floating card with a grip, hovering above the bottom edge */
   .gmm-sheet {
-    position: fixed; inset-inline: 0; bottom: 0;
-    transform: translateY(100%);
-    transition: transform .28s cubic-bezier(.22,1,.36,1);
-    background: var(--surface);
-    border-top-left-radius: 18px; border-top-right-radius: 18px;
-    border-top: 1px solid var(--ring);
-    padding-bottom: calc(12px + env(safe-area-inset-bottom));
-    max-height: 86vh; overflow: auto; outline: none;
+    position: fixed; inset-inline: 10px; bottom: calc(10px + env(safe-area-inset-bottom));
+    transform: translateY(calc(100% + 24px));
+    transition: transform .34s cubic-bezier(.22,1,.36,1);
+    background: linear-gradient(180deg, #fff, #fff8f1);
+    border: 1px solid rgba(255,255,255,.8); border-radius: 28px;
+    box-shadow: 0 30px 60px -20px rgba(67, 20, 7, .65), 0 2px 8px rgba(0,0,0,.12);
+    padding: 8px 14px 14px;
+    max-height: min(86vh, calc(100dvh - 24px)); overflow: auto; outline: none; overscroll-behavior: contain;
   }
   #global-mobile-menu[aria-hidden="false"] .gmm-sheet { transform: translateY(0); }
-  .gmm-head { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--ring); position: sticky; top: 0; background: var(--surface); border-top-left-radius: 18px; border-top-right-radius: 18px; }
-  .gmm-head h2 { margin: 0; font-size: 16px; font-weight: 800; color: var(--text-primary); }
-  .gmm-close { display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--ring); background: var(--surface-2); }
-  .gmm-close svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.4; }
-  .gmm-nav { display: grid; padding: 10px; gap: 8px; }
-  .gmm-link { display: flex; align-items: center; gap: 10px; padding: 14px 12px; border-radius: 12px; text-decoration: none; color: var(--text-primary); background: var(--surface-2); border: 1px solid var(--ring); font-weight: 700; }
-  .gmm-link:hover { background: color-mix(in oklab, var(--surface-2) 85%, white); }
-  .gmm-download { justify-content: center; background: linear-gradient(180deg, var(--brand-gold), var(--brand-orange)); color: var(--ink); border-color: color-mix(in oklab, var(--brand-orange) 30%, var(--brand-gold)); }
-  .gmm-download svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.6; }
+  .gmm-grip { display: block; width: 40px; height: 4px; margin: 2px auto 6px; border-radius: 4px; background: rgba(124, 45, 18, .22); }
+  .gmm-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 2px 10px; position: sticky; top: 0; background: linear-gradient(180deg, #fff 70%, rgba(255,255,255,0)); z-index: 1; }
+  .gmm-brand { display: flex; align-items: center; gap: 10px; }
+  .gmm-brand img { width: 36px; height: 36px; object-fit: contain; display: block; }
+  .gmm-head h2 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -.01em; color: var(--text-primary); }
+  .gmm-close { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 0; cursor: pointer; color: #c2410c; background: color-mix(in oklab, var(--brand-orange) 12%, #fff); -webkit-tap-highlight-color: transparent; transition: background-color .2s ease, transform .2s ease; }
+  .gmm-close:active { transform: scale(.94); background: color-mix(in oklab, var(--brand-orange) 22%, #fff); }
+  .gmm-close svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; }
+  .gmm-nav { display: grid; gap: 2px; }
+  .gmm-link { display: flex; align-items: center; gap: 14px; padding: 10px 8px; border-radius: 16px; text-decoration: none; color: var(--text-primary); font-weight: 700; font-size: 16px; -webkit-tap-highlight-color: transparent; transition: background-color .15s ease; }
+  .gmm-link:active, .gmm-link:hover { background: color-mix(in oklab, var(--brand-orange) 8%, #fff); }
+  .gmm-ico { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 13px; color: #c2410c; background: linear-gradient(135deg, #fff1e0, #ffe1bd); box-shadow: inset 0 0 0 1px rgba(249, 115, 22, .18); }
+  .gmm-ico svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .gmm-label { flex: 1; min-width: 0; }
+  .gmm-chev { flex: none; width: 18px; height: 18px; fill: none; stroke: rgba(124, 45, 18, .4); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .gmm-download {
+    display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; padding: 15px 18px; border-radius: 18px;
+    text-decoration: none; font-weight: 850; font-size: 16px; letter-spacing: .2px; color: #431407;
+    background: linear-gradient(180deg, #fff3a3 0%, var(--brand-gold) 48%, #f59e0b 100%);
+    box-shadow: 0 14px 24px -12px rgba(154, 52, 18, .6), inset 0 1px 0 rgba(255,255,255,.85), inset 0 -2px 0 rgba(180, 83, 9, .25);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .gmm-download svg { width: 20px; height: 20px; stroke: #9a3412; fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .gmm-download:active { transform: translateY(1px); filter: brightness(.98); }
+  /* entries glide in one after another when the menu opens */
+  #global-mobile-menu[aria-hidden="false"] .gmm-link, #global-mobile-menu[aria-hidden="false"] .gmm-download { animation: gmm-in .4s cubic-bezier(.22,1,.36,1) both; animation-delay: calc(var(--i, 0) * 35ms + 80ms); }
+  @keyframes gmm-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .gmm-sheet { transition: none; } #global-mobile-menu .gmm-link, #global-mobile-menu .gmm-download { animation: none !important; } }
   @media (min-width: 768px){ #global-mobile-menu { display: none; } }
 </style>

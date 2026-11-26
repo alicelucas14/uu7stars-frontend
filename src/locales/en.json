@@ -258,7 +258,9 @@
     "aria": {
       "goBack": "Go back",
       "openMenu": "Open menu",
-      "downloadApp": "Download App"
+      "downloadApp": "Download App",
+      "menu": "Menu",
+      "closeMenu": "Close menu"
     }
   },
   "blogIndex": {
