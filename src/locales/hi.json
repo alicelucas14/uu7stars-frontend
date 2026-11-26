@@ -546,6 +546,8 @@
     }
   },
   "sidebarWidgets": {
-    "recentPosts": "हाल की पोस्ट"
+    "recentPosts": "हाल की पोस्ट",
+    "categories": "श्रेणियाँ",
+    "browseByTag": "टैग से खोजें"
   }
 }

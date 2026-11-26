@@ -590,6 +590,8 @@
     }
   },
   "sidebarWidgets": {
-    "recentPosts": "Recent Posts"
+    "recentPosts": "Recent Posts",
+    "categories": "Categories",
+    "browseByTag": "Browse by Tag"
   }
 }

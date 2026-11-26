@@ -35,56 +35,14 @@ const toAbsolute = (p?: string) => !p ? '' : (p.startsWith('http') ? p : new URL
   </div>
 )}
 <style>
-.sidebar-widget {
-  background: var(--surface);
-  border: 1px solid var(--ring);
-  border-radius: 16px;
-  padding: 20px;
-}
-.widget-title {
-  margin: 0 0 16px;
-  font-size: 18px;
-  border-bottom: 1px solid var(--ring);
-  padding-bottom: 12px;
-}
-.promo-list {
-  display: grid;
-  gap: 16px;
-}
-.promo-item {
-  text-decoration: none;
-  display: block;
-  background: var(--surface-2);
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid var(--ring);
-  transition: transform .2s, box-shadow .2s;
-}
-.promo-item:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-.promo-item img {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-}
-.promo-info {
-  padding: 12px;
-}
-.promo-title {
-  font-weight: 700;
-  color: var(--text-primary);
-  display: block;
-  margin-bottom: 4px;
-}
-.promo-desc {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+.sidebar-widget{position:relative;overflow:hidden;background:#fff;border:1px solid color-mix(in oklab,var(--brand-orange) 16%,#fff);border-radius:24px;padding:24px 20px 20px;box-shadow:0 24px 40px -32px rgba(124,45,18,.5)}
+.sidebar-widget::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--brand-orange),var(--brand-gold))}
+.widget-title{margin:0 0 16px;padding:0 0 0 12px;border:0;border-left:4px solid var(--brand-orange);font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;line-height:1.2;color:#c2410c}
+.promo-list{display:grid;gap:14px}
+.promo-item{text-decoration:none;display:block;background:#fff;border-radius:18px;overflow:hidden;border:1px solid color-mix(in oklab,var(--brand-orange) 16%,#fff);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.promo-item:hover{transform:translateY(-3px);box-shadow:0 18px 28px -20px rgba(124,45,18,.6);border-color:color-mix(in oklab,var(--brand-orange) 45%,#fff)}
+.promo-item img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.promo-info{padding:12px 14px 14px}
+.promo-title{font-weight:800;color:var(--text-primary);display:block;margin-bottom:4px;line-height:1.3}
+.promo-desc{font-size:14px;color:var(--text-secondary);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 </style>

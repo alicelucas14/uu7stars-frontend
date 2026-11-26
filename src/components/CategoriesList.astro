@@ -4,11 +4,13 @@
 import { getBlogPosts } from '../services/api';
 import type { Locale } from '../i18n';
 import { createPath, slugify } from '../lib/paths'; // <-- IMPORT slugify
+import { useTranslations } from '../lib/i18n';
 
 interface Props {
   lang?: Locale;
 }
 const { lang = 'en' } = Astro.props;
+const t = useTranslations(lang);
 
 const allPosts = await getBlogPosts(lang).catch(() => []);
 // Names with no Latin characters slugify to "" and would link to "/blog/category//" (a 404) - skip them
@@ -17,7 +19,7 @@ const categories = [...new Set(allPosts.map(post => post.tags[0]).filter(c => c 
 
 {categories.length > 0 && (
   <div class="sidebar-widget">
-    <h3 class="widget-title">Categories</h3>
+    <h3 class="widget-title">{t('sidebarWidgets.categories')}</h3>
     <ul class="category-list">
       {categories.map(category => (
         <li>
@@ -31,6 +33,10 @@ const categories = [...new Set(allPosts.map(post => post.tags[0]).filter(c => c 
   </div>
 )}
 <style>
-/* Styles remain unchanged */
-.sidebar-widget{background:var(--surface);border:1px solid var(--ring);border-radius:16px;padding:20px}.widget-title{margin:0 0 16px;font-size:18px;border-bottom:1px solid var(--ring);padding-bottom:12px}.category-list{list-style:none;padding:0;margin:0;display:grid;gap:12px}.category-list a{display:block;padding:8px 12px;border-radius:8px;text-decoration:none;font-weight:600;color:var(--text-secondary);background-color:var(--surface-2);border:1px solid var(--ring);transition:all .2s ease-out}.category-list a:hover{color:var(--brand-orange);background-color:var(--surface);border-color:var(--brand-orange)}
+.sidebar-widget{position:relative;overflow:hidden;background:#fff;border:1px solid color-mix(in oklab,var(--brand-orange) 16%,#fff);border-radius:24px;padding:24px 20px 20px;box-shadow:0 24px 40px -32px rgba(124,45,18,.5)}
+.sidebar-widget::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--brand-orange),var(--brand-gold))}
+.widget-title{margin:0 0 16px;padding:0 0 0 12px;border:0;border-left:4px solid var(--brand-orange);font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;line-height:1.2;color:#c2410c}
+.category-list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.category-list a{display:inline-block;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;line-height:1.2;text-decoration:none;color:#9a3412;background:color-mix(in oklab,var(--brand-orange) 8%,#fff);border:1px solid color-mix(in oklab,var(--brand-orange) 24%,#fff);transition:background-color .2s ease,color .2s ease,border-color .2s ease}
+.category-list a:hover{color:#fff;background:var(--brand-orange);border-color:var(--brand-orange)}
 </style>

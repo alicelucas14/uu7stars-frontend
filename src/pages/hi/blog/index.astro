@@ -35,6 +35,8 @@ const rssUrl = new URL('/rss.xml', Astro.site).toString();
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 const toAbsolute = (p?: string) => !p ? '' : (p.startsWith('http') ? p : new URL(p, API_BASE_URL).toString());
 
+// the label strings may already end in an arrow; the button draws its own
+const noArrow = (txt: string) => String(txt).replace(/\s*(?:→|&rarr;|›|»)+\s*$/u, '');
 const formatDate = (date: string) => new Date(date).toLocaleDateString('hi-IN', { year: 'numeric', month: 'long', day: 'numeric' });
 ---
 
@@ -68,7 +70,7 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('hi-IN', 
               <p class="hero-meta"><time datetime={heroPost.publishedAt}>{formatDate(heroPost.publishedAt)}</time></p>
               <h2 id="hero-post-title" class="hero-title"><a href={`/hi/blog/${heroPost.slug}/`}>{heroPost.title}</a></h2>
               <div class="hero-excerpt prose-excerpt" set:html={await renderMarkdown(heroPost.excerpt || '')} />
-              <a href={`/hi/blog/${heroPost.slug}/`} class="hero-cta">{t('recentBlogs.readMore')} &rarr;</a>
+              <a href={`/hi/blog/${heroPost.slug}/`} class="hero-cta">{noArrow(t('recentBlogs.readMore'))}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
             </div>
           </article>
         </section>
@@ -83,11 +85,12 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('hi-IN', 
                 <article class="post-card">
                   <a href={postUrl} class="card-image-link" aria-label={`Read: ${post.title}`}>
                     <img src={toAbsolute(post.image)} alt={`Featured image for blog post: ${post.title}`} loading="lazy" width="400" height="250" class="card-image" />
+                    <time class="date-chip" datetime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
                   </a>
                   <div class="card-content">
-                    <p class="card-meta"><time datetime={post.publishedAt}>{formatDate(post.publishedAt)}</time></p>
                     <h3 class="card-title"><a href={postUrl}>{post.title}</a></h3>
                     <div class="card-excerpt prose-excerpt" set:html={await renderMarkdown(post.excerpt || '')} />
+                    <a href={postUrl} class="read-link" aria-label={`Read more about ${post.title}`}>{noArrow(t('recentBlogs.readMore'))}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
                   </div>
                 </article>
               );
@@ -175,4 +178,51 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('hi-IN', 
   .pg-num { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 8px; border-radius: 10px; border: 1px solid var(--ring); background: var(--surface); color: var(--text-primary); font-weight: 700; text-decoration: none; }
   a.pg-num:hover { background: var(--surface-2); }
   .pg-num.is-current { background: var(--brand-orange); border-color: var(--brand-orange); color: #fff; }
+
+  /* ================= modern look, shared with the rest of the site ================= */
+  .blog-index-page, .blog-index { padding-block: 56px 80px; background: linear-gradient(180deg, color-mix(in oklab, var(--brand-orange) 6%, var(--surface)) 0%, var(--surface) 360px); }
+  @media (max-width: 767px) { .blog-index-page, .blog-index { padding-block: 24px 48px; } }
+  .page-header h1, .section-head h1 { font-size: clamp(28px, 4.2vw, 42px); letter-spacing: -.02em; }
+  .page-header h1::after { content: ""; display: block; width: 48px; height: 4px; margin: 14px auto 0; border-radius: 4px; background: linear-gradient(90deg, var(--brand-orange), var(--brand-gold)); }
+
+  /* featured post */
+  .hero-card { position: relative; overflow: hidden; border: 1px solid color-mix(in oklab, var(--brand-orange) 20%, #fff); border-radius: 32px; background: linear-gradient(135deg, #fff 0%, color-mix(in oklab, var(--brand-orange) 7%, #fff) 100%); box-shadow: 0 40px 64px -40px rgba(124, 45, 18, .6); }
+  .hero-image-wrapper { position: relative; overflow: hidden; }
+  .hero-image-wrapper img { display: block; transition: transform .6s cubic-bezier(.22,1,.36,1); }
+  @media (hover: hover) and (min-width: 768px) { .hero-card:hover .hero-image-wrapper img { transform: scale(1.04); } }
+  .hero-content { gap: 0; }
+  .hero-meta { margin: 0 0 14px; }
+  .hero-meta time { display: inline-block; padding: 5px 13px; border-radius: 999px; font-size: 12.5px; font-weight: 800; letter-spacing: .04em; color: #c2410c; background: color-mix(in oklab, var(--brand-orange) 12%, #fff); border: 1px solid color-mix(in oklab, var(--brand-orange) 28%, #fff); }
+  .hero-title { font-size: clamp(26px, 3vw, 38px); line-height: 1.15; letter-spacing: -.025em; }
+  .hero-excerpt { padding-left: 16px; border-left: 3px solid color-mix(in oklab, var(--brand-orange) 45%, #fff); display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; flex-grow: 0; }
+  .hero-cta { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; border-radius: 999px; font-weight: 800; font-size: 15px; color: #431407; background: linear-gradient(180deg, #fff3a3 0%, var(--brand-gold) 48%, #f59e0b 100%); box-shadow: 0 14px 24px -12px rgba(154, 52, 18, .6), inset 0 1px 0 rgba(255,255,255,.85), inset 0 -2px 0 rgba(180, 83, 9, .22); transition: transform .2s ease, filter .2s ease; }
+  .hero-cta:hover { text-decoration: none; transform: translateY(-2px); filter: brightness(1.04); }
+  .hero-cta svg, .read-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s ease; }
+  .hero-cta svg { stroke: #9a3412; }
+  .hero-cta:hover svg { transform: translateX(3px); }
+
+  /* post cards */
+  .post-grid { gap: 24px; }
+  .post-card { display: flex; flex-direction: column; border: 1px solid color-mix(in oklab, var(--brand-orange) 14%, #fff); border-radius: 24px; background: #fff; box-shadow: 0 24px 40px -30px rgba(124, 45, 18, .5); transition: transform .25s ease, box-shadow .25s ease; }
+  .post-card:hover { transform: none; box-shadow: 0 24px 40px -30px rgba(124, 45, 18, .5); }
+  @media (hover: hover) and (min-width: 768px) { .post-card:hover { transform: translateY(-6px); box-shadow: 0 34px 46px -28px rgba(124, 45, 18, .6); } .post-card:hover .card-image { transform: scale(1.05); } }
+  .card-image-link { position: relative; display: block; overflow: hidden; }
+  .card-image { display: block; transition: transform .5s cubic-bezier(.22,1,.36,1); }
+  .date-chip { position: absolute; left: 12px; bottom: 12px; padding: 5px 11px; border-radius: 999px; font-size: 12px; font-weight: 700; color: #431407; background: rgba(255,255,255,.92); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: 0 6px 14px -8px rgba(0,0,0,.5); }
+  .card-content { padding: 20px 20px 22px; }
+  .card-title { margin: 0 0 8px; font-size: 19px; line-height: 1.3; font-weight: 800; letter-spacing: -.01em; }
+  .card-title a { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-excerpt { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .read-link { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; margin-top: 16px; font-size: 14px; font-weight: 800; color: #c2410c; text-decoration: none; }
+  .read-link:hover svg { transform: translateX(4px); }
+
+  /* pager: brand pills */
+  .pager .pg-btn { border-radius: 999px; background: #fff; border: 1.5px solid color-mix(in oklab, var(--brand-orange) 40%, #fff); color: #c2410c; font-weight: 800; }
+  .pager a.pg-btn:hover { background: var(--brand-orange); border-color: var(--brand-orange); color: #fff; }
+  .pager .pg-num { border-radius: 999px; background: #fff; border-color: color-mix(in oklab, var(--brand-orange) 22%, #fff); color: var(--text-primary); }
+  .pager a.pg-num:hover { background: color-mix(in oklab, var(--brand-orange) 10%, #fff); }
+  .pager .pg-num.is-current { background: linear-gradient(135deg, #fb923c, var(--brand-orange) 55%, #ea580c); border-color: var(--brand-orange); color: #fff; box-shadow: 0 10px 18px -10px rgba(234, 88, 12, .8); }
+  .btn-view-all { border-radius: 999px; font-weight: 800; color: #c2410c; background: #fff; border: 1.5px solid color-mix(in oklab, var(--brand-orange) 45%, #fff); }
+  .btn-view-all:hover { color: #fff; background: var(--brand-orange); border-color: var(--brand-orange); }
+  @media (prefers-reduced-motion: reduce) { .post-card, .card-image, .hero-image-wrapper img, .hero-cta { transition: none; } }
 </style>

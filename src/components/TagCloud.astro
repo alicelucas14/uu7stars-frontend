@@ -4,11 +4,13 @@
 import { getBlogPosts } from '../services/api';
 import type { Locale } from '../i18n';
 import { createPath, slugify } from '../lib/paths'; // <-- IMPORT slugify
+import { useTranslations } from '../lib/i18n';
 
 interface Props {
   lang?: Locale;
 }
 const { lang = 'en' } = Astro.props;
+const t = useTranslations(lang);
 
 const allPosts = await getBlogPosts(lang).catch(() => []);
 const allTags = allPosts.flatMap(post => post.tags);
@@ -28,7 +30,7 @@ const popularTags = Object.entries(tagCounts)
 
 {popularTags.length > 0 && (
   <div class="sidebar-widget">
-    <h3 class="widget-title">Browse by Tag</h3>
+    <h3 class="widget-title">{t('sidebarWidgets.browseByTag')}</h3>
     <div class="tag-cloud">
       {popularTags.map(tag => (
         // CORRECTED LINK
@@ -40,6 +42,11 @@ const popularTags = Object.entries(tagCounts)
   </div>
 )}
 <style>
-/* Styles remain unchanged */
-.sidebar-widget{background:var(--surface);border:1px solid var(--ring);border-radius:16px;padding:20px}.widget-title{margin:0 0 16px;font-size:18px;border-bottom:1px solid var(--ring);padding-bottom:12px}.tag-cloud{display:flex;flex-wrap:wrap;gap:8px}.tag-item{display:inline-block;padding:6px 14px;border-radius:999px;background:var(--surface-2);border:1px solid var(--ring);color:var(--text-secondary);font-size:13px;text-decoration:none;font-weight:600;transition:background-color .2s,color .2s}.tag-item:hover{background:var(--brand-orange);border-color:var(--brand-orange);color:#fff}
+.sidebar-widget{position:relative;overflow:hidden;background:#fff;border:1px solid color-mix(in oklab,var(--brand-orange) 16%,#fff);border-radius:24px;padding:24px 20px 20px;box-shadow:0 24px 40px -32px rgba(124,45,18,.5)}
+.sidebar-widget::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--brand-orange),var(--brand-gold))}
+.widget-title{margin:0 0 16px;padding:0 0 0 12px;border:0;border-left:4px solid var(--brand-orange);font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;line-height:1.2;color:#c2410c}
+.tag-cloud{display:flex;flex-wrap:wrap;gap:8px}
+.tag-item{display:inline-block;padding:6px 13px;border-radius:999px;font-size:13px;font-weight:600;line-height:1.2;text-decoration:none;color:var(--text-secondary);background:#fff;border:1px solid color-mix(in oklab,var(--brand-orange) 24%,#fff);transition:background-color .2s ease,color .2s ease,border-color .2s ease}
+.tag-item::before{content:"#";margin-right:2px;color:var(--brand-orange);font-weight:800}
+.tag-item:hover{color:#c2410c;background:color-mix(in oklab,var(--brand-orange) 10%,#fff);border-color:color-mix(in oklab,var(--brand-orange) 50%,#fff)}
 </style>

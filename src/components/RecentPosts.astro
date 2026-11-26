@@ -40,51 +40,14 @@ const toAbsolute = (p?: string) => !p ? '' : (p.startsWith('http') ? p : new URL
   </div>
 )}
 <style>
-.sidebar-widget {
-  background: var(--surface);
-  border: 1px solid var(--ring);
-  border-radius: 16px;
-  padding: 20px;
-}
-.widget-title {
-  margin: 0 0 16px;
-  font-size: 18px;
-  border-bottom: 1px solid var(--ring);
-  padding-bottom: 12px;
-}
-.post-list {
-  display: grid;
-  gap: 16px;
-}
-.post-item {
-  display: grid;
-  grid-template-columns: 80px 1fr;
-  gap: 12px;
-  align-items: center;
-  text-decoration: none;
-}
-.post-item img {
-  width: 80px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-.post-title {
-  font-weight: 600;
-  color: var(--text-primary);
-  line-height: 1.4;
-  font-size: 14px;
-  margin-bottom: 4px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.post-item:hover .post-title {
-  color: var(--brand-orange);
-}
-.post-date {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
+.sidebar-widget{position:relative;overflow:hidden;background:#fff;border:1px solid color-mix(in oklab,var(--brand-orange) 16%,#fff);border-radius:24px;padding:24px 20px 20px;box-shadow:0 24px 40px -32px rgba(124,45,18,.5)}
+.sidebar-widget::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--brand-orange),var(--brand-gold))}
+.widget-title{margin:0 0 16px;padding:0 0 0 12px;border:0;border-left:4px solid var(--brand-orange);font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;line-height:1.2;color:#c2410c}
+.post-list{display:grid;gap:14px}
+.post-item{display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:center;text-decoration:none}
+.post-item img{width:84px;height:56px;object-fit:cover;border-radius:12px;box-shadow:0 8px 14px -10px rgba(67,20,7,.6);transition:transform .25s ease}
+.post-title{font-weight:750;color:var(--text-primary);line-height:1.35;font-size:14px;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.post-item:hover .post-title{color:#c2410c}
+.post-item:hover img{transform:scale(1.05)}
+.post-date{font-size:12px;color:var(--text-secondary)}
 </style>
