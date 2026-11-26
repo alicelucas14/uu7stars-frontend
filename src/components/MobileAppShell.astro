@@ -12,6 +12,8 @@ interface Props {
   promoBadge?: number;
   showFab?: boolean;
   lang?: Locale;
+  /** Home page: the top bar starts transparent over the hero and turns frosted once the page scrolls. */
+  overlay?: boolean;
 }
 const {
   title = 'Starsuu7',
@@ -19,7 +21,8 @@ const {
   showBack = false,
   promoBadge = 0,
   showFab = true,
-  lang = 'en'
+  lang = 'en',
+  overlay = false
 } = Astro.props as Props;
 
 const t = useTranslations(lang);
@@ -38,7 +41,7 @@ const faqPath = createPath('/faq/', lang);
 ---
 <div class:list={['app-shell', { 'app-shell--bare': !wraps }]}>
   <!-- Top App Bar -->
-  <header class="app-bar" role="banner">
+  <header class:list={['app-bar', { 'is-overlay': overlay }]} role="banner">
     <div class="app-bar-safe">
       <div class="app-bar-inner container">
         <button
@@ -124,4 +127,32 @@ const faqPath = createPath('/faq/', lang);
 <script is:inline>
   // Script remains unchanged
   document.addEventListener('click', (e) => { const el = e.target; if (!(el instanceof Element)) return; const btn = el.closest('[data-action]'); if (!btn) return; const action = btn.getAttribute('data-action'); if (action === 'back') { e.preventDefault(); if (history.length > 1) history.back(); } if (action === 'menu') { e.preventDefault(); if (window.AppMenu && typeof window.AppMenu.open === 'function') { window.AppMenu.open(); } else { window.dispatchEvent(new CustomEvent('open-global-menu')); } } }, { passive: false }); function haptic(){ try{ navigator.vibrate && navigator.vibrate(12); } catch{} } document.querySelectorAll('.tabbar a').forEach(a => a.addEventListener('click', () => haptic(), { passive: true })); function isSamePageHashLink(a){ if (!a.hash) return false; const currentPath = window.location.pathname.replace(/\/hi\//, '/'); return a.pathname === currentPath || a.pathname.replace(/\/$/, '') === currentPath.replace(/\/$/, ''); } function offsetTopFor(id){ /* home has a hidden desktop copy of each section with the same id: use the visible one */ const el = Array.from(document.querySelectorAll(id)).find((n) => n.getClientRects().length) || document.querySelector(id); if(!el) return 0; const bar = document.querySelector('.app-bar'); const h = bar ? bar.getBoundingClientRect().height : 60; const y = el.getBoundingClientRect().top + window.scrollY; return Math.max(0, y - h - 8); } function smoothTo(hash){ const y = offsetTopFor(hash); window.scrollTo({ top: y, behavior: 'smooth' }); } document.querySelectorAll('.tabbar a').forEach((a) => { a.addEventListener('click', (e) => { if (!isSamePageHashLink(a)) return; e.preventDefault(); haptic(); smoothTo(a.hash); /* no pushState(hash): the address bar stays clean, see the hash clean-up in Base.astro */ }, { passive: false }); }); const fab = document.querySelector('[data-fab]'); if (fab && 'IntersectionObserver' in window) { const targets = ['.site-footer'].map(s => document.querySelector(s)).filter(Boolean); if (targets.length) { const obs = new IntersectionObserver((entries) => { const visible = entries.some(e => e.isIntersecting); fab.style.opacity = visible ? '0' : '1'; fab.style.pointerEvents = visible ? 'none' : 'auto'; fab.style.transform = visible ? 'translateY(8px)' : 'translateY(0)'; }, { rootMargin: '0px 0px -20% 0px', threshold: 0.01 }); targets.forEach(t => obs.observe(t)); } }
+</script>
+
+<style>
+  /* Modern top bar: soft gradient, glass buttons; on the home page it sits on the hero and turns frosted on scroll. */
+  .app-shell .app-bar {
+    background: linear-gradient(100deg, var(--brand-orange), color-mix(in oklab, var(--brand-orange) 70%, var(--brand-gold)));
+    border-bottom: 1px solid rgba(255,255,255,.14);
+    box-shadow: 0 6px 20px -8px rgba(124, 45, 18, .45);
+    transition: background-color .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .app-shell .app-bar.is-overlay { background: transparent; border-bottom-color: transparent; box-shadow: none; margin-bottom: calc(-61px - env(safe-area-inset-top)); }
+  .app-shell .app-bar.is-overlay.is-scrolled {
+    background: color-mix(in oklab, var(--brand-orange) 88%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(1.5); backdrop-filter: blur(14px) saturate(1.5);
+    border-bottom-color: rgba(255,255,255,.18);
+    box-shadow: 0 8px 24px -10px rgba(124, 45, 18, .5);
+  }
+  .app-shell .app-title { text-shadow: 0 1px 3px rgba(124, 45, 18, .3); }
+  .app-shell .app-title .logo { filter: drop-shadow(0 2px 5px rgba(0,0,0,.2)); }
+  .app-shell .app-icon-btn { background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.42); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+  .app-shell .app-icon-btn:hover { background: rgba(255,255,255,.3); }
+  .app-shell .app-dl-pill { background: linear-gradient(180deg, #fde047, var(--brand-gold) 55%, #f5b50b); box-shadow: 0 6px 14px -4px rgba(124, 45, 18, .5), inset 0 1px 0 rgba(255,255,255,.7); }
+  @media (prefers-reduced-motion: reduce) { .app-bar { transition: none; } }
+</style>
+
+<script is:inline>
+  // Home page: turn the transparent top bar solid (frosted) once the page has scrolled.
+  (function(){ const b = document.querySelector('.app-bar.is-overlay'); if (!b) return; const on = () => b.classList.toggle('is-scrolled', window.scrollY > 8); on(); window.addEventListener('scroll', on, { passive: true }); })();
 </script>

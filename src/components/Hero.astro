@@ -97,6 +97,7 @@ const HERO_WEBP = "/wordpress/STARSUU7-Game.webp";
     mask-image: linear-gradient(180deg, #000 0%, transparent 75%);
   }
   @media (min-width: 768px) { .hero { padding-top: 136px; } } /* the header sits on top of the hero here */
+  @media (max-width: 767px) { .hero { padding-top: calc(104px + env(safe-area-inset-top)); } } /* so does the phone top bar */
 
   .hero__inner { position: relative; display: grid; gap: 48px; grid-template-columns: 1.1fr .9fr; align-items: center; }
 
