@@ -230,8 +230,19 @@ const reviewJsonLd = {
 
   /* --- Sidebar / Summary Card --- */
   .sidebar-inner { display: grid; gap: 24px; }
-  /* the card is tall: only pin it while scrolling when the screen is tall enough to show all of it */
-  @media (min-width: 900px) and (min-height: 1080px) { .sidebar-inner { position: sticky; top: 88px; } }
+  /* desktop: the right column stays pinned while the review text scrolls past, and it scrolls on its own if it is taller
+     than the screen. It lets go when the article ends. */
+  @media (min-width: 900px) {
+    .sidebar-inner {
+      position: sticky; top: 88px; align-content: start;
+      max-height: calc(100vh - 104px); overflow-y: auto; overscroll-behavior: contain;
+      /* room so the cards' shadows are not clipped by the scroll area */
+      padding: 6px 10px 30px; margin: -6px -10px -30px;
+      scrollbar-width: thin; scrollbar-color: color-mix(in oklab, var(--brand-orange) 55%, transparent) transparent;
+    }
+    .sidebar-inner::-webkit-scrollbar { width: 6px; }
+    .sidebar-inner::-webkit-scrollbar-thumb { border-radius: 6px; background: color-mix(in oklab, var(--brand-orange) 55%, transparent); }
+  }
   .summary-card { position: relative; overflow: hidden; background: #fff; border: 1px solid color-mix(in oklab, var(--brand-orange) 16%, #fff); border-radius: 28px; box-shadow: 0 34px 56px -36px rgba(124, 45, 18, .55); }
   /* covers are square: show the whole artwork instead of cropping it to a wide strip */
   .summary-image { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; object-position: center; background: #2b1105; }
