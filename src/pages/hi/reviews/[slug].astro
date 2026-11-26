@@ -32,6 +32,9 @@ if (!review.title?.hi?.trim() || !review.body?.hi?.trim()) {
   return new Response(null, { status: 404, statusText: 'Not Found' });
 }
 
+// Some Hindi pros/cons are still placeholder text tagged "[HI] ..." in the admin; show the sentence without the tag.
+// Once real Hindi is entered there is no tag and nothing changes.
+const cleanPoint = (text: string) => String(text ?? '').replace(/^\s*\[HI\]\s*/i, '').trim();
 const ratingPercent = (review.rating / 5) * 100;
 const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL;
 const imageUrl = review.image.startsWith('http') ? review.image : `${API_BASE_URL}${review.image}`;
@@ -106,13 +109,13 @@ const reviewJsonLd = {
                   {review.pros?.hi && review.pros.hi.length > 0 && (
                     <div class="pros-cons is-pros">
                       <h4>{t('reviewPost.pros')}</h4>
-                      <ul>{review.pros.hi.map(pro => <li>{pro}</li>)}</ul>
+                      <ul>{review.pros.hi.map(pro => <li>{cleanPoint(pro)}</li>)}</ul>
                     </div>
                   )}
                    {review.cons?.hi && review.cons.hi.length > 0 && (
                     <div class="pros-cons is-cons">
                       <h4>{t('reviewPost.cons')}</h4>
-                      <ul>{review.cons.hi.map(con => <li>{con}</li>)}</ul>
+                      <ul>{review.cons.hi.map(con => <li>{cleanPoint(con)}</li>)}</ul>
                     </div>
                   )}
                 </div>
@@ -153,13 +156,13 @@ const reviewJsonLd = {
                   {review.pros?.hi && review.pros.hi.length > 0 && (
                     <div class="pros-cons is-pros">
                       <h4>{t('reviewPost.pros')}</h4>
-                      <ul>{review.pros.hi.map(pro => <li>{pro}</li>)}</ul>
+                      <ul>{review.pros.hi.map(pro => <li>{cleanPoint(pro)}</li>)}</ul>
                     </div>
                   )}
                   {review.cons?.hi && review.cons.hi.length > 0 && (
                     <div class="pros-cons is-cons">
                       <h4>{t('reviewPost.cons')}</h4>
-                      <ul>{review.cons.hi.map(con => <li>{con}</li>)}</ul>
+                      <ul>{review.cons.hi.map(con => <li>{cleanPoint(con)}</li>)}</ul>
                     </div>
                   )}
                 </div>
