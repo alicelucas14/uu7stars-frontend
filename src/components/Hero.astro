@@ -26,6 +26,15 @@ const HERO_WEBP = "/wordpress/STARSUU7-Game.webp";
       {/* UPDATED: Use the 't' function with set:html for rich text */}
       <p class="lead" set:html={t('hero.lead')}></p>
 
+      <ul class="hero__badges" aria-label={t('hero.ctaAriaLabel')}>
+        {(t('hero.badges') as string[]).map((b) => (
+          <li>
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            {b}
+          </li>
+        ))}
+      </ul>
+
       <div class="cta-group">
         {/* UPDATED: Use the 't' function for the aria-label */}
         <a href={createPath('/download/', lang)} class="hero-cta-unit" aria-label={t('hero.ctaAriaLabel')}>
@@ -68,154 +77,113 @@ const HERO_WEBP = "/wordpress/STARSUU7-Game.webp";
 </section>
 
 <style>
-  /* Styles remain unchanged */
   .hero {
-    padding-block: 56px 80px;
     position: relative;
     overflow: clip;
-    background: linear-gradient(170deg, var(--brand-orange), var(--brand-gold));
-    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding-block: 48px 104px;
+    color: #fff;
+    background:
+      radial-gradient(55% 70% at 88% 18%, rgba(255, 244, 190, .55), transparent 62%),
+      radial-gradient(45% 55% at 6% 92%, rgba(255, 255, 255, .16), transparent 60%),
+      linear-gradient(158deg, var(--brand-orange) 0%, #fb8c1d 42%, var(--brand-gold) 100%);
+    border-bottom: 1px solid rgba(0,0,0,.08);
   }
-  .hero__inner {
-    display: grid;
-    gap: 48px;
-    grid-template-columns: 1.1fr .9fr;
-    align-items: center;
+  /* soft dotted texture, fading out towards the bottom */
+  .hero::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+    background-image: radial-gradient(rgba(255,255,255,.35) 1.2px, transparent 1.4px);
+    background-size: 26px 26px;
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 75%);
+    mask-image: linear-gradient(180deg, #000 0%, transparent 75%);
   }
+  @media (min-width: 768px) { .hero { padding-top: 136px; } } /* the header sits on top of the hero here */
+
+  .hero__inner { position: relative; display: grid; gap: 48px; grid-template-columns: 1.1fr .9fr; align-items: center; }
+
   .hero__copy h1, .hero__copy .h1-alt {
-    margin: 0 0 12px;
-    font-size: clamp(32px, 4.2vw, 56px);
-    line-height: 1.1;
+    margin: 0 0 16px;
+    font-size: clamp(34px, 4.6vw, 60px);
+    line-height: 1.06;
+    letter-spacing: -.02em;
     font-weight: 800;
-    color: #ffffff;
-    text-shadow: 0 2px 4px rgba(0,0,0,.1);
+    color: #fff;
+    text-shadow: 0 2px 14px rgba(124, 45, 18, .25);
   }
-  .lead {
-    max-width: 55ch;
-    font-size: clamp(16px, 1.2vw, 18px);
-    color: rgba(255,255,255,0.92);
+  .lead { max-width: 56ch; margin: 0; font-size: clamp(16px, 1.25vw, 18px); line-height: 1.65; color: rgba(255,255,255,.95); text-shadow: 0 1px 8px rgba(124, 45, 18, .18); }
+
+  .hero__badges { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0 0; padding: 0; }
+  .hero__badges li {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 14px 7px 10px; border-radius: 999px;
+    font-size: 13px; font-weight: 700; color: #fff;
+    background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.38);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   }
-  .cta-group {
-    display: block;
-    text-align: center;
-    margin-top: 32px;
-  }
+  .hero__badges svg { color: #fef08a; flex: none; }
+
+  .cta-group { display: block; margin-top: 30px; }
   .hero-cta-unit {
-    display: inline-grid;
-    grid-template-rows: auto auto;
-    justify-items: center;
-    text-decoration: none;
-    cursor: pointer;
-    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.1));
+    display: inline-grid; grid-template-rows: auto auto; justify-items: stretch;
+    text-decoration: none; cursor: pointer; outline: none;
+    filter: drop-shadow(0 14px 24px rgba(124, 45, 18, .35));
     transition: transform .2s ease-out, filter .2s ease-out;
-    will-change: transform, filter;
-    outline: none;
   }
-  .hero-cta-unit:hover {
-    transform: translateY(-4px);
-    filter: drop-shadow(0 14px 30px rgba(0,0,0,.15)) brightness(1.03);
-  }
-  .hero-cta-unit:focus-visible {
-    outline: 3px solid #fff;
-    outline-offset: 4px;
-    border-radius: 16px;
-  }
+  .hero-cta-unit:hover { transform: translateY(-3px); filter: drop-shadow(0 18px 30px rgba(124, 45, 18, .4)) brightness(1.04); }
+  .hero-cta-unit:focus-visible { outline: 3px solid #fff; outline-offset: 5px; border-radius: 18px; }
   .btn-hero-top {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 16px 32px;
-    width: 100%;
-    font-weight: 850;
-    font-size: 18px;
-    letter-spacing: .4px;
-    text-transform: uppercase;
-    background: linear-gradient(180deg, color-mix(in oklab, var(--brand-gold) 86%, white 14%), var(--brand-orange));
-    color: var(--ink);
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    border-top-left-radius: 14px;
-    border-top-right-radius: 14px;
+    position: relative; isolation: isolate; overflow: hidden;
+    display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+    padding: 17px 36px; width: 100%;
+    font-weight: 850; font-size: 18px; letter-spacing: .5px; text-transform: uppercase;
+    color: #fff;
+    background: linear-gradient(180deg, #1f2937, var(--ink));
+    border-radius: 18px 18px 0 0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
   }
+  .btn-hero-top svg { color: var(--brand-gold); }
   .btn-hero-top::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,.45) 20%, transparent 40%);
-    transform: translateX(-120%);
-    transition: transform .6s ease;
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,.22) 22%, transparent 42%);
+    transform: translateX(-120%); transition: transform .7s ease;
   }
   .hero-cta-unit:hover .btn-hero-top::after { transform: translateX(120%); }
-  @keyframes pulse-border-hero {
-    0% { border-color: var(--brand-orange); box-shadow: inset 0 2px 4px rgba(0,0,0,.05), 0 0 0 0 color-mix(in oklab, var(--brand-orange), transparent 55%); }
-    50% { border-color: var(--brand-gold); box-shadow: inset 0 2px 4px rgba(0,0,0,.05), 0 0 0 10px color-mix(in oklab, var(--brand-gold), transparent 100%); }
-    100% { border-color: var(--brand-orange); box-shadow: inset 0 2px 4px rgba(0,0,0,.05), 0 0 0 0 color-mix(in oklab, var(--brand-orange), transparent 55%); }
-  }
   .btn-hero-bonus {
-    padding: 10px 20px;
-    background-color: var(--surface);
-    color: var(--text-primary);
-    font-size: 14px;
-    font-weight: 700;
-    text-align: center;
-    width: 90%;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-    border: 2px solid transparent;
-    animation: pulse-border-hero 2.2s infinite ease-in-out;
+    padding: 10px 20px; text-align: center; font-size: 14px; font-weight: 700;
+    color: var(--text-primary); background: #fff; border-radius: 0 0 18px 18px;
   }
-  .art-wrap {
-    position: relative;
-    perspective: 1200px;
-    transform-style: preserve-3d;
-    overflow: clip;
-  }
+
+  .art-wrap { position: relative; overflow: clip; display: grid; place-items: end center; }
   .art-wrap::before {
-    content: "";
-    position: absolute;
-    inset: -10%;
-    background: radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--brand-gold) 8%, transparent), transparent 70%);
-    filter: blur(32px);
+    content: ""; position: absolute; width: min(86%, 440px); aspect-ratio: 1; border-radius: 50%; bottom: 4%;
+    background: radial-gradient(circle at 50% 40%, rgba(255,255,255,.55), rgba(255,255,255,.12) 62%, transparent 70%);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.25), 0 0 0 26px rgba(255,255,255,.07);
     z-index: 0;
   }
-  .hero-art-picture { display: block; }
+  .hero-art-picture { display: block; position: relative; z-index: 1; }
   .hero__art {
-    position: relative;
-    z-index: 1;
     display: block;
     height: clamp(340px, 42vw, 500px);
     width: clamp(300px, 44vw, 580px);
     max-width: 100%;
     border-radius: 24px;
-    object-fit: cover;
-    object-position: top center;
-    transform: translateY(30px) translateZ(40px) rotateX(4deg) rotateY(-10deg) scale(1.12);
-    transition: transform .6s cubic-bezier(.22,1,.36,1), box-shadow .6s cubic-bezier(.22,1,.36,1);
-    will-change: transform;
-    backface-visibility: hidden;
+    object-fit: cover; object-position: top center;
+    transform: translateY(26px) scale(1.08);
+    transition: transform .6s cubic-bezier(.22,1,.36,1);
+    filter: drop-shadow(0 22px 28px rgba(124, 45, 18, .3));
+    animation: hero-float 7s ease-in-out infinite;
   }
-  .art-wrap:hover .hero__art {
-    transform: translateY(10px) translateZ(60px) rotateX(0) rotateY(0) scale(1.16);
-  }
+  .art-wrap:hover .hero__art { transform: translateY(14px) scale(1.11); }
+  @keyframes hero-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
+
   @media (prefers-reduced-motion: reduce) {
-    .hero-cta-unit,
-    .btn-hero-top::after,
-    .btn-hero-bonus,
-    .hero__art { transition: none !important; animation: none !important; transform: none !important; }
+    .hero-cta-unit, .btn-hero-top::after, .hero__art { transition: none !important; animation: none !important; transform: none !important; }
   }
   @media (max-width: 980px) {
-    .hero { padding-bottom: 70px; }
+    .hero { padding-bottom: 92px; }
     .hero__inner { grid-template-columns: 1fr; row-gap: 28px; }
     .hero__copy { text-align: center; }
-    .art-wrap { margin-top: 0; }
-    .hero__art {
-      width: 100%;
-      max-width: 420px;
-      margin-inline: auto;
-      transform: translateY(20px) translateZ(20px) rotateX(3deg) scale(1.06);
-    }
+    .lead { margin-inline: auto; }
+    .hero__badges { justify-content: center; }
+    .hero__art { width: 100%; max-width: 420px; transform: translateY(18px) scale(1.04); }
   }
 </style>

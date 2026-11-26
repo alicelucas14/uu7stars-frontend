@@ -8,8 +8,10 @@ import { getMenuPages } from '../lib/menuPages';
 
 interface Props {
   lang?: Locale;
+  /** Home page: the bar starts transparent so the hero shows through, and turns solid once the page scrolls. */
+  overlay?: boolean;
 }
-const { lang = 'en' } = Astro.props as Props;
+const { lang = 'en', overlay = false } = Astro.props as Props;
 const t = useTranslations(lang);
 
 // Custom pages ticked "Show in the website menu" in the admin
@@ -39,7 +41,7 @@ const homePath = createPath('/', lang);
 const downloadPath = createPath('/download/', lang);
 ---
 
-<header class="site-header" role="banner">
+<header class={`site-header${overlay ? ' is-overlay' : ''}`} role="banner">
   <div class="container bar">
     {/* UPDATED: Language-aware home link */}
     <a href={homePath} class="brand" aria-label="Starsuu7 — Home">
@@ -58,6 +60,7 @@ const downloadPath = createPath('/download/', lang);
         data-analytics="nav_download_cta"
         aria-label={ctaText}
       >
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
         {ctaText}
       </a>
     </nav>
@@ -86,11 +89,62 @@ const downloadPath = createPath('/download/', lang);
 {collapseCss && <style is:inline set:html={collapseCss}></style>}
 
 <style>
-  /* Styles remain unchanged */
-  .site-header { position: sticky; top: 0; z-index: 4000; background: var(--brand-orange); border-bottom: 1px solid rgba(0,0,0,0.1); box-shadow: var(--shadow-md); } .bar { display:flex; align-items:center; justify-content:space-between; height:64px; } .brand { display:flex; align-items:center; text-decoration:none; } .logo { display:block; } .nav { display:flex; align-items:center; gap:24px; } .link { color:#fff; opacity:.9; text-decoration:none; font-size:14px; font-weight:600; transition:opacity .2s; } .link:hover { opacity:1; } .btn-header-download{ display:inline-flex; align-items:center; justify-content:center; padding:10px 24px; border-radius:999px; font-weight:700; font-size:14px; text-decoration:none; border:none; cursor:pointer; background: linear-gradient(180deg, var(--brand-gold), color-mix(in oklab, var(--brand-orange) 80%, var(--brand-gold))); color: var(--ink); box-shadow: 0 4px 10px rgba(0,0,0,.25); transition: transform .2s ease-out, box-shadow .2s ease-out; white-space: nowrap; } .btn-header-download:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,.3); } .mobile { display:none; position:relative; z-index: 10050; } .hamburger { list-style:none; cursor:pointer; padding:8px; border-radius:10px; color:#fff; display:grid; place-content:center; -webkit-tap-highlight-color: transparent; } .hamburger:hover { background-color: rgba(255,255,255,.15); } .sheet { display:none; position: fixed; top: calc(64px + env(safe-area-inset-top)); right: 12px; width: 280px; max-height: min(70vh, 520px); overflow: auto; background: var(--surface); border:1px solid var(--ring); border-radius:14px; padding:10px; box-shadow: var(--shadow-lg); z-index: 11000; } .mobile[open] .sheet { display:flex; flex-direction:column; gap:6px; } .mlink { color: var(--text-primary); text-decoration:none; padding:10px 12px; border-radius:10px; } .mlink:hover { background: var(--surface-2); } .mbtn { display:flex; justify-content:center; align-items:center; padding:12px; border-radius:12px; background: linear-gradient(180deg, var(--brand-gold), var(--brand-orange)); color: var(--ink); font-weight:800; text-decoration:none; margin-top:6px; } @media (max-width: 920px){ .nav { display:none; } .mobile { display:block; } } @media (max-width: 767px){ .site-header { display:none; } }
+  .site-header {
+    position: sticky; top: 0; z-index: 4000;
+    background: linear-gradient(100deg, var(--brand-orange), color-mix(in oklab, var(--brand-orange) 70%, var(--brand-gold)));
+    border-bottom: 1px solid rgba(255,255,255,.14);
+    box-shadow: 0 6px 20px -8px rgba(124, 45, 18, .45);
+    transition: background-color .25s ease, box-shadow .25s ease, border-color .25s ease, backdrop-filter .25s ease;
+  }
+  /* Home page: sit on top of the hero so the bar and the hero share one background. */
+  .site-header.is-overlay { background: transparent; border-bottom-color: transparent; box-shadow: none; margin-bottom: -64px; }
+  .site-header.is-overlay.is-scrolled,
+  .site-header.is-overlay:has(details[open]) {
+    background: color-mix(in oklab, var(--brand-orange) 88%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(1.5); backdrop-filter: blur(14px) saturate(1.5);
+    border-bottom-color: rgba(255,255,255,.18);
+    box-shadow: 0 8px 24px -10px rgba(124, 45, 18, .5);
+  }
+  .bar { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { display: flex; align-items: center; text-decoration: none; }
+  .logo { display: block; filter: drop-shadow(0 2px 6px rgba(0,0,0,.18)); }
+  .nav { display: flex; align-items: center; gap: 4px; }
+  .link {
+    color: #fff; text-decoration: none; font-size: 14px; font-weight: 600;
+    padding: 8px 14px; border-radius: 999px; text-shadow: 0 1px 2px rgba(0,0,0,.12);
+    transition: background-color .2s ease, transform .2s ease;
+  }
+  .link:hover, .link:focus-visible { background: rgba(255,255,255,.2); outline: none; }
+  .btn-header-download {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    margin-left: 12px; padding: 10px 22px; border-radius: 999px;
+    font-weight: 800; font-size: 14px; text-decoration: none; border: none; cursor: pointer; white-space: nowrap;
+    background: linear-gradient(180deg, #fde047, var(--brand-gold) 55%, #f5b50b);
+    color: var(--ink);
+    box-shadow: 0 6px 16px -4px rgba(124, 45, 18, .5), inset 0 1px 0 rgba(255,255,255,.7);
+    transition: transform .2s ease-out, box-shadow .2s ease-out, filter .2s ease-out;
+  }
+  .btn-header-download:hover { transform: translateY(-2px); filter: brightness(1.04); box-shadow: 0 10px 22px -6px rgba(124, 45, 18, .55), inset 0 1px 0 rgba(255,255,255,.7); }
+  .btn-header-download:focus-visible, .hamburger:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .mobile { display: none; position: relative; z-index: 10050; }
+  .hamburger { list-style: none; cursor: pointer; padding: 8px; border-radius: 12px; color: #fff; display: grid; place-content: center; -webkit-tap-highlight-color: transparent; }
+  .hamburger:hover { background-color: rgba(255,255,255,.2); }
+  .sheet { display: none; position: fixed; top: calc(64px + env(safe-area-inset-top)); right: 12px; width: 280px; max-height: min(70vh, 520px); overflow: auto; background: var(--surface); border: 1px solid var(--ring); border-radius: 16px; padding: 10px; box-shadow: var(--shadow-lg); z-index: 11000; }
+  .mobile[open] .sheet { display: flex; flex-direction: column; gap: 6px; }
+  .mlink { color: var(--text-primary); text-decoration: none; padding: 10px 12px; border-radius: 10px; }
+  .mlink:hover { background: var(--surface-2); }
+  .mbtn { display: flex; justify-content: center; align-items: center; padding: 12px; border-radius: 12px; background: linear-gradient(180deg, var(--brand-gold), var(--brand-orange)); color: var(--ink); font-weight: 800; text-decoration: none; margin-top: 6px; }
+  @media (max-width: 920px) { .nav { display: none; } .mobile { display: block; } }
+  @media (max-width: 767px) { .site-header { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .site-header, .link, .btn-header-download { transition: none; } }
 </style>
 
 <script is:inline>
   // Script remains unchanged
   (function(){ const menu = document.querySelector('details[data-mobile-menu]'); const summary = menu?.querySelector('summary.hamburger'); const sheet = menu?.querySelector('.sheet'); if (!menu || !summary || !sheet) return; function openMenu() { menu.setAttribute('open', ''); } function closeMenu() { menu.removeAttribute('open'); } summary.addEventListener('click', (e) => { e.preventDefault(); menu.hasAttribute('open') ? closeMenu() : openMenu(); }, { passive: false }); summary.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); menu.hasAttribute('open') ? closeMenu() : openMenu(); } }); document.addEventListener('click', (e) => { if (!menu.hasAttribute('open')) return; const t = e.target; if (!(t instanceof Element)) return; if (!t.closest('details[data-mobile-menu]')) closeMenu(); }); sheet.addEventListener('click', (e) => { const t = e.target; if (t instanceof Element && t.closest('a')) closeMenu(); }); function haptic(){ try { navigator.vibrate && navigator.vibrate(12); } catch(_) {} } document.addEventListener('click', (e) => { const el = e.target; const a = el && el.closest && el.closest('[data-analytics]'); if (!a) return; const name = a.getAttribute('data-analytics') || 'nav_click'; try { if (window.gtag) window.gtag('event', name, { label: name }); } catch(_){} haptic(); }, { passive: true }); })();
+</script>
+
+<script is:inline>
+  // Home page: turn the transparent bar solid (frosted) once the page has scrolled.
+  (function(){ const h = document.querySelector('header.site-header.is-overlay'); if (!h) return; const on = () => h.classList.toggle('is-scrolled', window.scrollY > 8); on(); window.addEventListener('scroll', on, { passive: true }); })();
 </script>
