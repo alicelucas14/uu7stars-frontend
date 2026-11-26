@@ -28,6 +28,7 @@ const has = (key: string) => t(key) !== key;
         {/* Tab 1 */}
         <details class="accordion-item" open>
           <summary class="accordion-title">
+            <span class="acc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></span>
             <span class="accordion-title-text">{t('aboutTabs.tab1.title')}</span>
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
           </summary>
@@ -49,6 +50,7 @@ const has = (key: string) => t(key) !== key;
         {/* Tab 2 */}
         <details class="accordion-item">
           <summary class="accordion-title">
+            <span class="acc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1z"/><path d="M8 6H6a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-2"/><path d="M9 14l2 2 4-4"/></svg></span>
             <span class="accordion-title-text">{t('aboutTabs.tab2.title')}</span>
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
           </summary>
@@ -74,6 +76,7 @@ const has = (key: string) => t(key) !== key;
         {/* Tab 3 */}
         <details class="accordion-item">
           <summary class="accordion-title">
+            <span class="acc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg></span>
             <span class="accordion-title-text">{t('aboutTabs.tab3.title')}</span>
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
           </summary>
@@ -94,98 +97,79 @@ const has = (key: string) => t(key) !== key;
 </section>
 
 <style>
-  /* Styles remain unchanged */
   .about-section {
-    padding-block: 48px;
-    background-color: var(--surface-2); 
+    padding-block: 64px 72px;
+    background: linear-gradient(180deg, color-mix(in oklab, var(--brand-orange) 4%, var(--surface-2)), var(--surface-2));
     border-top: 1px solid var(--ring);
   }
-  
-  @media (max-width: 767.98px) { .about-section .container { padding-inline: 0; } }
-
   .about-box {
-    background-color: var(--surface);
-    border: 1px solid var(--ring);
-    border-radius: 24px;
-    padding: 32px;
+    background: var(--surface);
+    border: 1px solid color-mix(in oklab, var(--brand-orange) 14%, #fff);
+    border-radius: 28px;
+    padding: 44px 40px 40px;
+    box-shadow: 0 30px 50px -36px rgba(124, 45, 18, .45);
   }
-  @media (max-width: 767px) {
-    .about-box {
-      border-radius: 0;
-      border-inline: none;
-      padding-inline: 16px;
-      padding-block: 24px;
-    }
-  }
-
   .section-head { text-align: center; margin-bottom: 32px; }
-  .section-head h2 { font-size: clamp(24px, 4vw, 36px); margin-bottom: 24px; }
-  .intro-text { margin-inline: auto; text-align: left; color: var(--text-secondary); }
+  .section-head h2 { font-size: clamp(26px, 4vw, 38px); letter-spacing: -.02em; margin-bottom: 0; }
+  .section-head h2::after { content: ""; display: block; width: 48px; height: 4px; margin: 14px auto 22px; border-radius: 4px; background: linear-gradient(90deg, var(--brand-orange), var(--brand-gold)); }
+  .intro-text { max-width: 860px; margin-inline: auto; text-align: left; color: var(--text-secondary); line-height: 1.7; }
   .intro-text p { margin-bottom: 1em; }
+  .intro-text p:first-child { font-size: 1.08em; color: var(--text-primary); }
   .intro-text p:last-child { margin-bottom: 0; }
 
-  .tabs-accordion-container { display: grid; gap: 12px; }
+  /* three expandable cards; one open at a time */
+  .tabs-accordion-container { display: grid; gap: 12px; max-width: 980px; margin-inline: auto; }
   .accordion-item {
-    background: var(--surface-2);
-    border: 1px solid var(--ring);
-    border-radius: 12px;
-    transition: background-color .2s;
+    background: #fff;
+    border: 1px solid color-mix(in oklab, var(--brand-orange) 14%, #fff);
+    border-radius: 20px; overflow: hidden;
+    transition: border-color .25s ease, box-shadow .25s ease, background-color .25s ease;
   }
-  .accordion-item[open] { background-color: color-mix(in oklab, var(--surface) 50%, var(--surface-2)); }
+  .accordion-item[open] {
+    border-color: color-mix(in oklab, var(--brand-orange) 42%, #fff);
+    background: linear-gradient(180deg, color-mix(in oklab, var(--brand-orange) 5%, #fff), #fff 140px);
+    box-shadow: 0 22px 36px -28px rgba(124, 45, 18, .6);
+  }
   .accordion-title {
-    list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-    gap: 16px; padding: 18px 20px; font-weight: 600; color: var(--text-primary);
+    list-style: none; cursor: pointer; display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px; font-weight: 750; font-size: 16px; color: var(--text-primary);
+    -webkit-tap-highlight-color: transparent;
   }
-  .accordion-title-text { flex: 1; max-width: 90%; }
   .accordion-title::-webkit-details-marker { display: none; }
+  .accordion-title:focus-visible { outline: 3px solid var(--brand-orange); outline-offset: -3px; border-radius: 20px; }
+  .accordion-title-text { flex: 1; min-width: 0; }
+  .acc-ico {
+    display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: 14px;
+    color: #c2410c; background: linear-gradient(135deg, #fff1e0, #ffe1bd); box-shadow: inset 0 0 0 1px rgba(249, 115, 22, .18);
+    transition: background .25s ease, color .25s ease, box-shadow .25s ease;
+  }
+  .acc-ico svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .accordion-item[open] .acc-ico { color: #fff; background: linear-gradient(135deg, #fb923c, var(--brand-orange) 55%, #ea580c); box-shadow: 0 10px 18px -10px rgba(234, 88, 12, .8), inset 0 1px 0 rgba(255,255,255,.4); }
   .icon {
-    transition: transform 0.2s; color: var(--brand-orange); stroke: currentColor; stroke-width: 2.5;
-    fill: none; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; width: 20px; height: 20px;
+    flex: none; width: 32px; height: 32px; padding: 7px; border-radius: 50%;
+    color: var(--brand-orange); background: color-mix(in oklab, var(--brand-orange) 10%, #fff);
+    stroke: currentColor; stroke-width: 2.6; fill: none; stroke-linecap: round; stroke-linejoin: round;
+    transition: transform .25s ease, background-color .25s ease;
   }
   .accordion-item[open] .icon { transform: rotate(180deg); }
-  .accordion-content { padding: 0 20px 20px; color: var(--text-secondary); font-size: 15px; }
-  .accordion-content h4 { color: var(--text-primary); margin-bottom: 8px; margin-top: 24px; }
-  .accordion-content h4:first-child { margin-top: 0; }
-  .accordion-content p { margin-bottom: 16px; }
 
-  @media (min-width: 768px) {
-    .tabs-accordion-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .accordion-item {
-      flex: 1 1 200px;
-      border: none;
-      background: none;
-      border-radius: 0;
-    }
-    .accordion-title {
-      padding: 14px 20px; font-size: 15px; font-weight: 600; border-radius: 8px;
-      border: 1px solid var(--ring); background-color: var(--surface-2);
-      color: var(--text-secondary); transition: background-color 0.2s, color 0.2s;
-    }
-    .icon { display: none; }
-    .accordion-item[open] > .accordion-title {
-      background-color: var(--brand-orange);
-      color: #ffffff;
-      border-color: var(--brand-orange);
-      font-weight: 700;
-    }
-    .accordion-content { display: none; }
-    .accordion-item[open] {
-      flex-basis: 100%;
-      order: 99;
-    }
-    .accordion-item[open] > .accordion-content {
-      display: block;
-      background-color: var(--surface-2);
-      border: 1px solid var(--ring);
-      border-radius: 8px;
-      padding: 32px;
-      margin-top: 8px;
-    }
+  .accordion-content { padding: 2px 22px 24px; color: var(--text-secondary); font-size: 15px; line-height: 1.7; }
+  .accordion-content h4 { margin: 22px 0 6px; padding-left: 11px; border-left: 3px solid var(--brand-orange); font-size: 15.5px; line-height: 1.3; color: var(--text-primary); break-after: avoid; }
+  .accordion-content h4:first-child { margin-top: 0; }
+  .accordion-content p { margin: 0 0 12px; break-inside: avoid; }
+  .accordion-content a { color: #c2410c; font-weight: 600; }
+  @media (min-width: 900px) { .accordion-content { columns: 2; column-gap: 44px; } }
+
+  @media (max-width: 767px) {
+    .about-section { padding-block: 44px 52px; }
+    .about-box { border-radius: 24px; padding: 28px 16px 20px; }
+    .section-head { margin-bottom: 24px; }
+    .accordion-title { padding: 14px 14px; font-size: 15px; gap: 12px; }
+    .acc-ico { width: 38px; height: 38px; border-radius: 12px; }
+    .accordion-content { padding: 0 16px 20px; font-size: 14.5px; }
   }
+
+  @media (prefers-reduced-motion: reduce) { .accordion-item, .acc-ico, .icon { transition: none; } }
 </style>
 
 <script>
