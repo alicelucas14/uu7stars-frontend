@@ -104,13 +104,13 @@ const reviewJsonLd = {
                   </dl>
                   
                   {review.pros?.en && review.pros.en.length > 0 && (
-                    <div class="pros-cons">
+                    <div class="pros-cons is-pros">
                       <h4>{t('reviewPost.pros')}</h4>
                       <ul>{review.pros.en.map(pro => <li>{pro}</li>)}</ul>
                     </div>
                   )}
                    {review.cons?.en && review.cons.en.length > 0 && (
-                    <div class="pros-cons">
+                    <div class="pros-cons is-cons">
                       <h4>{t('reviewPost.cons')}</h4>
                       <ul>{review.cons.en.map(con => <li>{con}</li>)}</ul>
                     </div>
@@ -151,13 +151,13 @@ const reviewJsonLd = {
                     <div><dt>{t('reviewPost.developer')}</dt><dd>{review.developer}</dd></div>
                   </dl>
                   {review.pros?.en && review.pros.en.length > 0 && (
-                    <div class="pros-cons">
+                    <div class="pros-cons is-pros">
                       <h4>{t('reviewPost.pros')}</h4>
                       <ul>{review.pros.en.map(pro => <li>{pro}</li>)}</ul>
                     </div>
                   )}
                   {review.cons?.en && review.cons.en.length > 0 && (
-                    <div class="pros-cons">
+                    <div class="pros-cons is-cons">
                       <h4>{t('reviewPost.cons')}</h4>
                       <ul>{review.cons.en.map(con => <li>{con}</li>)}</ul>
                     </div>
@@ -185,56 +185,89 @@ const reviewJsonLd = {
     .desktop-layout { display: block; }
     .mobile-layout { display: none; }
   }
-  .review-page { padding-block: 48px; }
+  .review-page { padding-block: 48px 72px; background: linear-gradient(180deg, color-mix(in oklab, var(--brand-orange) 6%, var(--surface)) 0%, var(--surface) 360px); }
   @media (max-width: 767px) {
-    .review-page { padding-block: 24px; }
+    .review-page { padding-block: 16px 36px; }
   }
 
-  .layout-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 32px;
-  }
-  @media (min-width: 900px) {
-    .layout-grid {
-      grid-template-columns: 2fr 1fr;
-    }
-  }
+  .layout-grid { display: grid; grid-template-columns: 1fr; gap: 32px; }
+  @media (min-width: 900px) { .layout-grid { grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); gap: 40px; } }
   @media (max-width: 899px) {
     .main-content { order: 2; }
     .sidebar { order: 1; }
   }
-  
-  /* --- Main Content --- */
-  .review-header { margin-bottom: 24px; }
-  .review-header h1 , .review-header .h1-alt { font-size: clamp(28px, 4vw, 40px); margin-bottom: 4px; }
-  .review-game-name { color: var(--text-secondary); }
 
-  .prose { font-size: 17px; line-height: 1.8; }
-  @media (max-width: 899px) { .prose { margin-top: 32px; } }
+  /* --- Main Content --- */
+  .review-header { margin-bottom: 28px; }
+  .review-header h1, .review-header .h1-alt { margin: 0 0 14px; font-size: clamp(30px, 4.4vw, 46px); line-height: 1.12; letter-spacing: -.025em; color: var(--text-primary); }
+  .review-header h1::after, .review-header .h1-alt::after { content: ""; display: block; width: 52px; height: 4px; margin-top: 16px; border-radius: 4px; background: linear-gradient(90deg, var(--brand-orange), var(--brand-gold)); }
+  .review-game-name {
+    display: inline-block; margin: 0; padding: 7px 16px; border-radius: 999px; font-size: 14px; color: #9a3412;
+    background: color-mix(in oklab, var(--brand-orange) 11%, #fff); border: 1px solid color-mix(in oklab, var(--brand-orange) 28%, #fff);
+  }
+  .review-game-name :global(strong) { color: #c2410c; font-weight: 800; }
+
+  .prose { font-size: 17px; line-height: 1.8; color: var(--text-primary); }
+  @media (max-width: 899px) { .prose { margin-top: 28px; } }
   .prose > :global(* + *) { margin-top: 1.25em; }
-  .prose :global(h2), .prose :global(h3) { margin-top: 2em; margin-bottom: 1em; }
+  .prose :global(h2), .prose :global(h3) { margin-top: 2em; margin-bottom: 1em; letter-spacing: -.015em; line-height: 1.25; }
+  /* section headings get a brand bar */
+  .prose :global(h2) { padding-left: 14px; border-left: 4px solid var(--brand-orange); font-size: clamp(22px, 2.6vw, 28px); }
+  .prose :global(h3) { font-size: 20px; color: #c2410c; }
+  .prose :global(a) { color: #c2410c; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in oklab, var(--brand-orange) 45%, transparent); }
+  .prose :global(a:hover) { text-decoration-color: currentColor; }
+  .prose :global(ul), .prose :global(ol) { padding-left: 1.4em; }
+  .prose :global(li::marker) { color: var(--brand-orange); font-weight: 700; }
+  .prose :global(li + li) { margin-top: .4em; }
+  .prose :global(blockquote) { margin-inline: 0; padding: 14px 18px; border-radius: 0 16px 16px 0; border-left: 4px solid var(--brand-gold); background: color-mix(in oklab, var(--brand-gold) 14%, #fff); color: var(--text-primary); }
+  .prose :global(img) { max-width: 100%; height: auto; border-radius: 18px; }
+  .prose :global(table) { width: 100%; border-collapse: separate; border-spacing: 0; overflow: hidden; border-radius: 16px; border: 1px solid color-mix(in oklab, var(--brand-orange) 20%, #fff); font-size: 15px; }
+  .prose :global(th) { background: color-mix(in oklab, var(--brand-orange) 12%, #fff); text-align: left; }
+  .prose :global(th), .prose :global(td) { padding: 10px 14px; border-bottom: 1px solid color-mix(in oklab, var(--brand-orange) 14%, #fff); }
 
   /* --- Sidebar / Summary Card --- */
   .sidebar-inner { position: sticky; top: 88px; display: grid; gap: 24px; }
-  .summary-card { background: var(--surface); border: 1px solid var(--ring); border-radius: 18px; overflow: hidden; }
-  .summary-image { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+  .summary-card { position: relative; overflow: hidden; background: #fff; border: 1px solid color-mix(in oklab, var(--brand-orange) 16%, #fff); border-radius: 28px; box-shadow: 0 34px 56px -36px rgba(124, 45, 18, .55); }
+  .summary-image { display: block; width: 100%; aspect-ratio: 16/9; object-fit: cover; }
   .summary-content { padding: 20px; }
-  .rating-box { text-align: center; background: var(--brand-orange); color: var(--ink); border-radius: 12px; padding: 12px; margin-bottom: 16px; }
-  .rating-score { font-size: 2.5rem; font-weight: 800; line-height: 1; }
-  .rating-stars { position: relative; display: inline-block; font-size: 1.5rem; letter-spacing: 2px; color: rgba(255, 255, 255, 0.3); margin-block: -4px 4px; }
+
+  /* score panel */
+  .rating-box {
+    position: relative; margin: -52px 0 18px; padding: 18px 14px 16px; text-align: center; color: #fff; border-radius: 22px;
+    background: radial-gradient(80% 120% at 100% 0%, rgba(250, 204, 21, .35), transparent 60%), linear-gradient(150deg, #f97316 0%, #ea580c 100%);
+    box-shadow: 0 22px 34px -18px rgba(124, 45, 18, .8), inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .rating-score { font-size: 3rem; font-weight: 850; line-height: 1; letter-spacing: -.03em; text-shadow: 0 2px 12px rgba(67, 20, 7, .3); }
+  .rating-score::after { content: "/5"; margin-left: 4px; font-size: 1.1rem; font-weight: 700; opacity: .8; letter-spacing: 0; }
+  .rating-stars { position: relative; display: inline-block; margin-block: 6px 4px; font-size: 1.5rem; letter-spacing: 3px; color: rgba(255, 255, 255, 0.35); }
   .rating-stars::before { content: '★★★★★'; }
-  .rating-stars::after { content: '★★★★★'; position: absolute; top: 0; left: 0; color: white; width: var(--rating-percent, 0%); overflow: hidden; white-space: nowrap; }
-  .rating-label { font-weight: 600; font-size: 0.9rem; }
-  .summary-meta { font-size: 0.9rem; }
-  .summary-meta > div { display: flex; justify-content: space-between; padding-block: 8px; border-bottom: 1px solid var(--ring); }
+  .rating-stars::after { content: '★★★★★'; position: absolute; top: 0; left: 0; color: #fef08a; width: var(--rating-percent, 0%); overflow: hidden; white-space: nowrap; }
+  .rating-label { font-weight: 700; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; opacity: .95; }
+
+  .summary-meta { margin: 0; font-size: .92rem; }
+  .summary-meta > div { display: flex; justify-content: space-between; gap: 12px; padding-block: 10px; border-bottom: 1px solid color-mix(in oklab, var(--brand-orange) 14%, #fff); }
   .summary-meta > div:last-child { border-bottom: none; }
   .summary-meta dt { color: var(--text-secondary); }
-  .summary-meta dd { font-weight: 600; color: var(--text-primary); }
-  .pros-cons { margin-top: 16px; }
-  .pros-cons h4 { font-weight: 700; margin-bottom: 8px; font-size: 1rem; }
-  .pros-cons ul { list-style: none; padding: 0; font-size: 0.9rem; color: var(--text-secondary); }
-  .pros-cons li { position: relative; padding-left: 20px; margin-bottom: 4px; }
-  .pros-cons h4:first-of-type + ul li::before { content: '✓'; position: absolute; left: 0; color: var(--brand-green); font-weight: 700; }
-  .pros-cons h4:not(:first-of-type) + ul li::before { content: '✕'; position: absolute; left: 0; color: #ef4444; }
+  .summary-meta dd { margin: 0; font-weight: 700; text-align: right; color: var(--text-primary); }
+
+  /* pros and cons as two tinted blocks */
+  .pros-cons { margin-top: 14px; padding: 14px 16px; border-radius: 18px; }
+  .pros-cons.is-pros { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .pros-cons.is-cons { background: #fef2f2; border: 1px solid #fecaca; }
+  .pros-cons h4 { margin: 0 0 8px; font-weight: 800; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; }
+  .is-pros h4 { color: #166534; }
+  .is-cons h4 { color: #991b1b; }
+  .pros-cons ul { list-style: none; margin: 0; padding: 0; font-size: .92rem; line-height: 1.5; color: var(--text-primary); }
+  .pros-cons li { position: relative; padding-left: 26px; margin-bottom: 6px; }
+  .pros-cons li:last-child { margin-bottom: 0; }
+  .pros-cons li::before { position: absolute; left: 0; top: .1em; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; font-size: 11px; font-weight: 800; line-height: 1; color: #fff; }
+  .is-pros li::before { content: '✓'; background: #16a34a; }
+  .is-cons li::before { content: '✕'; background: #dc2626; }
+
+  @media (max-width: 767px) {
+    .summary-card { border-radius: 24px; }
+    .summary-content { padding: 16px; }
+    .review-header h1 { font-size: clamp(26px, 8vw, 34px); }
+    .prose { font-size: 16px; line-height: 1.75; }
+  }
 </style>
