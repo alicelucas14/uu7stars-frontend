@@ -53,10 +53,11 @@ const links = settings
       ))}
     </ul>
     <button class="ss-toggle" type="button" aria-expanded="false" aria-controls="ss-list" aria-label="Show social links">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
+      <svg class="ico-share" viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
         <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" />
       </svg>
+      <svg class="ico-close" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
     </button>
   </aside>
 )}
@@ -133,43 +134,51 @@ const links = settings
     outline-offset: 2px;
   }
 
-  /* The tab only exists on small screens */
-  .ss-toggle {
-    display: none;
-    appearance: none;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    padding: 0;
-    cursor: pointer;
-    color: #fff;
-    background-color: var(--brand-orange, #f97316);
-    border: 1px solid #fff;
-    border-left: none;
-    border-radius: 0 12px 12px 0;
-  }
-  .ss-toggle svg {
-    width: 22px;
-    height: 22px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
+  /* Phones only: a small tab on the left edge slides a frosted dock in; a round close button sits beside it. */
+  .ss-toggle { display: none; }
+  .ss-toggle svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .ss-toggle .ico-close { display: none; }
 
   @media (max-width: 767px) {
-    .ss-toggle { display: inline-flex; padding-block: 14px; }
-    .ss-list { display: none; border-radius: 0; padding: 8px 6px; gap: 6px; }
+    /* children are positioned against the screen, not this wrapper */
+    .social-sidebar { position: static; transform: none; display: block; }
+
+    .ss-toggle {
+      appearance: none; position: fixed; left: 0; top: 50%; z-index: 1002;
+      display: inline-grid; place-items: center; width: 40px; height: 54px; padding: 0; cursor: pointer;
+      color: #fff; background: linear-gradient(180deg, #fb923c, var(--brand-orange, #f97316));
+      border: 1px solid rgba(255, 255, 255, .55); border-left: none; border-radius: 0 18px 18px 0;
+      box-shadow: 0 12px 22px -8px rgba(124, 45, 18, .6), inset 0 1px 0 rgba(255, 255, 255, .35);
+      transform: translateY(-50%);
+      transition: left .3s cubic-bezier(.22, 1, .36, 1), width .3s ease, height .3s ease, border-radius .3s ease, background .2s ease, color .2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .social-sidebar[data-open='true'] .ss-toggle {
+      left: 70px; top: 50%; width: 42px; height: 42px; border-radius: 50%; border-left: 1px solid rgba(255, 255, 255, .7);
+      color: var(--brand-orange, #f97316); background: #fff;
+      box-shadow: 0 10px 22px -8px rgba(124, 45, 18, .55);
+    }
+    .social-sidebar[data-open='true'] .ss-toggle .ico-share { display: none; }
+    .social-sidebar[data-open='true'] .ss-toggle .ico-close { display: block; }
+
+    .ss-list {
+      position: fixed; left: 0; top: 50%; z-index: 1001; display: grid;
+      padding: 8px 6px; gap: 6px; border-radius: 0 22px 22px 0;
+      max-height: calc(100dvh - 190px); overflow-y: auto; overscroll-behavior: contain;
+      transform: translate(-115%, -50%); opacity: 0; visibility: hidden; pointer-events: none;
+      transition: transform .3s cubic-bezier(.22, 1, .36, 1), opacity .2s ease, visibility 0s linear .3s;
+    }
+    .social-sidebar[data-open='true'] .ss-list {
+      transform: translate(0, -50%); opacity: 1; visibility: visible; pointer-events: auto;
+      transition: transform .3s cubic-bezier(.22, 1, .36, 1), opacity .2s ease, visibility 0s;
+    }
     .ss-link { width: 48px; height: 48px; }
     .ss-link img { width: 30px; height: 30px; }
     .ss-link::after { display: none; }
-    .social-sidebar[data-open='true'] .ss-list { display: grid; }
-    .social-sidebar[data-open='true'] .ss-toggle { border-radius: 0 12px 12px 0; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ss-link, .ss-link img, .ss-link::after { transition: none; }
+    .ss-link, .ss-link img, .ss-link::after, .ss-toggle, .ss-list { transition: none !important; }
     .ss-link:hover, .ss-link:focus-visible { transform: none; }
     .ss-link:hover img { transform: none; }
   }

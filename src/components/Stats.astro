@@ -88,14 +88,22 @@ const t = useTranslations(lang);
 
   @media (max-width: 980px) { .stats-section { margin-top: -90px; } }
 
+  /* phones: one swipeable row (about 2.5 cards visible, so it reads as scrollable) */
   @media (max-width: 767px) {
     .stats-section { margin-top: -64px; margin-bottom: 40px; }
-    .stats-card { grid-template-columns: repeat(2, 1fr); border-radius: 20px; }
-    .stat { padding: 18px 10px 16px; }
-    .stat + .stat::before { display: none; }
-    .stat:nth-child(even)::before { display: block; top: 18%; bottom: 18%; }
-    .stat:nth-child(n+3) { border-top: 1px solid color-mix(in oklab, var(--brand-orange) 14%, transparent); }
+    .stats-card {
+      display: grid; grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(132px, 1fr);
+      border-radius: 20px;
+      overflow-x: auto; overflow-y: hidden;
+      scroll-snap-type: x mandatory; scroll-padding-inline: 8px;
+      -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
+      -ms-overflow-style: none; scrollbar-width: none;
+    }
+    .stats-card::-webkit-scrollbar { display: none; }
+    .stat { scroll-snap-align: start; padding: 18px 10px 16px; }
     .stat__icon { width: 36px; height: 36px; border-radius: 12px; }
+    .stat__num { font-size: 26px; }
+    .stat__label { font-size: 11.5px; }
   }
 
   @media (prefers-reduced-motion: reduce) { .stat { transition: none; } }
