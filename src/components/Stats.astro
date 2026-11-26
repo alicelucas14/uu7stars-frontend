@@ -51,11 +51,13 @@ const t = useTranslations(lang);
   .stats-card {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.92));
-    border: 1px solid rgba(255,255,255,.8);
+    /* deep brand orange with gold accents: stands out on the hero and on the white page below */
+    background:
+      radial-gradient(60% 120% at 100% 0%, rgba(250, 204, 21, .22), transparent 60%),
+      linear-gradient(135deg, #f26a10 0%, #d9520a 100%);
+    border: 1px solid rgba(253, 224, 71, .38);
     border-radius: 24px;
-    box-shadow: 0 32px 60px -24px rgba(124, 45, 18, .5), 0 2px 0 rgba(255,255,255,.6) inset;
-    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    box-shadow: 0 32px 60px -22px rgba(124, 45, 18, .65), inset 0 1px 0 rgba(255,255,255,.28);
     overflow: hidden;
   }
 
@@ -65,26 +67,25 @@ const t = useTranslations(lang);
     padding: 24px 12px 22px; text-align: center;
     transition: background-color .25s ease;
   }
-  .stat:hover { background: color-mix(in oklab, var(--brand-orange) 5%, transparent); }
+  .stat:hover { background: rgba(255,255,255,.07); }
   .stat + .stat::before {
     content: ""; position: absolute; left: 0; top: 22%; bottom: 22%; width: 1px;
-    background: linear-gradient(180deg, transparent, color-mix(in oklab, var(--brand-orange) 28%, transparent), transparent);
+    background: linear-gradient(180deg, transparent, rgba(253, 224, 71, .45), transparent);
   }
 
   .stat__icon {
     display: grid; place-items: center; width: 40px; height: 40px; margin-bottom: 6px; border-radius: 14px;
-    color: #fff;
-    background: linear-gradient(135deg, var(--brand-orange), #fbbf24);
-    box-shadow: 0 8px 16px -6px rgba(249, 115, 22, .6), inset 0 1px 0 rgba(255,255,255,.45);
+    color: #7c2d12;
+    background: linear-gradient(135deg, #fef08a, var(--brand-gold) 55%, #f59e0b);
+    box-shadow: 0 8px 16px -6px rgba(67, 20, 7, .55), inset 0 1px 0 rgba(255,255,255,.7);
   }
   .stat__icon svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
   .stat__num {
     display: block; font-size: clamp(26px, 3vw, 38px); font-weight: 800; line-height: 1.1; letter-spacing: -.02em;
-    background: linear-gradient(135deg, #ea580c, #f59e0b);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
+    color: #fff; text-shadow: 0 2px 12px rgba(67, 20, 7, .35);
   }
-  .stat__label { font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-secondary, #6b7280); }
+  .stat__label { font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fde68a; }
 
   @media (max-width: 980px) { .stats-section { margin-top: -90px; } }
 
