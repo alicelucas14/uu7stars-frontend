@@ -63,7 +63,10 @@ const t = useTranslations(lang);
     box-shadow: 0 22px 40px -20px rgba(124, 45, 18, .7), inset 0 1px 0 rgba(255, 255, 255, .28);
     transition: transform .25s ease, box-shadow .25s ease;
   }
-  .stat:hover { transform: translateY(-5px); box-shadow: 0 30px 46px -20px rgba(124, 45, 18, .75), inset 0 1px 0 rgba(255, 255, 255, .35); }
+  /* lift on hover only for a real mouse on wide screens; touch screens keep the tiles flat */
+  @media (hover: hover) and (min-width: 768px) {
+    .stat:hover { transform: translateY(-5px); box-shadow: 0 30px 46px -20px rgba(124, 45, 18, .75), inset 0 1px 0 rgba(255, 255, 255, .35); }
+  }
   /* gold accent bar */
   .stat::before { content: ""; position: absolute; left: 22px; top: 0; width: 34px; height: 4px; border-radius: 0 0 4px 4px; background: linear-gradient(90deg, #fef08a, var(--brand-gold)); }
 
@@ -93,7 +96,7 @@ const t = useTranslations(lang);
     }
     .stats-card::-webkit-scrollbar { display: none; }
     .stat { scroll-snap-align: start; min-height: 112px; padding: 18px 14px 14px; border-radius: 18px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28); }
-    .stat:hover { transform: none; }
+    .stat, .stat:hover, .stat:active, .stat:focus, .stat:focus-within { transform: none; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28); -webkit-tap-highlight-color: transparent; }
     .stat::before { left: 14px; }
     .stat__icon { top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 10px; }
     .stat__icon svg { width: 18px; height: 18px; }
