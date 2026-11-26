@@ -22,18 +22,20 @@ const testimonials: { name: string; quote: string }[] = Array.isArray(testimonia
 <section id="testimonials" class="testimonials-section">
   <div class="container">
     <header class="section-head">
-      {/* UPDATED: Dynamic text */}
       <h2>{title}</h2>
       <p class="muted">{description}</p>
     </header>
 
     <div class="testimonial-carousel-wrapper">
       <div class="grid">
-        {/* UPDATED: Map over the dynamic list of testimonials */}
-        {testimonials.map(t => (
+        {testimonials.map(item => (
           <figure class="testimonial-card">
-            <blockquote>"{t.quote}"</blockquote>
-            <figcaption>— {t.name}</figcaption>
+            <svg class="qmark" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 6C5 7.2 3.5 9.4 3.5 12.5V18h6v-6H6.7c.2-1.4 1.1-2.4 2.5-3zM17.5 6C15 7.2 13.5 9.4 13.5 12.5V18h6v-6h-2.8c.2-1.4 1.1-2.4 2.5-3z"/></svg>
+            <blockquote>{item.quote}</blockquote>
+            <figcaption>
+              <span class="avatar" aria-hidden="true">{(item.name || '?').trim().charAt(0).toUpperCase()}</span>
+              <span class="who">{item.name}</span>
+            </figcaption>
           </figure>
         ))}
       </div>
@@ -43,135 +45,93 @@ const testimonials: { name: string; quote: string }[] = Array.isArray(testimonia
 </section>
 
 <style>
-  /* Styles remain unchanged */
-  .testimonials-section { 
-    padding-block: 48px;
-    background-color: var(--surface-2);
+  .testimonials-section {
+    padding-block: 64px 72px;
+    background: linear-gradient(180deg, color-mix(in oklab, var(--brand-orange) 4%, var(--surface-2)), var(--surface-2));
     border-top: 1px solid var(--ring);
     border-bottom: 1px solid var(--ring);
   }
-  .section-head { 
-    text-align: center; 
-    max-width: 640px; 
-    margin-inline: auto; 
-    margin-bottom: 32px; 
-  }
-  .section-head h2 { 
-    font-size: clamp(24px, 4vw, 36px); 
-    margin-bottom: 8px;
-  }
-  .grid {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: 85%;
-    gap: 16px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .grid::-webkit-scrollbar { display: none; }
+  .section-head { text-align: center; max-width: 640px; margin-inline: auto; margin-bottom: 40px; }
+  .section-head h2 { font-size: clamp(26px, 4vw, 38px); letter-spacing: -.02em; margin-bottom: 10px; }
+  .section-head h2::after { content: ""; display: block; width: 48px; height: 4px; margin: 14px auto 0; border-radius: 4px; background: linear-gradient(90deg, var(--brand-orange), var(--brand-gold)); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+
   .testimonial-card {
+    position: relative; overflow: hidden; margin: 0; height: 100%; display: flex; flex-direction: column;
+    padding: 30px 26px 24px;
+    background: #fff; border: 1px solid color-mix(in oklab, var(--brand-orange) 14%, #fff); border-radius: 24px;
+    box-shadow: 0 24px 40px -30px rgba(124, 45, 18, .5);
+    transition: transform .25s ease, box-shadow .25s ease;
     scroll-snap-align: start;
   }
-  .testimonial-carousel-wrapper {
-    padding-left: 16px;
+  /* brand bar along the top edge */
+  .testimonial-card::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: linear-gradient(90deg, var(--brand-orange), var(--brand-gold)); }
+  @media (hover: hover) and (min-width: 768px) { .testimonial-card:hover { transform: translateY(-6px); box-shadow: 0 34px 46px -28px rgba(124, 45, 18, .6); } }
+
+  .qmark { width: 38px; height: 38px; margin-bottom: 14px; fill: color-mix(in oklab, var(--brand-orange) 30%, #fff); }
+  blockquote { margin: 0 0 22px; padding: 0; flex-grow: 1; font-size: 16px; line-height: 1.7; font-style: normal; color: var(--text-primary); }
+  figcaption { display: flex; align-items: center; gap: 12px; padding-top: 18px; border-top: 1px solid color-mix(in oklab, var(--brand-orange) 14%, #fff); }
+  .avatar {
+    display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: 50%;
+    font-size: 17px; font-weight: 800; color: #fff;
+    background: linear-gradient(135deg, #fb923c, var(--brand-orange) 55%, #ea580c);
+    box-shadow: 0 8px 14px -8px rgba(234, 88, 12, .8), inset 0 1px 0 rgba(255,255,255,.4);
   }
-  @media (min-width: 768px) {
-    .testimonial-carousel-wrapper { padding-left: 0; }
-  }
-  @media (min-width: 768px) {
+  .who { font-weight: 750; color: var(--text-primary); }
+
+  .dots { display: none; justify-content: center; gap: 8px; margin-top: 22px; }
+  /* the dots are added by the script below, so these selectors have to be global */
+  .dots :global(button) { width: 8px; height: 8px; padding: 0; border: none; border-radius: 99px; background: color-mix(in oklab, var(--brand-orange) 25%, #fff); cursor: pointer; transition: width .25s ease, background-color .25s ease; }
+  .dots :global(button.is-active) { width: 24px; background: var(--brand-orange); }
+
+  /* phones: swipeable row bleeding to both edges, with progress dots */
+  @media (max-width: 767px) {
+    .testimonials-section { padding-block: 44px 52px; }
+    .section-head { margin-bottom: 26px; }
     .grid {
-      grid-auto-flow: initial;
-      grid-auto-columns: initial;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-      overflow-x: visible;
+      grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: min(84vw, 340px); gap: 14px;
+      margin-inline: calc(50% - 50vw); padding-inline: calc(50vw - 50%); padding-block: 4px 8px;
+      overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-padding-inline: 16px;
+      overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; -ms-overflow-style: none; scrollbar-width: none;
     }
+    .grid::-webkit-scrollbar { display: none; }
+    .testimonial-card { box-shadow: none; border-radius: 22px; padding: 26px 20px 20px; }
+    .dots { display: flex; }
   }
-  .testimonial-card {
-    background: var(--surface);
-    border: 1px solid var(--ring);
-    border-radius: 18px;
-    padding: 24px;
-    margin: 0;
-    border-top: 4px solid var(--brand-orange);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  blockquote {
-    margin: 0 0 16px;
-    padding: 0;
-    font-style: italic;
-    color: var(--text-primary);
-    flex-grow: 1;
-  }
-  figcaption {
-    text-align: right;
-    font-weight: 600;
-    color: var(--text-secondary);
-  }
-  .dots {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 24px;
-  }
-  .dots > button {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    border: none;
-    background: var(--ring);
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.2s;
-  }
-  .dots > button.is-active {
-    background: var(--brand-orange);
-    transform: scale(1.2);
-  }
-  @media (min-width: 768px) {
-    .dots { display: none; }
-  }
+
+  @media (prefers-reduced-motion: reduce) { .testimonial-card, .dots :global(button) { transition: none; } }
 </style>
 
 <script>
-  // Script remains unchanged
-  const wrapper = document.querySelector('.testimonial-carousel-wrapper') as HTMLElement | null;
-  if (wrapper) {
+  // Progress dots for the swipeable phone carousel. The home page renders the section twice (desktop and phone layout),
+  // so every copy is wired up, not just the first one.
+  document.querySelectorAll<HTMLElement>('.testimonial-carousel-wrapper').forEach((wrapper) => {
     const grid = wrapper.querySelector('.grid') as HTMLElement | null;
     const dotsContainer = wrapper.querySelector('.dots') as HTMLElement | null;
     const cards = Array.from(wrapper.querySelectorAll('.testimonial-card')) as HTMLElement[];
-    if (grid && dotsContainer && cards.length > 0 && window.matchMedia("(max-width: 767px)").matches) {
-      cards.forEach((_, i) => {
-        const button = document.createElement('button');
-        button.setAttribute('aria-label', `Go to testimonial ${i + 1}`);
-        button.addEventListener('click', () => {
-          const cardWidth = cards[0].offsetWidth;
-          const gap = parseInt(window.getComputedStyle(grid).gap);
-          grid.scrollTo({
-            left: i * (cardWidth + gap),
-            behavior: 'smooth'
-          });
-        });
-        dotsContainer.appendChild(button);
+    if (!grid || !dotsContainer || cards.length === 0 || !window.matchMedia('(max-width: 767px)').matches) return;
+
+    cards.forEach((_, i) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.setAttribute('aria-label', `Go to testimonial ${i + 1}`);
+      button.addEventListener('click', () => {
+        grid.scrollTo({ left: cards[i].offsetLeft - cards[0].offsetLeft, behavior: 'smooth' });
       });
-      const dots = Array.from(dotsContainer.querySelectorAll('button'));
-      if (dots.length > 0) {
-        dots[0].classList.add('is-active');
-      }
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const index = cards.indexOf(entry.target as HTMLElement);
-            dots.forEach(dot => dot.classList.remove('is-active'));
-            if (dots[index]) {
-              dots[index].classList.add('is-active');
-            }
-          }
-        });
-      }, { root: grid, threshold: 0.6 });
-      cards.forEach(card => observer.observe(card));
-    }
-  }
+      dotsContainer.appendChild(button);
+    });
+    const dots = Array.from(dotsContainer.querySelectorAll('button'));
+    dots[0]?.classList.add('is-active');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const index = cards.indexOf(entry.target as HTMLElement);
+        dots.forEach((dot) => dot.classList.remove('is-active'));
+        dots[index]?.classList.add('is-active');
+      });
+    }, { root: grid, threshold: 0.6 });
+    cards.forEach((card) => observer.observe(card));
+  });
 </script>
