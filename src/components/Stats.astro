@@ -86,13 +86,13 @@ const t = useTranslations(lang);
       grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(150px, 1fr); gap: 12px;
       /* bleed to both screen edges so tiles scroll right off the screen; padding keeps the first and last tile on the page margin */
       margin-inline: calc(50% - 50vw); padding-inline: calc(50vw - 50%);
-      overflow-x: auto; overflow-y: hidden; padding-block: 6px 20px; margin-bottom: -14px;
+      overflow-x: auto; overflow-y: hidden; padding-block: 6px; margin-bottom: 0;
       scroll-snap-type: x proximity; scroll-padding-inline: 16px;
       -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
       -ms-overflow-style: none; scrollbar-width: none;
     }
     .stats-card::-webkit-scrollbar { display: none; }
-    .stat { scroll-snap-align: start; min-height: 112px; padding: 18px 14px 14px; border-radius: 18px; box-shadow: 0 10px 14px -10px rgba(124, 45, 18, .6), inset 0 1px 0 rgba(255, 255, 255, .28); }
+    .stat { scroll-snap-align: start; min-height: 112px; padding: 18px 14px 14px; border-radius: 18px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28); }
     .stat:hover { transform: none; }
     .stat::before { left: 14px; }
     .stat__icon { top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 10px; }
