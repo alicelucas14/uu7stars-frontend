@@ -43,11 +43,11 @@ const links = settings
             class="ss-link"
             href={s.href}
             aria-label={`Follow us on ${s.label}`}
-            title={s.label}
+            data-label={s.label}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <img src={s.imgSrc} alt="" width="34" height="34" decoding="async" />
+            <img src={s.imgSrc} alt="" width="30" height="30" decoding="async" />
           </a>
         </li>
       ))}
@@ -72,17 +72,19 @@ const links = settings
     align-items: stretch;
   }
 
+  /* Slim frosted dock hugging the left edge; icons sit bare on it and lift on hover, with a label tooltip. */
   .ss-list {
     list-style: none;
     margin: 0;
-    padding: 10px 8px;
+    padding: 8px 6px;
     display: grid;
-    gap: 10px;
-    background: var(--surface, #0f1115);
-    border: 1px solid var(--ring, rgba(255, 255, 255, 0.08));
+    gap: 4px;
+    background: rgba(255, 255, 255, .82);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, .7);
     border-left: none;
-    border-radius: 0 18px 18px 0;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+    border-radius: 0 22px 22px 0;
+    box-shadow: 0 18px 40px -14px rgba(124, 45, 18, .5), 0 2px 8px rgba(0, 0, 0, .08);
     /* Many links: scroll inside the bar instead of running off the screen */
     max-height: calc(100vh - 32px);
     max-height: calc(100dvh - 32px);
@@ -90,27 +92,41 @@ const links = settings
     scrollbar-width: none;
   }
   .ss-list::-webkit-scrollbar { display: none; }
+  .ss-list li { position: relative; }
 
   .ss-link {
+    position: relative;
     display: grid;
     place-items: center;
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    background: var(--surface-2, rgba(255, 255, 255, 0.06));
-    border: 1px solid var(--ring, rgba(255, 255, 255, 0.08));
-    transition: transform 0.15s ease, background-color 0.15s ease;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: transparent;
+    border: 0;
+    transition: transform .18s ease, background-color .18s ease, box-shadow .18s ease;
   }
   .ss-link img {
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
     object-fit: contain;
     display: block;
+    transition: transform .18s ease;
   }
-  .ss-link:hover {
+  .ss-link:hover, .ss-link:focus-visible {
+    background: #fff;
+    box-shadow: 0 8px 18px -8px rgba(124, 45, 18, .55), 0 0 0 1px rgba(249, 115, 22, .18);
     transform: translateX(3px);
-    background: color-mix(in oklab, var(--surface-2, #1a1d24) 80%, white);
   }
+  .ss-link:hover img { transform: scale(1.1); }
+  /* tooltip */
+  .ss-link::after {
+    content: attr(data-label);
+    position: absolute; left: calc(100% + 10px); top: 50%; transform: translate(-4px, -50%);
+    padding: 5px 10px; border-radius: 8px; white-space: nowrap; pointer-events: none;
+    font-size: 12px; font-weight: 700; color: #fff; background: #111827;
+    opacity: 0; transition: opacity .15s ease, transform .15s ease;
+  }
+  .ss-link:hover::after, .ss-link:focus-visible::after { opacity: 1; transform: translate(0, -50%); }
   .ss-link:focus-visible,
   .ss-toggle:focus-visible {
     outline: 2px solid var(--brand-orange, #f97316);
@@ -144,16 +160,18 @@ const links = settings
 
   @media (max-width: 767px) {
     .ss-toggle { display: inline-flex; padding-block: 14px; }
-    .ss-list { display: none; border-radius: 0; padding: 8px 6px; gap: 8px; }
-    .ss-link { width: 50px; height: 50px; border-radius: 14px; }
+    .ss-list { display: none; border-radius: 0; padding: 8px 6px; gap: 6px; }
+    .ss-link { width: 48px; height: 48px; }
     .ss-link img { width: 30px; height: 30px; }
+    .ss-link::after { display: none; }
     .social-sidebar[data-open='true'] .ss-list { display: grid; }
     .social-sidebar[data-open='true'] .ss-toggle { border-radius: 0 12px 12px 0; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ss-link { transition: none; }
-    .ss-link:hover { transform: none; }
+    .ss-link, .ss-link img, .ss-link::after { transition: none; }
+    .ss-link:hover, .ss-link:focus-visible { transform: none; }
+    .ss-link:hover img { transform: none; }
   }
 
   @media print {
