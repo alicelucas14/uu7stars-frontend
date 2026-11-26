@@ -84,7 +84,7 @@ const t = useTranslations(lang);
 
   /* phones: one swipeable row of tiles (about 2.7 visible, so it reads as scrollable) */
   @media (max-width: 767px) {
-    .stats-section { margin-top: -64px; margin-bottom: 40px; }
+    .stats-section { margin-top: 0; margin-bottom: 36px; }
     .stats-card {
       grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(124px, 1fr); gap: 10px;
       /* bleed to both screen edges so tiles scroll right off the screen; padding keeps the first and last tile on the page margin */

@@ -203,6 +203,6 @@ const HERO_WEBP = "/wordpress/STARSUU7-Game.webp";
     .hero__badges { justify-content: center; }
     .hero__art { width: 100%; max-width: 420px; transform: translateY(18px) scale(1.04); }
   }
-  /* phones: the stat tiles (pulled up 64px) meet the bottom of the image with no gap */
-  @media (max-width: 767px) { .hero { padding-bottom: 56px; } }
+  /* phones: the hero ends right at the bottom of the image, so the stat tiles below sit on the white page */
+  @media (max-width: 767px) { .hero { padding-bottom: 0; } }
 </style>
