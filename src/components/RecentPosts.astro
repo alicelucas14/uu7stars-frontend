@@ -5,6 +5,7 @@ import { getBlogPosts } from '../services/api';
 import type { BlogPostListItem } from '../services/api';
 import type { Locale } from '../i18n';
 import { createPath } from '../lib/paths';
+import { useTranslations } from '../lib/i18n';
 
 interface Props {
   excludeSlug?: string;
@@ -12,6 +13,7 @@ interface Props {
   lang?: Locale;
 }
 const { excludeSlug, limit = 4, lang = 'en' } = Astro.props;
+const t = useTranslations(lang);
 
 const posts = await getBlogPosts(lang).catch(() => []);
 const recent = posts.filter(p => p.slug !== excludeSlug).slice(0, limit);
@@ -21,7 +23,7 @@ const toAbsolute = (p?: string) => !p ? '' : (p.startsWith('http') ? p : new URL
 ---
 {recent.length > 0 && (
   <div class="sidebar-widget">
-    <h3 class="widget-title">Recent Posts</h3>
+    <h3 class="widget-title">{t('sidebarWidgets.recentPosts')}</h3>
     <div class="post-list">
       {recent.map((post: BlogPostListItem) => (
         <a href={createPath(`/blog/${post.slug}/`, lang)} class="post-item">

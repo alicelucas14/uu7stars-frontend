@@ -588,5 +588,8 @@
       "slots": "Slots",
       "liveGames": "Live games"
     }
+  },
+  "sidebarWidgets": {
+    "recentPosts": "Recent Posts"
   }
 }

@@ -544,5 +544,8 @@
       "slots": "स्लॉट",
       "liveGames": "लाइव गेम"
     }
+  },
+  "sidebarWidgets": {
+    "recentPosts": "हाल की पोस्ट"
   }
 }
