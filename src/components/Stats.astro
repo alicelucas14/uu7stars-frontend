@@ -82,11 +82,11 @@ const t = useTranslations(lang);
 
   @media (max-width: 980px) { .stats-section { margin-top: -90px; } .stats-card { gap: 12px; } .stat { padding: 20px 16px 16px; min-height: 124px; } .stat::before { left: 16px; } }
 
-  /* phones: one swipeable row of tiles (about 2.3 visible, so it reads as scrollable) */
+  /* phones: one swipeable row of tiles (about 2.7 visible, so it reads as scrollable) */
   @media (max-width: 767px) {
     .stats-section { margin-top: -64px; margin-bottom: 40px; }
     .stats-card {
-      grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(150px, 1fr); gap: 12px;
+      grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(124px, 1fr); gap: 10px;
       /* bleed to both screen edges so tiles scroll right off the screen; padding keeps the first and last tile on the page margin */
       margin-inline: calc(50% - 50vw); padding-inline: calc(50vw - 50%);
       overflow-x: auto; overflow-y: hidden; padding-block: 6px; margin-bottom: 0;
@@ -95,13 +95,13 @@ const t = useTranslations(lang);
       -ms-overflow-style: none; scrollbar-width: none;
     }
     .stats-card::-webkit-scrollbar { display: none; }
-    .stat { scroll-snap-align: start; min-height: 112px; padding: 18px 14px 14px; border-radius: 18px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28); }
+    .stat { scroll-snap-align: start; min-height: 88px; padding: 14px 12px 12px; border-radius: 16px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28); }
     .stat, .stat:hover, .stat:active, .stat:focus, .stat:focus-within { transform: none; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28); -webkit-tap-highlight-color: transparent; }
-    .stat::before { left: 14px; }
-    .stat__icon { top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 10px; }
-    .stat__icon svg { width: 18px; height: 18px; }
-    .stat__num { font-size: 28px; }
-    .stat__label { font-size: 11.5px; }
+    .stat::before { left: 12px; width: 28px; height: 3px; }
+    .stat__icon { top: 10px; right: 10px; width: 28px; height: 28px; border-radius: 9px; }
+    .stat__icon svg { width: 15px; height: 15px; }
+    .stat__num { font-size: 23px; }
+    .stat__label { font-size: 10.5px; letter-spacing: .08em; }
   }
 
   @media (prefers-reduced-motion: reduce) { .stat { transition: none; } .stat:hover { transform: none; } }
