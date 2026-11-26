@@ -179,6 +179,8 @@ const faqPath = createPath('/faq/', lang);
   .app-shell .tab:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
   /* room for the floating bar */
   .app-shell .app-content { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
+  /* a shell used on its own has no content inside it, so it must not reserve room for the floating bar (that would leave a blank band under the top bar) */
+  .app-shell--bare .app-content { padding-bottom: 0; }
   .app-shell .dl-fab { bottom: calc(100px + env(safe-area-inset-bottom)); }
   @media (prefers-reduced-motion: reduce) { .app-shell .tab { transition: none; } }
 </style>
