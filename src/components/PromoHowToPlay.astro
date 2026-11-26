@@ -3,6 +3,7 @@
 // --- REFACTORED: Now uses the centralized 'useTranslations' utility ---
 import type { Locale } from '../i18n';
 import { useTranslations } from '../lib/i18n';
+import { createPath } from '../lib/paths';
 
 interface Props {
   lang?: Locale;
@@ -23,45 +24,58 @@ const seeAllText = t('promoHowToPlay.seeAll');
 // Type-safe check for the steps array
 const stepsResult = t('promoHowToPlay.steps');
 const howToPlayContent: { title: string; text?: string; list?: string[] }[] = Array.isArray(stepsResult) ? stepsResult : [];
+
+const allPromosPath = createPath('/promotions/', lang);
+
+// "Trail (or Set): three cards of the same rank" -> bold term + description (no colon: whole text)
+const splitTerm = (li: string): { term: string; rest: string } => {
+  const i = li.indexOf(':');
+  return i > 0 && i < 40 ? { term: li.slice(0, i), rest: li.slice(i + 1).trim() } : { term: '', rest: li };
+};
 ---
 <section id="promos" class="promo-how-section">
   <div class="container">
     <div class="promo-box">
       <div class="grid">
         <!-- Left Column: Promotions -->
-        <div class="column">
-          {/* UPDATED: Dynamic title */}
+        <div class="column promo-col">
           <h2 class="section-title">{promoTitle}</h2>
           <div class="promo-banners">
             {promoBanners.map(src => (
               <img src={src} alt="Promotion banner" loading="lazy" width="768" height="1095" />
             ))}
           </div>
-          
+
           <div class="more-promos-link">
-            {/* UPDATED: Dynamic button text */}
-            <a href="/promotions/" class="btn-view-all-promos" set:html={seeAllText}></a>
+            <a href={allPromosPath} class="btn-view-all-promos">
+              <span set:html={seeAllText.replace(/\s*&rarr;\s*$/, '')}></span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
           </div>
         </div>
-        
+
         <!-- Right Column: How To Play -->
         <div class="column">
-          {/* UPDATED: Dynamic title */}
           <h2 class="section-title">{howToTitle}</h2>
-          <div class="how-to-cards">
-            {/* UPDATED: Map over dynamic steps */}
-            {howToPlayContent.map(item => (
-              <div class="how-to-card">
-                <h3>{item.title}</h3>
-                {item.text && <p>{item.text}</p>}
-                {item.list && (
-                  <ol>
-                    {item.list.map(li => <li>{li}</li>)}
-                  </ol>
-                )}
-              </div>
+          <ol class="how-to-cards">
+            {howToPlayContent.map((item, i) => (
+              <li class="how-to-card">
+                <span class="step-no" aria-hidden="true">{i + 1}</span>
+                <div class="step-body">
+                  <h3>{item.title}</h3>
+                  {item.text && <p>{item.text}</p>}
+                  {item.list && (
+                    <ul class="rank-list">
+                      {item.list.map(li => {
+                        const { term, rest } = splitTerm(li);
+                        return <li>{term ? <><strong>{term}</strong><span>{rest}</span></> : <span>{rest}</span>}</li>;
+                      })}
+                    </ul>
+                  )}
+                </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </div>
     </div>
@@ -69,89 +83,86 @@ const howToPlayContent: { title: string; text?: string; list?: string[] }[] = Ar
 </section>
 
 <style>
-  /* Styles remain unchanged */
-  .promo-how-section {
-    padding-block: 20px;
-    background-color: var(--surface);
-  }
+  .promo-how-section { padding-block: 40px 56px; background-color: var(--surface); }
+
   .promo-box {
-    background: var(--brand-orange);
-    border-radius: 24px;
-    padding: 32px;
+    position: relative; overflow: hidden; isolation: isolate;
+    padding: 44px 40px;
+    border-radius: 32px;
+    background:
+      radial-gradient(60% 80% at 100% 0%, rgba(250, 204, 21, .38), transparent 62%),
+      radial-gradient(50% 60% at 0% 100%, rgba(255, 255, 255, .14), transparent 60%),
+      linear-gradient(150deg, #f97316 0%, #ea580c 100%);
+    box-shadow: 0 40px 60px -36px rgba(124, 45, 18, .7), inset 0 1px 0 rgba(255,255,255,.3);
   }
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    align-items: start;
-  }
-  .section-title {
-    color: #ffffff;
-    margin-bottom: 24px;
-    font-size: clamp(22px, 3vw, 28px);
-  }
-  
-  .promo-banners img {
-    width: 100%;
-    height: auto;
-    border-radius: 12px;
-    display: block;
-    box-shadow: var(--shadow-md);
+  /* faint dotted texture, like the hero */
+  .promo-box::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .4;
+    background-image: radial-gradient(rgba(255,255,255,.35) 1.2px, transparent 1.4px); background-size: 26px 26px;
+    -webkit-mask-image: linear-gradient(180deg, #000, transparent 80%); mask-image: linear-gradient(180deg, #000, transparent 80%);
   }
 
-  .more-promos-link {
-    margin-top: 24px;
-    text-align: center;
-  }
+  .grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 48px; align-items: start; }
+
+  .section-title { margin: 0 0 24px; font-size: clamp(24px, 3vw, 32px); letter-spacing: -.02em; color: #fff; text-shadow: 0 2px 12px rgba(124, 45, 18, .3); }
+  .section-title::after { content: ""; display: block; width: 44px; height: 4px; margin-top: 12px; border-radius: 4px; background: linear-gradient(90deg, #fef08a, var(--brand-gold)); }
+
+  /* promotion banner in a framed card */
+  .promo-banners { padding: 8px; border-radius: 28px; background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.5); box-shadow: 0 30px 50px -26px rgba(67, 20, 7, .6); }
+  .promo-banners img { display: block; width: 100%; height: auto; border-radius: 22px; }
+
+  .more-promos-link { margin-top: 26px; text-align: center; }
   .btn-view-all-promos {
-    display: inline-block;
-    padding: 12px 24px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px dashed rgba(255, 255, 255, 0.4);
-    color: #ffffff;
-    text-decoration: none;
-    font-weight: 700;
-    transition: all 0.2s ease;
+    display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; border-radius: 999px;
+    font-weight: 800; font-size: 15px; text-decoration: none; color: #431407;
+    background: linear-gradient(180deg, #fff3a3 0%, var(--brand-gold) 48%, #f59e0b 100%);
+    box-shadow: 0 14px 24px -12px rgba(124, 45, 18, .7), inset 0 1px 0 rgba(255,255,255,.85), inset 0 -2px 0 rgba(180, 83, 9, .22);
+    transition: transform .2s ease, filter .2s ease;
   }
-  .btn-view-all-promos:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-style: solid;
-    transform: translateY(-2px);
-  }
+  .btn-view-all-promos svg { width: 18px; height: 18px; fill: none; stroke: #9a3412; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s ease; }
+  .btn-view-all-promos:hover { transform: translateY(-2px); filter: brightness(1.04); }
+  .btn-view-all-promos:hover svg { transform: translateX(3px); }
+  .btn-view-all-promos:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 
-  .how-to-cards {
-    display: grid;
-    gap: 16px;
-  }
+  /* how-to-play steps */
+  .how-to-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
   .how-to-card {
-    background: var(--surface);
-    border: 1px solid var(--ring);
-    color: var(--ink);
-    padding: 20px;
-    border-radius: 12px;
+    display: grid; grid-template-columns: 46px 1fr; gap: 16px; align-items: start;
+    padding: 20px 22px 20px 18px; border-radius: 22px; color: var(--ink);
+    background: #fff; border: 1px solid rgba(255,255,255,.8);
+    box-shadow: 0 22px 36px -26px rgba(67, 20, 7, .65);
+    transition: transform .25s ease, box-shadow .25s ease;
   }
-  .how-to-card h3 {
-    font-size: 16px;
-    margin: 0 0 8px;
-    font-weight: 700;
+  @media (hover: hover) and (min-width: 768px) { .how-to-card:hover { transform: translateY(-4px); box-shadow: 0 30px 44px -26px rgba(67, 20, 7, .75); } }
+  .step-no {
+    display: grid; place-items: center; width: 46px; height: 46px; border-radius: 15px; font-size: 20px; font-weight: 850; color: #fff;
+    background: linear-gradient(135deg, #fb923c, var(--brand-orange) 55%, #ea580c);
+    box-shadow: 0 12px 20px -10px rgba(234, 88, 12, .8), inset 0 1px 0 rgba(255,255,255,.4);
   }
-  .how-to-card p, .how-to-card ol {
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--text-secondary);
-    margin: 0;
-  }
-  .how-to-card ol {
-    padding-left: 20px;
-  }
-  .how-to-card li {
-    margin-bottom: 4px;
-  }
+  .step-body h3 { margin: 2px 0 6px; font-size: 17px; line-height: 1.25; letter-spacing: -.01em; color: var(--text-primary); }
+  .step-body p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--text-secondary); }
+
+  /* hand rankings and similar lists: a gold dot, bold term, then the description */
+  .rank-list { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 8px; }
+  .rank-list li { position: relative; padding-left: 20px; font-size: 14px; line-height: 1.5; color: var(--text-secondary); }
+  .rank-list li::before { content: ""; position: absolute; left: 2px; top: .45em; width: 9px; height: 9px; border-radius: 50%; background: linear-gradient(135deg, #fde047, var(--brand-orange)); box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-orange) 14%, #fff); }
+  .rank-list strong { color: var(--text-primary); font-weight: 750; }
+  .rank-list strong::after { content: ": "; font-weight: 600; color: var(--text-secondary); }
 
   @media (max-width: 980px) {
-    .grid {
-      grid-template-columns: 1fr;
-    }
+    .promo-box { padding: 36px 28px; }
+    .grid { grid-template-columns: 1fr; gap: 36px; }
+    .promo-col { max-width: 420px; margin-inline: auto; }
   }
+  @media (max-width: 767px) {
+    .promo-how-section { padding-block: 28px 40px; }
+    .promo-box { padding: 28px 16px 24px; border-radius: 26px; }
+    .section-title { font-size: 24px; margin-bottom: 18px; }
+    .how-to-card { grid-template-columns: 40px 1fr; gap: 12px; padding: 16px 14px; border-radius: 18px; }
+    .step-no { width: 40px; height: 40px; border-radius: 13px; font-size: 18px; }
+    .step-body h3 { font-size: 16px; }
+    .promo-banners { padding: 6px; border-radius: 24px; }
+    .promo-banners img { border-radius: 19px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .how-to-card, .btn-view-all-promos, .btn-view-all-promos svg { transition: none; } }
 </style>
