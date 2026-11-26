@@ -5,6 +5,7 @@
 
 import type { Locale } from '../i18n';
 import { useTranslations } from '../lib/i18n';
+import { createPath } from '../lib/paths';
 
 interface Props {
   lang?: Locale;
@@ -40,134 +41,118 @@ const howToJsonLd = {
     ]
   }))
 };
+
+const guidesPath = createPath('/blog/', lang);
+// icon per step: download, wallet, trophy (extra steps fall back to a spark)
+const STEP_ICONS = [
+  '<path d="M12 4v11"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/>',
+  '<path d="M4 7a2 2 0 0 1 2-2h11v4"/><path d="M4 7v11a2 2 0 0 0 2 2h13a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H6a2 2 0 0 1-2-2z"/><circle cx="16.5" cy="14.5" r="1.2"/>',
+  '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',
+];
+const SPARK = '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>';
 ---
 
 <section id="how" class="how-to-play-section" aria-labelledby="howto-title">
   <div class="container">
     <header class="section-head">
-      {/* UPDATED: Dynamic text */}
       <h2 id="howto-title">{title}</h2>
       <p class="muted">{description}</p>
     </header>
 
-    {/* --- THE FIX --- 
-        Use the `set:html` directive to correctly inject the stringified JSON.
-    */}
+    {/* HowTo structured data: injected with set:html so the JSON is not escaped */}
     <script type="application/ld+json" set:html={JSON.stringify(howToJsonLd)}></script>
 
-    <div class="grid">
-      {/* UPDATED: Map over dynamic steps and add 'num' property */}
+    <ol class="steps">
       {steps.map((step, index) => (
-        <div class="step-card" id={`how-step-${index + 1}`}>
-          <div class="number" aria-hidden="true">{index + 1}</div>
-          <h3 class="title">{step.title}</h3>
-          <p class="body">{step.body}</p>
-        </div>
+        <li class="step" id={`how-step-${index + 1}`}>
+          <div class="step-badge">
+            <span class="step-circle">
+              <svg viewBox="0 0 24 24" aria-hidden="true" set:html={STEP_ICONS[index] ?? SPARK}></svg>
+            </span>
+            <span class="step-num" aria-hidden="true">{index + 1}</span>
+          </div>
+          <div class="step-text">
+            <h3 class="title">{step.title}</h3>
+            <p class="body">{step.body}</p>
+          </div>
+        </li>
       ))}
-    </div>
+    </ol>
 
     <div class="more-link-container">
-      {/* UPDATED: Dynamic button text */}
-      <a href="/blog/" class="btn-view-all">
+      <a href={guidesPath} class="btn-view-all">
         {viewAllText}
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
     </div>
-
   </div>
 </section>
 
 <style>
-  /* Styles remain unchanged */
-  .how-to-play-section { 
-    padding-block: 48px; 
-    background-color: var(--surface);
+  .how-to-play-section {
+    padding-block: 64px 76px;
+    background: linear-gradient(180deg, var(--surface) 0%, color-mix(in oklab, var(--brand-orange) 5%, var(--surface)) 100%);
     border-top: 1px solid var(--ring);
     border-bottom: 1px solid var(--ring);
   }
-  .section-head { 
-    text-align: center; 
-    max-width: 640px; 
-    margin-inline: auto; 
-    margin-bottom: 32px; 
-  }
-  .section-head h2 { 
-    font-size: clamp(24px, 4vw, 36px); 
-    margin-bottom: 8px;
-  }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
-    position: relative;
-  }
+  .section-head { text-align: center; max-width: 640px; margin-inline: auto; margin-bottom: 52px; }
+  .section-head h2 { font-size: clamp(26px, 4vw, 38px); letter-spacing: -.02em; margin-bottom: 10px; }
+  .section-head h2::after { content: ""; display: block; width: 48px; height: 4px; margin: 14px auto 0; border-radius: 4px; background: linear-gradient(90deg, var(--brand-orange), var(--brand-gold)); }
 
-  @media(min-width: 920px) {
-    .grid::before {
-      content: '';
-      position: absolute;
-      top: 24px;
-      left: 15%;
-      right: 15%;
-      height: 2px;
-      background: repeating-linear-gradient(90deg, var(--ring), var(--ring) 4px, transparent 4px, transparent 10px);
-      z-index: 0;
+  /* three steps joined by a dashed line */
+  .steps { --gap: 28px; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--gap); }
+  .step { position: relative; text-align: center; }
+  .step-badge { position: relative; display: inline-block; margin-bottom: 22px; }
+  .step-circle {
+    display: grid; place-items: center; width: 92px; height: 92px; border-radius: 50%; color: #fff;
+    background: linear-gradient(145deg, #fb923c, var(--brand-orange) 55%, #ea580c);
+    box-shadow: 0 0 0 9px color-mix(in oklab, var(--brand-orange) 13%, transparent), 0 22px 30px -14px rgba(234, 88, 12, .75), inset 0 2px 0 rgba(255,255,255,.4);
+  }
+  .step-circle svg { width: 40px; height: 40px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .step-num {
+    position: absolute; top: -2px; right: -6px; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
+    font-size: 15px; font-weight: 850; color: #431407; border: 3px solid var(--surface);
+    background: linear-gradient(180deg, #fff3a3, var(--brand-gold) 60%, #f59e0b); box-shadow: 0 6px 12px -4px rgba(124, 45, 18, .5);
+  }
+  .title { margin: 0 0 8px; font-size: 20px; line-height: 1.25; letter-spacing: -.01em; color: var(--text-primary); }
+  .body { margin: 0 auto; max-width: 34ch; font-size: 15px; line-height: 1.65; color: var(--text-secondary); }
+
+  /* dashed connector between the circles (wide screens only) */
+  @media (min-width: 768px) {
+    .step:not(:last-child)::after {
+      content: ""; position: absolute; top: 45px; left: calc(50% + 62px); width: calc(100% + var(--gap) - 124px); height: 0;
+      border-top: 3px dashed color-mix(in oklab, var(--brand-orange) 38%, transparent);
     }
   }
 
-  .step-card {
-    background: var(--surface-2);
-    border: 1px solid var(--ring);
-    border-radius: 18px;
-    padding: 24px;
-    text-align: center;
-    position: relative;
-    z-index: 1;
+  .more-link-container { margin-top: 48px; text-align: center; }
+  .btn-view-all {
+    display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; border-radius: 999px;
+    font-weight: 800; font-size: 15px; text-decoration: none; color: #431407;
+    background: linear-gradient(180deg, #fff3a3 0%, var(--brand-gold) 48%, #f59e0b 100%);
+    box-shadow: 0 14px 24px -12px rgba(154, 52, 18, .6), inset 0 1px 0 rgba(255,255,255,.85), inset 0 -2px 0 rgba(180, 83, 9, .22);
+    transition: transform .2s ease, filter .2s ease;
   }
-  .number {
-    display: inline-flex;
-    width: 48px;
-    height: 48px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 99px;
-    background: var(--brand-orange);
-    color: var(--ink);
-    font-size: 20px;
-    font-weight: 800;
-    margin-bottom: 16px;
-    border: 3px solid var(--surface);
-    box-shadow: var(--shadow-md);
-  }
-  .title { 
-    margin: 0 0 8px; 
-    font-size: 18px;
-    color: var(--text-primary);
-  }
-  .body { 
-    margin: 0; 
-    color: var(--text-secondary); 
-    font-size: 15px;
+  .btn-view-all svg { width: 18px; height: 18px; fill: none; stroke: #9a3412; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s ease; }
+  .btn-view-all:hover { transform: translateY(-2px); filter: brightness(1.04); }
+  .btn-view-all:hover svg { transform: translateX(3px); }
+  .btn-view-all:focus-visible { outline: 3px solid var(--brand-orange); outline-offset: 3px; }
+
+  /* phones: a vertical timeline, circle on the left joined by a dashed line, text on the right */
+  @media (max-width: 767px) {
+    .how-to-play-section { padding-block: 44px 52px; }
+    .section-head { margin-bottom: 32px; }
+    .steps { --gap: 26px; grid-template-columns: 1fr; }
+    .step { display: grid; grid-template-columns: 68px 1fr; column-gap: 16px; text-align: left; align-items: start; }
+    .step-badge { margin: 0; }
+    .step-circle { width: 64px; height: 64px; box-shadow: 0 0 0 6px color-mix(in oklab, var(--brand-orange) 13%, transparent), 0 16px 24px -12px rgba(234, 88, 12, .75), inset 0 2px 0 rgba(255,255,255,.4); }
+    .step-circle svg { width: 28px; height: 28px; }
+    .step-num { width: 26px; height: 26px; font-size: 13px; top: -4px; right: -8px; border-width: 2px; }
+    .step:not(:last-child)::after { content: ""; position: absolute; left: 31px; top: 74px; bottom: calc(-1 * var(--gap) + 8px); width: 0; border-left: 3px dashed color-mix(in oklab, var(--brand-orange) 38%, transparent); }
+    .title { font-size: 18px; margin: 4px 0 6px; }
+    .body { margin: 0; max-width: none; font-size: 14.5px; }
+    .more-link-container { margin-top: 36px; }
   }
 
-  .more-link-container {
-    margin-top: 32px;
-    text-align: center;
-  }
-  .btn-view-all {
-    display: inline-flex;
-    padding: 12px 24px;
-    border-radius: 12px;
-    background: var(--surface-2);
-    border: 1px dashed var(--ring);
-    color: var(--text-primary);
-    text-decoration: none;
-    font-weight: 700;
-    transition: all 0.2s;
-  }
-  .btn-view-all:hover {
-    border-style: solid;
-    color: var(--brand-orange);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
+  @media (prefers-reduced-motion: reduce) { .btn-view-all, .btn-view-all svg { transition: none; } }
 </style>
