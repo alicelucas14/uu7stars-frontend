@@ -29,7 +29,6 @@ const path = createPath('/download/', locale);
 const canonical = new URL(path, Astro.site).toString();
 const homeUrl = new URL(createPath('/', locale), Astro.site).toString();
 
-const guideHref = createPath('/blog/uu7-game-apk-for-android-step-by-step-download-for-players/', locale);
 const faqHref = createPath('/faq/', locale);
 const contactHref = createPath('/about/', locale) + '#contact';
 const responsibleHref = createPath('/responsible-gaming/', locale);
@@ -143,8 +142,7 @@ const jsonLd = [
             <p>{p.helpText}</p>
           </div>
           <div class="help-actions">
-            <a class="help-btn primary" href={guideHref}>{p.helpGuide}</a>
-            <a class="help-btn" href={faqHref}>{p.helpFaq}</a>
+            <a class="help-btn primary" href={faqHref}>{p.helpFaq}</a>
             <a class="help-btn" href={contactHref}>{p.helpContact}</a>
           </div>
         </div>

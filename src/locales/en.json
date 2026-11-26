@@ -359,7 +359,7 @@
         "title": "General questions",
         "items": [
           { "q": "What is Starsuu7?", "a": "Starsuu7, also known as UU7 or 777, is a mobile-first gaming app for Teen Patti, Rummy, casino games and more. The official website is uu7stars.com." },
-          { "q": "How do I download the UU7 APK?", "a": "Go to the Download section on uu7stars.com and tap \"Download APK\", then open the file and tap Install. If Android asks, allow your browser to install unknown apps. Only download the app from uu7stars.com. Step-by-step help: [UU7 APK download guide](/blog/uu7-game-apk-for-android-step-by-step-download-for-players/)." },
+          { "q": "How do I download the UU7 APK?", "a": "Go to the Download section on uu7stars.com and tap \"Download APK\", then open the file and tap Install. If Android asks, allow your browser to install unknown apps. Only download the app from uu7stars.com. Step-by-step help: [UU7 APK download page](/download/)." },
           { "q": "How do I create an account?", "a": "Download and install the app, open it, fill in the required details and follow the prompts to finish registration." },
           { "q": "What games are available on Starsuu7?", "a": "Starsuu7 offers Rummy, Teen Patti, casino games, lotteries and more. New games are added regularly." },
           { "q": "How do I play Teen Patti?", "a": "Each player gets three cards face down, and the best three-card hand wins the pot, unless everyone else folds first. New to the game? Read our Teen Patti tips and tricks." },
@@ -568,7 +568,6 @@
     ],
     "helpTitle": "Need help installing?",
     "helpText": "Our support team is available 24/7.",
-    "helpGuide": "Step-by-step APK guide",
     "helpFaq": "Read the FAQ",
     "helpContact": "Contact support"
   }
