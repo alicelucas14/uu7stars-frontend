@@ -57,8 +57,8 @@ const faqPath = createPath('/faq/', lang);
         </button>
 
         <a class="app-title" href={homePath} aria-label="Starsuu7 — Home">
-          <img src="/logo.webp" alt="" width="24" height="24" class="logo" />
-          <span>{title}</span>
+          <img src="/logo.webp" alt="" width="52" height="52" class="logo" />
+          <span class:list={{ 'sr-only': title === 'Starsuu7' }}>{title}</span>
         </a>
 
         <div class="app-actions">
@@ -145,7 +145,9 @@ const faqPath = createPath('/faq/', lang);
     box-shadow: 0 8px 24px -10px rgba(124, 45, 18, .5);
   }
   .app-shell .app-title { text-shadow: 0 1px 3px rgba(124, 45, 18, .3); }
-  .app-shell .app-title .logo { filter: drop-shadow(0 2px 5px rgba(0,0,0,.2)); }
+  .app-shell .app-title .logo { width: 52px; height: 52px; border-radius: 0; filter: drop-shadow(0 2px 5px rgba(0,0,0,.25)); }
+  /* the logo already carries the name on the home page, so the word next to it is for screen readers only */
+  .app-shell .app-title .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
   .app-shell .app-icon-btn { background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.42); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
   .app-shell .app-icon-btn:hover { background: rgba(255,255,255,.3); }
   .app-shell .app-dl-pill { background: linear-gradient(180deg, #fde047, var(--brand-gold) 55%, #f5b50b); box-shadow: 0 6px 14px -4px rgba(124, 45, 18, .5), inset 0 1px 0 rgba(255,255,255,.7); }
