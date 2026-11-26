@@ -17,6 +17,7 @@ import SidebarCta from '../../../components/SidebarCta.astro';
 import TagCloud from '../../../components/TagCloud.astro';
 import AuthorBio from '../../../components/AuthorBio.astro';
 import CategoriesList from '../../../components/CategoriesList.astro';
+import RelatedGuides from '../../../components/RelatedGuides.astro';
 import BlogCommentsSection from '../../../components/BlogCommentsSection.astro'; // <-- IMPORT new component
 import { getBlogPosts, getBlogPostBySlug } from '../../../services/api';
 import { redirectForRetiredSlug } from '../../../lib/slugRedirect';
@@ -135,6 +136,7 @@ const articleJsonLd = {
               lang={locale}
             />
             <div class="prose" set:html={contentHtml} />
+            <RelatedGuides slug={slug as string} lang={locale} />
             <SocialShare url={canonical} title={postTitle} text={postExcerpt} />
             
             <!-- NEW: Added Blog Comments Section for Desktop -->
@@ -174,6 +176,7 @@ const articleJsonLd = {
               lang={locale}
             />
             <div class="prose" set:html={contentHtml} />
+            <RelatedGuides slug={slug as string} lang={locale} />
             <SocialShare url={canonical} title={postTitle} text={postExcerpt} />
 
             <!-- NEW: Added Blog Comments Section for Mobile -->

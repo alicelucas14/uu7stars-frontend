@@ -312,7 +312,7 @@
     "noReviews": "No reviews yet. Check back soon!"
   },
   "reviewPost": {
-    "title": "{reviewTitle} | Starsuu7 Game Reviews",
+    "title": "{reviewTitle} | Starsuu7",
     "description": "Read our full review of {gameName} on Starsuu7. Get ratings, pros, cons, and gameplay details for Teen Patti, Rummy, and more.",
     "reviewOf": "A review of: <strong>{gameName}</strong>",
     "ourRating": "Our Rating",
@@ -570,5 +570,16 @@
     "helpText": "Our support team is available 24/7.",
     "helpFaq": "Read the FAQ",
     "helpContact": "Contact support"
+  },
+  "guides": {
+    "title": "Guides",
+    "intro": "Start here: our complete guides to playing safely and understanding every game.",
+    "related": "Related guides",
+    "groups": {
+      "gettingStarted": "Getting started",
+      "cardGames": "Card games",
+      "slots": "Slots",
+      "liveGames": "Live games"
+    }
   }
 }

@@ -1,0 +1,40 @@
+---
+/**
+ * "Related guides" box for the end of a guide post. Renders nothing for posts that are not guides.
+ */
+import { RELATED_GUIDES, guideBySlug } from '../lib/guides';
+import { createPath } from '../lib/paths';
+import { getBlogPosts } from '../services/api';
+import { useTranslations } from '../lib/i18n';
+import type { Locale } from '../i18n';
+
+interface Props { slug: string; lang?: Locale }
+const { slug, lang = 'en' } = Astro.props;
+const t = useTranslations(lang);
+
+const related = (RELATED_GUIDES[slug] ?? []).map((s) => guideBySlug(s)).filter((g) => !!g);
+
+let hiTitles = new Map<string, string>();
+if (related.length && lang === 'hi') {
+  try {
+    const posts = await getBlogPosts('hi');
+    hiTitles = new Map(posts.filter((p) => p.slug && p.title).map((p) => [p.slug, p.title]));
+  } catch { /* fall back to the English names */ }
+}
+---
+{related.length > 0 && (
+  <aside class="related-guides" aria-labelledby="related-guides-title">
+    <h2 id="related-guides-title">{t('guides.related')}</h2>
+    <ul>
+      {related.map((g) => (
+        <li><a href={createPath(g!.path ?? `/blog/${g!.slug}/`, lang)}>{lang === 'hi' ? hiTitles.get(g!.slug) ?? g!.short : g!.short}</a></li>
+      ))}
+    </ul>
+  </aside>
+)}
+<style>
+  .related-guides { margin: 32px 0; padding: 20px 24px; background: var(--surface); border: 1px solid var(--ring); border-radius: 16px; }
+  .related-guides h2 { margin: 0 0 10px; font-size: 20px; }
+  .related-guides ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+  .related-guides a { font-weight: 600; }
+</style>

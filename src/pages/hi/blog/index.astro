@@ -6,6 +6,7 @@ import Base from '../../../layouts/Base.astro';
 import Header from '../../../components/Header.astro';
 import Footer from '../../../components/Footer.astro';
 import MobileAppShell from '../../../components/MobileAppShell.astro';
+import GuidesSection from '../../../components/GuidesSection.astro';
 import { getBlogPosts } from '../../../services/api';
 import type { BlogPostListItem } from '../../../services/api';
 import { useTranslations } from '../../../lib/i18n';
@@ -52,6 +53,8 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('hi-IN', 
         <h1>{h1}</h1>
         <p class="muted">{subheading}</p>
       </header>
+
+      <GuidesSection lang={locale} />
 
       {heroPost && (
         <section class="hero-post-section" aria-labelledby="hero-post-title">

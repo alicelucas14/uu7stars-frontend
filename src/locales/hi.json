@@ -312,7 +312,7 @@
     "noReviews": "अभी तक कोई समीक्षा नहीं है। जल्द ही वापस देखें!"
   },
   "reviewPost": {
-    "title": "{reviewTitle} | Starsuu7 गेम समीक्षाएं",
+    "title": "{reviewTitle} | Starsuu7",
     "description": "Starsuu7 पर {gameName} की हमारी पूरी समीक्षा पढ़ें। तीन पत्ती, रम्मी, और अन्य के लिए रेटिंग, फायदे, नुकसान और गेमप्ले विवरण प्राप्त करें।",
     "reviewOf": "इसकी समीक्षा: <strong>{gameName}</strong>",
     "ourRating": "हमारी रेटिंग",
@@ -526,5 +526,16 @@
     "helpText": "हमारी सपोर्ट टीम 24/7 उपलब्ध है।",
     "helpFaq": "FAQ पढ़ें",
     "helpContact": "सपोर्ट से संपर्क करें"
+  },
+  "guides": {
+    "title": "गाइड",
+    "intro": "यहाँ से शुरू करें: सुरक्षित तरीके से खेलने और हर गेम को समझने के लिए हमारी पूरी गाइड।",
+    "related": "संबंधित गाइड",
+    "groups": {
+      "gettingStarted": "शुरुआत करें",
+      "cardGames": "कार्ड गेम",
+      "slots": "स्लॉट",
+      "liveGames": "लाइव गेम"
+    }
   }
 }

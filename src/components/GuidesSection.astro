@@ -1,0 +1,52 @@
+---
+/**
+ * "Guides" section for the top of the blog page: the guides grouped by topic.
+ * English uses the supplied titles and notes; Hindi uses the Hindi post titles from the API.
+ */
+import { GUIDE_GROUPS } from '../lib/guides';
+import { createPath } from '../lib/paths';
+import { getBlogPosts } from '../services/api';
+import { useTranslations } from '../lib/i18n';
+import type { Locale } from '../i18n';
+
+interface Props { lang?: Locale }
+const { lang = 'en' } = Astro.props;
+const t = useTranslations(lang);
+
+let hiTitles = new Map<string, string>();
+if (lang === 'hi') {
+  try {
+    const posts = await getBlogPosts('hi');
+    hiTitles = new Map(posts.filter((p) => p.slug && p.title).map((p) => [p.slug, p.title]));
+  } catch { /* fall back to the English titles */ }
+}
+const label = (g: { slug: string; title: string }) => (lang === 'hi' ? hiTitles.get(g.slug) ?? g.title : g.title);
+---
+<section class="guides-section" aria-labelledby="guides-title">
+  <h2 id="guides-title">{t('guides.title')}</h2>
+  <p class="guides-intro">{t('guides.intro')}</p>
+  {GUIDE_GROUPS.map((group) => (
+    <div class="guide-group">
+      <h3>{t(`guides.groups.${group.key}`)}</h3>
+      <ul>
+        {group.guides.map((g) => (
+          <li>
+            <a href={createPath(g.path ?? `/blog/${g.slug}/`, lang)}>{label(g)}</a>
+            {lang === 'en' && <span class="guide-note"> – {g.note}</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</section>
+<style>
+  .guides-section { margin: 0 0 40px; padding: 24px; background: var(--surface); border: 1px solid var(--ring); border-radius: 18px; }
+  .guides-section h2 { margin: 0 0 8px; font-size: clamp(22px, 3vw, 28px); }
+  .guides-intro { margin: 0 0 16px; color: var(--text-secondary); }
+  .guide-group + .guide-group { margin-top: 16px; }
+  .guide-group h3 { margin: 0 0 8px; font-size: 16px; color: var(--brand-orange); }
+  .guide-group ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+  .guide-group a { font-weight: 600; }
+  .guide-note { color: var(--text-secondary); font-size: 14px; }
+  @media (max-width: 767px) { .guides-section { padding: 16px; } }
+</style>
