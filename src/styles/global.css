@@ -267,4 +267,10 @@ button, .btn, .ghost-btn, .promo-link, .btn-header-download {
   bottom: var(--uu7-chat-lift, 0px) !important;
 }
 
+
+/* The top header is position: sticky, which only works inside a parent that is as tall as the page. Pages that wrap the header on its own
+   put it in .header-slot; on desktop that wrapper disappears (display: contents) so the header sticks for the whole page. */
+.header-slot { display: none; }
+@media (min-width: 768px) { .header-slot { display: contents; } }
+
 /* END */

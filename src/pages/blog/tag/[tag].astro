@@ -40,7 +40,7 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('en-IN', 
     on noindexed pages. */}
 <Base title={pageTitle} description={pageDescription} canonical={canonical} lang={locale} robotsIndex={false} alternateLangs={[]}>
 
-  <div class="desktop-layout"><Header lang={locale} /></div>
+  <div class="header-slot"><Header lang={locale} /></div>
   <div class="mobile-layout"><MobileAppShell title={h1} active="blog" lang={locale} showBack={true} /></div>
 
   <main class="blog-archive-page clear-social-bar">

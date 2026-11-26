@@ -64,7 +64,7 @@ const jsonLd = [
 ---
 
 <Base title={p.metaTitle} description={p.metaDescription} canonical={canonical} jsonLd={jsonLd}>
-  <div class="desktop-only"><Header lang={locale} /></div>
+  <div class="header-slot"><Header lang={locale} /></div>
   <div class="mobile-only"><MobileAppShell title={p.shellTitle} active="download" showFab={false} lang={locale} /></div>
 
   <main class:list={['download-page', 'clear-social-bar', { 'is-hi': locale === 'hi' }]}>

@@ -50,7 +50,7 @@ const toAbsolute = (p?: string) => !p ? '' : (p.startsWith('http') ? p : new URL
 ---
 <Base title={pageTitle} description={pageDescription} canonical={canonical} prevUrl={prevUrl} nextUrl={nextUrl} lang={locale}>
 
-  <div class="desktop-layout">
+  <div class="header-slot">
     <Header lang={locale} />
   </div>
   <div class="mobile-layout">
