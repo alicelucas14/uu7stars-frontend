@@ -46,7 +46,7 @@ const itemList = {
 <Base title={pageTitle} description={pageDesc} canonical={canonical} jsonLd={itemList}>
 
   <div class="desktop-layout">
-    <Header lang={locale} />
+    <div class="header-slot"><Header lang={locale} /></div>
     <main class="clear-social-bar">
       <section class="promos-index">
         <div class="container">
@@ -147,4 +147,27 @@ const itemList = {
 
 <style>
   .desktop-layout { display: none; } .mobile-layout { display: block; } @media (min-width: 768px) { .desktop-layout { display: block; } .mobile-layout { display: none; } } .promos-index { padding-block: 32px 40px; background: var(--surface); border-top: 1px solid var(--ring); } @media (max-width: 767px) { .promos-index { padding-block: 24px; border-top: none; } } .page-head { max-width: 760px; margin: 0 auto 20px; text-align: center; } .page-head h1 , .page-head .h1-alt { margin: 0 0 8px; font-size: clamp(26px, 4.2vw, 38px); } .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; } .card { background: var(--surface-2); border: 1px solid var(--ring); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow-md); transition: transform .2s ease-out, box-shadow .2s ease-out; } .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); } .artlink { position: relative; display: block; } .cover { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; } .badge { position: absolute; left: 10px; top: 10px; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 900; background: var(--brand-gold); color: #0b0b0f; border: 1px solid color-mix(in oklab, #000 15%, var(--brand-gold)); } .content { padding: 14px; display: flex; flex-direction: column; gap: 6px; flex-grow: 1; } .title { margin: 0; font-size: 18px; } .title a { color: var(--text-primary); text-decoration: none; font-weight: 800; } .title a:hover { color: var(--brand-orange); } .subtitle { margin: 0; color: var(--text-primary); font-weight: 600; font-size: 13px; } .excerpt { margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.55; flex-grow: 1; } .cta { align-self: flex-start; color: var(--brand-orange); font-weight: 700; text-decoration: none; } .cta:hover { text-decoration: underline; }
+/* ===== modern look, shared with the rest of the site ===== */
+.promos-index{background:linear-gradient(180deg,color-mix(in oklab,var(--brand-orange) 7%,var(--surface)) 0%,var(--surface) 420px);border-top:none;padding-block:56px 72px}
+@media (max-width:767px){.promos-index{padding-block:28px 40px}}
+.page-head{margin-bottom:36px}
+.page-head h1,.page-head .h1-alt{font-weight:800;letter-spacing:-.02em;color:var(--text-primary)}
+.page-head .h1-alt::after,.page-head h1::after{content:"";display:block;width:56px;height:4px;margin:12px auto 0;border-radius:4px;background:linear-gradient(90deg,var(--brand-orange),var(--brand-gold))}
+.grid{gap:22px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+@media (max-width:560px){.grid{grid-template-columns:1fr;gap:16px}}
+.card{position:relative;background:#fff;border:1px solid color-mix(in oklab,var(--brand-orange) 14%,#fff);border-radius:26px;padding:10px;box-shadow:0 26px 44px -34px rgba(124,45,18,.55);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.card:hover{transform:translateY(-5px);border-color:color-mix(in oklab,var(--brand-orange) 40%,#fff);box-shadow:0 34px 52px -30px rgba(124,45,18,.6)}
+.artlink{border-radius:18px;overflow:hidden}
+.cover{border-radius:18px;transition:transform .5s ease}
+.card:hover .cover{transform:scale(1.04)}
+.badge{left:14px;top:14px;padding:5px 12px;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;background:linear-gradient(180deg,#ffd35a,var(--brand-gold));box-shadow:0 8px 14px -8px rgba(0,0,0,.5)}
+.content{padding:16px 10px 10px;gap:8px}
+.title{font-size:20px;line-height:1.25;letter-spacing:-.01em}
+.title a{font-weight:800}
+.subtitle{color:#c2410c;font-weight:700;font-size:13.5px}
+.excerpt{font-size:14.5px;line-height:1.6}
+.cta{display:inline-flex;align-items:center;gap:8px;margin-top:6px;padding:9px 18px;border-radius:999px;background:linear-gradient(180deg,#ffd35a,var(--brand-gold));color:#1f1300;font-weight:800;text-decoration:none;box-shadow:0 12px 18px -12px rgba(180,100,0,.8);transition:transform .2s ease,box-shadow .2s ease}
+.cta::after{content:"→";transition:transform .2s ease}
+.cta:hover{text-decoration:none;transform:translateY(-2px)}
+.cta:hover::after{transform:translateX(3px)}
 </style>
