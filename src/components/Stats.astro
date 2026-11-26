@@ -84,8 +84,10 @@ const t = useTranslations(lang);
     .stats-section { margin-top: -64px; margin-bottom: 40px; }
     .stats-card {
       grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(150px, 1fr); gap: 12px;
-      overflow-x: auto; overflow-y: hidden; padding: 6px 2px 20px; margin-bottom: -14px;
-      scroll-snap-type: x mandatory; scroll-padding-inline: 2px;
+      /* bleed to both screen edges so tiles scroll right off the screen; padding keeps the first and last tile on the page margin */
+      margin-inline: calc(50% - 50vw); padding-inline: calc(50vw - 50%);
+      overflow-x: auto; overflow-y: hidden; padding-block: 6px 20px; margin-bottom: -14px;
+      scroll-snap-type: x proximity; scroll-padding-inline: 16px;
       -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
       -ms-overflow-style: none; scrollbar-width: none;
     }
