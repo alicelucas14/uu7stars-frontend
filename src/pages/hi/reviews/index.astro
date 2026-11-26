@@ -52,11 +52,16 @@ const score = (rating: number) => { const n = Number(rating); return Number.isFi
                   <a href={`/hi/reviews/${heroReview.slug}/`} aria-label={`Read review for ${heroReview.title}`}>
                     <img src={abs(heroReview.image)} alt={`Featured image for ${heroReview.title}`} width="1200" height="600" loading="eager" />
                   </a>
-                  {score(heroReview.rating) && <span class="badge badge-lg"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>{score(heroReview.rating)}</span>}
                 </div>
                 <div class="hero-content">
                   <span class="game-chip">{heroReview.gameName}</span>
                   <h2 id="hero-review-title" class="hero-title"><a href={`/hi/reviews/${heroReview.slug}/`}>{heroReview.title}</a></h2>
+                  {score(heroReview.rating) && (
+                    <div class="hero-rating" aria-label={`Rating ${heroReview.rating} out of 5`}>
+                      <span class="stars" aria-hidden="true" style={`--rating-percent: ${Math.max(0, Math.min(100, (Number(heroReview.rating) / 5) * 100))}%`}></span>
+                      <span class="score-text">{score(heroReview.rating)} <small>/ 5</small></span>
+                    </div>
+                  )}
                   <div class="hero-excerpt prose-excerpt" set:html={await renderMarkdown(heroReview.excerpt || '')} />
                   <a href={`/hi/reviews/${heroReview.slug}/`} class="hero-cta">{t('reviewsIndex.readMore')}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
                 </div>
@@ -140,19 +145,43 @@ const score = (rating: number) => { const n = Number(rating); return Number.isFi
   .page-head h1::after { content: ""; display: block; width: 48px; height: 4px; margin: 14px auto 0; border-radius: 4px; background: linear-gradient(90deg, var(--brand-orange), var(--brand-gold)); }
   .page-head p { line-height: 1.7; }
 
-  /* featured review */
-  .hero-review-section { margin-bottom: 44px; }
-  .hero-card { display: grid; grid-template-columns: 1fr; overflow: hidden; background: #fff; border: 1px solid color-mix(in oklab, var(--brand-orange) 16%, #fff); border-radius: 28px; box-shadow: 0 34px 56px -36px rgba(124, 45, 18, .55); }
-  @media (min-width: 900px) { .hero-card { grid-template-columns: 1.25fr 1fr; } }
-  .hero-image-wrapper { position: relative; min-height: 260px; }
-  .hero-image-wrapper img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  @media (max-width: 899px) { .hero-image-wrapper { min-height: 0; aspect-ratio: 16 / 9; } }
-  .hero-content { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 14px; padding: clamp(24px, 4vw, 44px); }
-  .hero-title { margin: 0; font-size: clamp(24px, 2.8vw, 34px); line-height: 1.2; letter-spacing: -.02em; }
+  /* featured review: the whole square cover on a glowing panel, details on the right */
+  .hero-review-section { margin-bottom: 48px; }
+  .hero-card {
+    position: relative; display: grid; grid-template-columns: 1fr; overflow: hidden;
+    background: linear-gradient(135deg, #fff 0%, color-mix(in oklab, var(--brand-orange) 7%, #fff) 100%);
+    border: 1px solid color-mix(in oklab, var(--brand-orange) 20%, #fff); border-radius: 32px;
+    box-shadow: 0 40px 64px -40px rgba(124, 45, 18, .6);
+  }
+  @media (min-width: 900px) { .hero-card { grid-template-columns: minmax(0, 460px) 1fr; } }
+  .hero-image-wrapper {
+    position: relative; display: grid; place-items: center; padding: clamp(20px, 3vw, 34px);
+    background:
+      radial-gradient(60% 60% at 50% 45%, rgba(250, 204, 21, .45), transparent 70%),
+      linear-gradient(160deg, #f97316 0%, #ea580c 100%);
+  }
+  .hero-image-wrapper::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .35; background-image: radial-gradient(rgba(255,255,255,.4) 1.2px, transparent 1.4px); background-size: 24px 24px; }
+  .hero-image-wrapper a { position: relative; display: block; width: 100%; }
+  .hero-image-wrapper img {
+    display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 28px;
+    box-shadow: 0 0 0 5px rgba(255,255,255,.7), 0 34px 50px -22px rgba(67, 20, 7, .75);
+    transition: transform .5s cubic-bezier(.22,1,.36,1);
+  }
+  @media (hover: hover) and (min-width: 768px) { .hero-card:hover .hero-image-wrapper img { transform: scale(1.03) rotate(-1deg); } }
+  /* stacked layout (tablet): keep the cover a sensible size instead of full width */
+  @media (max-width: 899px) { .hero-image-wrapper a { max-width: 340px; } .hero-image-wrapper { padding-block: 28px; } }
+  .hero-content { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 16px; padding: clamp(26px, 4vw, 52px); }
+  .hero-title { margin: 0; font-size: clamp(26px, 3vw, 38px); line-height: 1.15; letter-spacing: -.025em; }
   .hero-title a { color: var(--text-primary); text-decoration: none; }
   .hero-title a:hover { color: var(--brand-orange); }
-  .hero-excerpt { color: var(--text-secondary); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
-  .hero-cta { display: inline-flex; align-items: center; gap: 10px; padding: 13px 24px; border-radius: 999px; font-weight: 800; font-size: 15px; text-decoration: none; color: #431407; background: linear-gradient(180deg, #fff3a3 0%, var(--brand-gold) 48%, #f59e0b 100%); box-shadow: 0 14px 24px -12px rgba(154, 52, 18, .6), inset 0 1px 0 rgba(255,255,255,.85), inset 0 -2px 0 rgba(180, 83, 9, .22); transition: transform .2s ease, filter .2s ease; }
+  .hero-rating { display: inline-flex; align-items: center; gap: 12px; padding: 7px 16px 7px 14px; border-radius: 999px; background: #fff; border: 1px solid color-mix(in oklab, var(--brand-orange) 22%, #fff); box-shadow: 0 10px 18px -14px rgba(124, 45, 18, .7); font-weight: 800; color: var(--text-primary); }
+  .hero-rating .stars { position: relative; display: inline-block; font-size: 18px; letter-spacing: 2px; color: color-mix(in oklab, var(--brand-orange) 22%, #fff); line-height: 1; }
+  .hero-rating .stars::before { content: '★★★★★'; }
+  .hero-rating .stars::after { content: '★★★★★'; position: absolute; top: 0; left: 0; width: var(--rating-percent, 0%); overflow: hidden; white-space: nowrap; color: #f59e0b; }
+  .hero-rating .score-text { font-size: 15px; }
+  .hero-rating .score-text small { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+  .hero-excerpt { position: relative; padding-left: 16px; color: var(--text-secondary); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; border-left: 3px solid color-mix(in oklab, var(--brand-orange) 45%, #fff); }
+  .hero-cta { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; border-radius: 999px; font-weight: 800; font-size: 15px; text-decoration: none; color: #431407; background: linear-gradient(180deg, #fff3a3 0%, var(--brand-gold) 48%, #f59e0b 100%); box-shadow: 0 14px 24px -12px rgba(154, 52, 18, .6), inset 0 1px 0 rgba(255,255,255,.85), inset 0 -2px 0 rgba(180, 83, 9, .22); transition: transform .2s ease, filter .2s ease; }
   .hero-cta svg { width: 18px; height: 18px; fill: none; stroke: #9a3412; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s ease; }
   .hero-cta:hover { transform: translateY(-2px); filter: brightness(1.04); }
   .hero-cta:hover svg { transform: translateX(3px); }
@@ -162,7 +191,7 @@ const score = (rating: number) => { const n = Number(rating); return Number.isFi
   .chip-on-img { position: absolute; left: 12px; bottom: 12px; color: #431407; background: rgba(255,255,255,.92); border-color: transparent; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: 0 6px 14px -8px rgba(0,0,0,.5); }
   .badge { position: absolute; top: 12px; left: 12px; z-index: 2; display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px 5px 8px; border-radius: 999px; font-size: 13px; font-weight: 800; line-height: 1; color: #431407; background: linear-gradient(180deg, #fff3a3, var(--brand-gold) 60%, #f59e0b); box-shadow: 0 8px 16px -8px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.8); }
   .badge svg { width: 14px; height: 14px; fill: #b45309; stroke: #b45309; stroke-width: 1.5; stroke-linejoin: round; }
-  .badge-lg { top: 18px; left: 18px; font-size: 15px; padding: 7px 14px 7px 10px; }
+  .badge-lg { top: clamp(34px, 4.4vw, 52px); left: clamp(34px, 4.4vw, 52px); font-size: 15px; padding: 7px 14px 7px 10px; }
   .badge-lg svg { width: 16px; height: 16px; }
 
   /* grid of reviews */
