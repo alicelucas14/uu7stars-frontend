@@ -27,9 +27,15 @@ const HERO_WEBP = "/wordpress/STARSUU7-Game.webp";
       <p class="lead" set:html={t('hero.lead')}></p>
 
       <ul class="hero__badges" aria-label={t('hero.ctaAriaLabel')}>
-        {(t('hero.badges') as string[]).map((b) => (
+        {(t('hero.badges') as string[]).map((b, i) => (
           <li>
-            <svg aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span class="badge-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                {i === 0 && (<><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></>)}
+                {i === 1 && (<><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></>)}
+                {i === 2 && (<><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></>)}
+              </svg>
+            </span>
             {b}
           </li>
         ))}
@@ -112,15 +118,21 @@ const HERO_WEBP = "/wordpress/STARSUU7-Game.webp";
   }
   .lead { max-width: 56ch; margin: 0; font-size: clamp(16px, 1.25vw, 18px); line-height: 1.65; color: rgba(255,255,255,.95); text-shadow: 0 1px 8px rgba(124, 45, 18, .18); }
 
-  .hero__badges { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0 0; padding: 0; }
+  .hero__badges { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; }
   .hero__badges li {
     display: inline-flex; align-items: center; gap: 7px;
-    padding: 7px 14px 7px 10px; border-radius: 999px;
-    font-size: 13px; font-weight: 700; color: #fff;
-    background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.38);
+    padding: 4px 11px 4px 4px; border-radius: 999px;
+    font-size: 12px; font-weight: 700; letter-spacing: .1px; line-height: 1; white-space: nowrap; color: #fff;
+    background: linear-gradient(180deg, rgba(124, 45, 18, .30), rgba(124, 45, 18, .20));
+    border: 1px solid rgba(255,255,255,.34);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 4px 10px -4px rgba(124, 45, 18, .35);
     -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   }
-  .hero__badges svg { color: #fef08a; flex: none; }
+  .badge-ico {
+    display: inline-grid; place-items: center; flex: none; width: 20px; height: 20px; border-radius: 50%;
+    color: var(--ink); background: linear-gradient(180deg, #fde047, var(--brand-gold) 60%, #f5b50b);
+    box-shadow: 0 1px 3px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.6);
+  }
 
   .cta-group { display: block; margin-top: 30px; }
   .hero-cta-unit {
@@ -176,6 +188,15 @@ const HERO_WEBP = "/wordpress/STARSUU7-Game.webp";
   .art-wrap:hover .hero__art { transform: translateY(14px) scale(1.11); }
   @keyframes hero-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
 
+  /* phones: three equal compact tiles in one row (icon above the label), also fits the longer Hindi labels */
+  @media (max-width: 560px) {
+    .hero__badges { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; max-width: 420px; margin-inline: auto; }
+    .hero__badges li { flex-direction: column; justify-content: flex-start; gap: 6px; padding: 9px 6px 8px; border-radius: 14px; font-size: 11.5px; line-height: 1.2; text-align: center; white-space: normal; }
+    .badge-ico { width: 24px; height: 24px; }
+    .badge-ico svg { width: 13px; height: 13px; }
+  }
+  /* keep clear of the floating share bar (left) and language tab (right) */
+  @media (max-width: 440px) { .hero__badges { max-width: 296px; gap: 6px; } .hero__badges li { padding-inline: 4px; font-size: 11px; } }
   @media (prefers-reduced-motion: reduce) {
     .hero-cta-unit, .btn-hero-top::after, .hero__art { transition: none !important; animation: none !important; transform: none !important; }
   }
