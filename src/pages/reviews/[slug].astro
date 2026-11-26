@@ -226,14 +226,17 @@ const reviewJsonLd = {
   .prose :global(th), .prose :global(td) { padding: 10px 14px; border-bottom: 1px solid color-mix(in oklab, var(--brand-orange) 14%, #fff); }
 
   /* --- Sidebar / Summary Card --- */
-  .sidebar-inner { position: sticky; top: 88px; display: grid; gap: 24px; }
+  .sidebar-inner { display: grid; gap: 24px; }
+  /* the card is tall: only pin it while scrolling when the screen is tall enough to show all of it */
+  @media (min-width: 900px) and (min-height: 1080px) { .sidebar-inner { position: sticky; top: 88px; } }
   .summary-card { position: relative; overflow: hidden; background: #fff; border: 1px solid color-mix(in oklab, var(--brand-orange) 16%, #fff); border-radius: 28px; box-shadow: 0 34px 56px -36px rgba(124, 45, 18, .55); }
-  .summary-image { display: block; width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+  /* covers are square: show the whole artwork instead of cropping it to a wide strip */
+  .summary-image { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; object-position: center; background: #2b1105; }
   .summary-content { padding: 20px; }
 
   /* score panel */
   .rating-box {
-    position: relative; margin: -52px 0 18px; padding: 18px 14px 16px; text-align: center; color: #fff; border-radius: 22px;
+    position: relative; margin: 0 0 18px; padding: 18px 14px 16px; text-align: center; color: #fff; border-radius: 22px;
     background: radial-gradient(80% 120% at 100% 0%, rgba(250, 204, 21, .35), transparent 60%), linear-gradient(150deg, #f97316 0%, #ea580c 100%);
     box-shadow: 0 22px 34px -18px rgba(124, 45, 18, .8), inset 0 1px 0 rgba(255,255,255,.35);
   }
