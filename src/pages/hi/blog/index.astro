@@ -2,6 +2,7 @@
 // ===== src/pages/hi/blog/index.astro =====
 // --- REFACTORED: Now matches the modern hero+grid layout ---
 import { renderMarkdown } from '@lib/renderMarkdown';
+import { POSTS_PER_PAGE } from '@lib/blogPaging';
 import Base from '../../../layouts/Base.astro';
 import Header from '../../../components/Header.astro';
 import Footer from '../../../components/Footer.astro';
@@ -15,7 +16,6 @@ import type { Locale } from '../../../i18n';
 const locale: Locale = 'hi';
 const t = useTranslations(locale);
 
-const POSTS_PER_PAGE = Number(import.meta.env.PUBLIC_POSTS_PER_PAGE || 9);
 const allPosts = await getBlogPosts(locale);
 
 const heroPost = allPosts.length > 0 ? allPosts[0] : null;
