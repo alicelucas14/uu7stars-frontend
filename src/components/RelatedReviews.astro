@@ -18,6 +18,8 @@
  *   <RelatedReviews matchTerms={['teen patti','rummy','uu7','777']} limit={3} />
  */
 
+import { toPlainText } from '../lib/plainText';
+
 let getReviews: undefined | ((lang?: string) => Promise<any[]>);
 try {
   const mod = await import('../services/api');
@@ -109,7 +111,7 @@ const hasData = ranked.length > 0;
               <div class="content">
                 <h3 class="title"><a href={href}>{r.title}</a></h3>
                 {r.gameName && <p class="meta"><strong>Game:</strong> {r.gameName}</p>}
-                {r.excerpt && <p class="excerpt">{r.excerpt}</p>}
+                {r.excerpt && <p class="excerpt">{toPlainText(r.excerpt)}</p>}
                 <a class="cta" href={href} aria-label={`Read full review: ${r.title}`}>Read full review</a>
               </div>
             </article>

@@ -7,6 +7,7 @@
 import { getPromotions, getReviews, type Promotion, type ReviewListItem } from '../services/api';
 import type { Locale } from '../i18n';
 import { useTranslations } from '../lib/i18n'; // <-- IMPORT the new utility
+import { toPlainText } from '../lib/plainText';
 
 interface Props {
   showPromotions?: boolean;
@@ -151,7 +152,7 @@ const renderAnything = hasPromos || hasReviews;
                   <div class="content">
                     <h3 class="title"><a href={href}>{r.title}</a></h3>
                     {r.gameName && <p class="meta"><strong>Game:</strong> {r.gameName}</p>}
-                    {r.excerpt && <p class="excerpt">{r.excerpt}</p>}
+                    {r.excerpt && <p class="excerpt">{toPlainText(r.excerpt)}</p>}
                     <a class="cta" href={href}>Read full review</a>
                   </div>
                 </article>

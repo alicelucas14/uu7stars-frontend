@@ -20,7 +20,11 @@ const locale: Locale = 'en';
 const t = useTranslations(locale);
 
 const { slug } = Astro.params;
-const review = await getReviewBySlug(slug as string, locale);
+// The Hindi version is fetched at the same time (no extra wait); see seoLangs below.
+const [review, hindiReview] = await Promise.all([
+  getReviewBySlug(slug as string, locale),
+  getReviewBySlug(slug as string, 'hi').catch(() => null),
+]);
 
 if (!review) {
   const moved = await redirectForRetiredSlug('reviews', slug, (s) => `/reviews/${s}/`);
@@ -42,8 +46,10 @@ const pageTitle = t('reviewPost.title').replace('{reviewTitle}', review.title.en
 const pageDescription = review.metaDescription?.en?.trim() || t('reviewPost.description').replace('{gameName}', review.gameName);
 const canonical = new URL(`/reviews/${slug}/`, Astro.site).toString();
 
-// The admin API flags finished Hindi reviews as untranslated; trust the text itself.
-const seoLangs = withRealHindi(review);
+// The admin API flags finished Hindi reviews as untranslated; trust the text itself. The English answer
+// carries no Hindi text, so judge the Hindi version from its own answer, exactly as the Hindi page does:
+// if the two pages disagree about the Hindi version, the en/hi link is one-sided and Google ignores it.
+const seoLangs = withRealHindi(hindiReview ?? review);
 
 const reviewJsonLd = {
   "@context": "https://schema.org",
